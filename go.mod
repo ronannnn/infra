@@ -1,4 +1,4 @@
-module github.com/ronannnn/veken-infra
+module github.com/ronannnn/infra
 
 go 1.20
 

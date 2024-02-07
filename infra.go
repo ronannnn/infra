@@ -1,12 +1,12 @@
 package infra
 
 import (
-	"github.com/ronannnn/veken-infra/pkg/db"
-	"github.com/ronannnn/veken-infra/pkg/dfs"
-	"github.com/ronannnn/veken-infra/pkg/i18n"
-	"github.com/ronannnn/veken-infra/pkg/jwt"
-	"github.com/ronannnn/veken-infra/pkg/log"
-	"github.com/ronannnn/veken-infra/pkg/sys"
+	"github.com/ronannnn/infra/pkg/db"
+	"github.com/ronannnn/infra/pkg/dfs"
+	"github.com/ronannnn/infra/pkg/i18n"
+	"github.com/ronannnn/infra/pkg/jwt"
+	"github.com/ronannnn/infra/pkg/log"
+	"github.com/ronannnn/infra/pkg/sys"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )

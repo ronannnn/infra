@@ -7,7 +7,7 @@ import (
 )
 
 func TestI18n(t *testing.T) {
-	cfg := &Cfg{
+	cfg := Cfg{
 		LocalesDir:             "locales",
 		ZhCnTomlFilenamePrefix: "zh-cn-test",
 		EnUsTomlFilenamePrefix: "en-us-test",
