@@ -10,16 +10,7 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-type Cfg struct {
-	Level           string `mapstructure:"level"`
-	StoreDir        string `mapstructure:"store-dir"`
-	LatestFilename  string `mapstructure:"latest-filename"`
-	TimeFormat      string `mapstructure:"time-format"`
-	LogInConsole    bool   `mapstructure:"log-in-console"`
-	LogInRotateFile bool   `mapstructure:"log-in-rotate-file"`
-}
-
-func NewLog(cfg Cfg) (log *zap.SugaredLogger, err error) {
+func New(cfg Cfg) (log *zap.SugaredLogger, err error) {
 	getOrDefault(&cfg)
 	var level zapcore.Level
 	if level, err = zapcore.ParseLevel(cfg.Level); err != nil {

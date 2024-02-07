@@ -20,8 +20,8 @@ type Dfs interface {
 	DeleteBucket(ctx context.Context, bucketName string) error
 }
 
-func ProvideDfs(
-	cfg *Cfg,
+func New(
+	cfg Cfg,
 ) (Dfs, error) {
 	if dfs, err := minio.New(cfg.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(cfg.AccessKeyId, cfg.SecretAccessKey, ""),
@@ -37,7 +37,7 @@ func ProvideDfs(
 }
 
 type DfsImpl struct {
-	cfg    *Cfg
+	cfg    Cfg
 	dfsCli *minio.Client
 }
 

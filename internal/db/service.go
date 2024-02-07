@@ -14,7 +14,7 @@ type typedDbHandler interface {
 }
 
 func New(
-	cfg *Cfg,
+	cfg Cfg,
 	dropTablesBeforeMigration bool,
 	tables []any,
 ) (db *gorm.DB, err error) {

@@ -16,7 +16,7 @@ type I18n interface {
 	T(lang LangType, key string, args ...interface{}) string
 }
 
-func New(cfg *Cfg) I18n {
+func New(cfg Cfg) I18n {
 	// init zh-CN bundle
 	zhCnBundle := i18n.NewBundle(language.SimplifiedChinese)
 	zhCnBundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)

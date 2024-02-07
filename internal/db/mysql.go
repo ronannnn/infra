@@ -10,10 +10,10 @@ import (
 )
 
 type mysqlHandler struct {
-	cfg *Cfg
+	cfg Cfg
 }
 
-func newMysqlHandler(cfg *Cfg) *mysqlHandler {
+func newMysqlHandler(cfg Cfg) *mysqlHandler {
 	return &mysqlHandler{cfg: cfg}
 }
 

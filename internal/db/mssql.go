@@ -5,10 +5,10 @@ import (
 )
 
 type mssqlHandler struct {
-	cfg *Cfg
+	cfg Cfg
 }
 
-func newMssqlHandler(cfg *Cfg) *mssqlHandler {
+func newMssqlHandler(cfg Cfg) *mssqlHandler {
 	return &mssqlHandler{cfg: cfg}
 }
 

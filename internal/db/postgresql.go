@@ -10,10 +10,10 @@ import (
 )
 
 type postgresqlHandler struct {
-	cfg *Cfg
+	cfg Cfg
 }
 
-func newPostgresqlHandler(cfg *Cfg) *postgresqlHandler {
+func newPostgresqlHandler(cfg Cfg) *postgresqlHandler {
 	return &postgresqlHandler{cfg: cfg}
 }
 
