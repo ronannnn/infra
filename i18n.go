@@ -1,4 +1,4 @@
-package i18n
+package infra
 
 import (
 	"context"
@@ -11,12 +11,28 @@ import (
 	"golang.org/x/text/language"
 )
 
+type LangType string
+
+var DefaultLang = EnUs
+
+const (
+	ZhCn LangType = "zh-cn"
+	EnUs LangType = "en-us"
+)
+
+type I18nCfg struct {
+	LocalesDir             string `mapstructure:"locales-dir"`
+	ZhCnTomlFilenamePrefix string `mapstructure:"zh-cn-toml-filename-prefix"`
+	EnUsTomlFilenamePrefix string `mapstructure:"en-us-toml-filename-prefix"`
+	CtxKey                 string `mapstructure:"ctx-key"` // ctxKey to get lang from context
+}
+
 type I18n interface {
 	TFromCtx(ctx context.Context, key string, args ...interface{}) string
 	T(lang LangType, key string, args ...interface{}) string
 }
 
-func New(cfg Cfg) I18n {
+func NewI18n(cfg I18nCfg) I18n {
 	// init zh-CN bundle
 	zhCnBundle := i18n.NewBundle(language.SimplifiedChinese)
 	zhCnBundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)

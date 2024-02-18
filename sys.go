@@ -1,6 +1,6 @@
-package sys
+package infra
 
-type Cfg struct {
+type SysCfg struct {
 	HttpAddr string `mapstructure:"http-addr"`
 	HttpPort int    `mapstructure:"http-port"`
 }

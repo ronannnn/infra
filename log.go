@@ -1,4 +1,4 @@
-package log
+package infra
 
 import (
 	"os"
@@ -10,7 +10,16 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-func New(cfg Cfg) (log *zap.SugaredLogger, err error) {
+type LogCfg struct {
+	Level           string `mapstructure:"level"`
+	StoreDir        string `mapstructure:"store-dir"`
+	LatestFilename  string `mapstructure:"latest-filename"`
+	TimeFormat      string `mapstructure:"time-format"`
+	LogInConsole    bool   `mapstructure:"log-in-console"`
+	LogInRotateFile bool   `mapstructure:"log-in-rotate-file"`
+}
+
+func NewLog(cfg LogCfg) (log *zap.SugaredLogger, err error) {
 	getOrDefault(&cfg)
 	var level zapcore.Level
 	if level, err = zapcore.ParseLevel(cfg.Level); err != nil {
@@ -46,7 +55,7 @@ func New(cfg Cfg) (log *zap.SugaredLogger, err error) {
 // newWriteSyncer get multiple write syncers
 // 1. stdout if LogInConsole is enabled
 // 2. RotateLogs if LogInRotateFile is enabled
-func newWriteSyncer(cfg Cfg) (syncer zapcore.WriteSyncer, err error) {
+func newWriteSyncer(cfg LogCfg) (syncer zapcore.WriteSyncer, err error) {
 	var multiWriter []zapcore.WriteSyncer
 	if cfg.LogInConsole {
 		multiWriter = append(multiWriter, zapcore.AddSync(os.Stdout))
@@ -79,7 +88,7 @@ func newWriteSyncer(cfg Cfg) (syncer zapcore.WriteSyncer, err error) {
 	return zapcore.NewMultiWriteSyncer(multiWriter...), nil
 }
 
-func getOrDefault(cfg *Cfg) {
+func getOrDefault(cfg *LogCfg) {
 	if cfg.Level == "" {
 		cfg.Level = "info"
 	}

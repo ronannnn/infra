@@ -1,4 +1,4 @@
-package db
+package infra
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ const (
 	Postgresql = "postgresql"
 )
 
-type Cfg struct {
+type DbCfg struct {
 	DbType          string `mapstructure:"db-type"`
 	Username        string `mapstructure:"username"`
 	Password        string `mapstructure:"password"`
@@ -27,7 +27,7 @@ type Cfg struct {
 	EnableLog       bool   `mapstructure:"enable-log"`
 }
 
-func (dbCfg *Cfg) Dsn() (dsn string, err error) {
+func (dbCfg *DbCfg) dsn() (dsn string, err error) {
 	switch dbCfg.DbType {
 	case Mssql:
 		dsn = fmt.Sprintf("sqlserver://%s:%s@%s:%d?database=%s&encrypt=disable",
@@ -44,7 +44,7 @@ func (dbCfg *Cfg) Dsn() (dsn string, err error) {
 	return
 }
 
-func (dbCfg *Cfg) DsnWithoutSchema() (dsn string, err error) {
+func (dbCfg *DbCfg) dsnWithoutSchema() (dsn string, err error) {
 	switch dbCfg.DbType {
 	case Mssql:
 		dsn = fmt.Sprintf("sqlserver://%s:%s@%s:%d?encrypt=disable",
@@ -73,4 +73,47 @@ func gormConfigs(enableLog bool) *gorm.Config {
 		Logger:                                   logMode,
 		DisableForeignKeyConstraintWhenMigrating: true,
 	}
+}
+
+func NewDb(
+	cfg DbCfg,
+	dropTablesBeforeMigration bool,
+	tables []any,
+) (db *gorm.DB, err error) {
+	var dbHandler typedDbHandler
+	switch cfg.DbType {
+	case Mssql:
+		dbHandler = newMssqlHandler(cfg)
+	case Mysql:
+		dbHandler = newMysqlHandler(cfg)
+	case Postgresql:
+		dbHandler = newPostgresqlHandler(cfg)
+	default:
+		return nil, fmt.Errorf("unsupported database type: %s", cfg.DbType)
+	}
+	if err = dbHandler.EnsureDb(); err != nil {
+		return
+	}
+	if db, err = dbHandler.EstablishDb(); err != nil {
+		return
+	}
+	if dropTablesBeforeMigration {
+		if err = dropTables(db); err != nil {
+			return
+		}
+	}
+	err = db.AutoMigrate(tables...)
+	return
+}
+
+func dropTables(db *gorm.DB) (err error) {
+	var curTables []string
+	if curTables, err = db.Migrator().GetTables(); err != nil {
+		return
+	}
+	var adaptedCurTables []any
+	for _, str := range curTables {
+		adaptedCurTables = append(adaptedCurTables, str)
+	}
+	return db.Migrator().DropTable(adaptedCurTables)
 }

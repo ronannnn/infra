@@ -1,4 +1,4 @@
-package dfs
+package infra
 
 import (
 	"context"
@@ -11,6 +11,15 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
+type DfsCfg struct {
+	Endpoint        string `mapstructure:"endpoint"`
+	AccessKeyId     string `mapstructure:"access-key-id"`
+	SecretAccessKey string `mapstructure:"secret-access-key"`
+	Location        string `mapstructure:"location"`
+	RootBucket      string `mapstructure:"root-bucket"`
+	Secure          bool   `mapstructure:"secure"`
+}
+
 type Dfs interface {
 	Save(ctx context.Context, bucketName, objectName string, reader io.Reader, size int64) error
 	Delete(ctx context.Context, bucketName, objectName string) error
@@ -20,8 +29,8 @@ type Dfs interface {
 	DeleteBucket(ctx context.Context, bucketName string) error
 }
 
-func New(
-	cfg Cfg,
+func NewDfs(
+	cfg DfsCfg,
 ) (Dfs, error) {
 	if dfs, err := minio.New(cfg.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(cfg.AccessKeyId, cfg.SecretAccessKey, ""),
@@ -37,7 +46,7 @@ func New(
 }
 
 type DfsImpl struct {
-	cfg    Cfg
+	cfg    DfsCfg
 	dfsCli *minio.Client
 }
 

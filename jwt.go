@@ -1,6 +1,6 @@
-package jwt
+package infra
 
-type Cfg struct {
+type JwtCfg struct {
 	AccessTokenHourDuration  int    `mapstructure:"access-token-hour-duration"`  // Access Token有效时长
 	RefreshTokenHourDuration int    `mapstructure:"refresh-token-hour-duration"` // Refresh Token有效时长
 	AccessTokenSecret        string `mapstructure:"access-token-secret"`         // Access Token加密字符串

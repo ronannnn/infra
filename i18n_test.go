@@ -1,4 +1,4 @@
-package i18n
+package infra
 
 import (
 	"testing"
@@ -7,14 +7,14 @@ import (
 )
 
 func TestI18n(t *testing.T) {
-	cfg := Cfg{
+	cfg := I18nCfg{
 		LocalesDir:             "locales",
 		ZhCnTomlFilenamePrefix: "zh-cn-test",
 		EnUsTomlFilenamePrefix: "en-us-test",
 		CtxKey:                 "lang",
 	}
 	// init service
-	i18n := New(cfg)
+	i18n := NewI18n(cfg)
 	t.Run("Test zh-cn", func(t *testing.T) {
 		require.Equal(t, "测试", i18n.T(ZhCn, "Test"))
 	})
