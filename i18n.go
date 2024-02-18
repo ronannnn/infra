@@ -28,8 +28,8 @@ type I18nCfg struct {
 }
 
 type I18n interface {
-	TFromCtx(ctx context.Context, key string, args ...interface{}) string
-	T(lang LangType, key string, args ...interface{}) string
+	TFromCtx(ctx context.Context, key string, args ...any) string
+	T(lang LangType, key string, args ...any) string
 }
 
 func NewI18n(cfg I18nCfg) I18n {
@@ -54,11 +54,11 @@ type I18nImpl struct {
 	ctxKey        string
 }
 
-func (i *I18nImpl) TFromCtx(ctx context.Context, key string, args ...interface{}) string {
+func (i *I18nImpl) TFromCtx(ctx context.Context, key string, args ...any) string {
 	return i.T(LangType(strings.ToLower(ctx.Value(i.ctxKey).(string))), key, args...)
 }
 
-func (i *I18nImpl) T(lang LangType, key string, args ...interface{}) string {
+func (i *I18nImpl) T(lang LangType, key string, args ...any) string {
 	// get accept-language from context
 	switch lang {
 	case EnUs:
@@ -70,14 +70,14 @@ func (i *I18nImpl) T(lang LangType, key string, args ...interface{}) string {
 	}
 }
 
-func (i *I18nImpl) zhCnT(key string, args ...interface{}) string {
+func (i *I18nImpl) zhCnT(key string, args ...any) string {
 	return i.zhCnLocalizer.MustLocalize(&i18n.LocalizeConfig{
 		MessageID:    key,
 		TemplateData: args,
 	})
 }
 
-func (i *I18nImpl) enUsT(key string, args ...interface{}) string {
+func (i *I18nImpl) enUsT(key string, args ...any) string {
 	return i.enUsLocalizer.MustLocalize(&i18n.LocalizeConfig{
 		MessageID:    key,
 		TemplateData: args,
