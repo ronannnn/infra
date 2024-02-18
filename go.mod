@@ -11,6 +11,7 @@ require (
 )
 
 require (
+	github.com/ajg/form v1.5.1 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
@@ -52,6 +53,7 @@ require (
 
 require (
 	github.com/BurntSushi/toml v1.3.2
+	github.com/go-chi/render v1.0.3
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/spf13/viper v1.18.2
