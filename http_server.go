@@ -13,6 +13,8 @@ import (
 	"go.uber.org/zap"
 )
 
+// golang abstract class reference: https://adrianwit.medium.com/abstract-class-reinvented-with-go-4a7326525034
+
 type HttpServerBaseRunner interface {
 	RegisterRoutes() http.Handler
 	Addr(httpAddr string, httpPort int) string
