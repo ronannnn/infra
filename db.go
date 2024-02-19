@@ -9,7 +9,7 @@ import (
 )
 
 func NewDb(
-	dbCfg cfg.Db,
+	dbCfg *cfg.Db,
 	dropTablesBeforeMigration bool,
 	tables []any,
 ) (db *gorm.DB, err error) {

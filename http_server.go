@@ -28,7 +28,7 @@ func (hs HttpServerRunner) Addr(httpAddr string, httpPort int) string {
 
 type BaseHttpServer struct {
 	HttpServerRunner
-	Sys cfg.Sys
+	Sys *cfg.Sys
 	Log *zap.SugaredLogger
 }
 

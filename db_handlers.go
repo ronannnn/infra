@@ -21,10 +21,10 @@ type typedDbHandler interface {
 // --- mssql ---
 
 type mssqlHandler struct {
-	cfg cfg.Db
+	cfg *cfg.Db
 }
 
-func newMssqlHandler(cfg cfg.Db) *mssqlHandler {
+func newMssqlHandler(cfg *cfg.Db) *mssqlHandler {
 	return &mssqlHandler{cfg: cfg}
 }
 
@@ -41,10 +41,10 @@ func (h *mssqlHandler) EstablishDb() (*gorm.DB, error) {
 // --- mysql ---
 
 type mysqlHandler struct {
-	cfg cfg.Db
+	cfg *cfg.Db
 }
 
-func newMysqlHandler(cfg cfg.Db) *mysqlHandler {
+func newMysqlHandler(cfg *cfg.Db) *mysqlHandler {
 	return &mysqlHandler{cfg: cfg}
 }
 
@@ -106,10 +106,10 @@ func (h *mysqlHandler) EstablishDb() (db *gorm.DB, err error) {
 // --- postgresql ---
 
 type postgresqlHandler struct {
-	cfg cfg.Db
+	cfg *cfg.Db
 }
 
-func newPostgresqlHandler(cfg cfg.Db) *postgresqlHandler {
+func newPostgresqlHandler(cfg *cfg.Db) *postgresqlHandler {
 	return &postgresqlHandler{cfg: cfg}
 }
 

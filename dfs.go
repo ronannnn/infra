@@ -22,7 +22,7 @@ type Dfs interface {
 }
 
 func NewDfs(
-	cfg cfg.Dfs,
+	cfg *cfg.Dfs,
 ) (Dfs, error) {
 	if dfs, err := minio.New(cfg.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(cfg.AccessKeyId, cfg.SecretAccessKey, ""),
@@ -38,7 +38,7 @@ func NewDfs(
 }
 
 type DfsImpl struct {
-	cfg    cfg.Dfs
+	cfg    *cfg.Dfs
 	dfsCli *minio.Client
 }
 
