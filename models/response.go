@@ -1,4 +1,4 @@
-package infra
+package models
 
 import (
 	"net/http"

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ronannnn/infra/cfg"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -20,10 +21,10 @@ type typedDbHandler interface {
 // --- mssql ---
 
 type mssqlHandler struct {
-	cfg DbCfg
+	cfg cfg.Db
 }
 
-func newMssqlHandler(cfg DbCfg) *mssqlHandler {
+func newMssqlHandler(cfg cfg.Db) *mssqlHandler {
 	return &mssqlHandler{cfg: cfg}
 }
 
@@ -40,17 +41,17 @@ func (h *mssqlHandler) EstablishDb() (*gorm.DB, error) {
 // --- mysql ---
 
 type mysqlHandler struct {
-	cfg DbCfg
+	cfg cfg.Db
 }
 
-func newMysqlHandler(cfg DbCfg) *mysqlHandler {
+func newMysqlHandler(cfg cfg.Db) *mysqlHandler {
 	return &mysqlHandler{cfg: cfg}
 }
 
 func (h *mysqlHandler) EnsureDb() (err error) {
 	// connect without database
 	var dsn string
-	if dsn, err = h.cfg.dsnWithoutSchema(); err != nil {
+	if dsn, err = h.cfg.DsnWithoutSchema(); err != nil {
 		return
 	}
 	var tmpDb *gorm.DB
@@ -77,7 +78,7 @@ func (h *mysqlHandler) EnsureDb() (err error) {
 
 func (h *mysqlHandler) EstablishDb() (db *gorm.DB, err error) {
 	var dsn string
-	if dsn, err = h.cfg.dsn(); err != nil {
+	if dsn, err = h.cfg.Dsn(); err != nil {
 		return
 	}
 	if db, err = gorm.Open(
@@ -105,17 +106,17 @@ func (h *mysqlHandler) EstablishDb() (db *gorm.DB, err error) {
 // --- postgresql ---
 
 type postgresqlHandler struct {
-	cfg DbCfg
+	cfg cfg.Db
 }
 
-func newPostgresqlHandler(cfg DbCfg) *postgresqlHandler {
+func newPostgresqlHandler(cfg cfg.Db) *postgresqlHandler {
 	return &postgresqlHandler{cfg: cfg}
 }
 
 func (h *postgresqlHandler) EnsureDb() (err error) {
 	// connect without database
 	var dsn string
-	if dsn, err = h.cfg.dsnWithoutSchema(); err != nil {
+	if dsn, err = h.cfg.DsnWithoutSchema(); err != nil {
 		return
 	}
 	var tmpDb *gorm.DB
@@ -141,7 +142,7 @@ func (h *postgresqlHandler) EnsureDb() (err error) {
 
 func (h *postgresqlHandler) EstablishDb() (db *gorm.DB, err error) {
 	var dsn string
-	if dsn, err = h.cfg.dsn(); err != nil {
+	if dsn, err = h.cfg.Dsn(); err != nil {
 		return
 	}
 	if db, err = gorm.Open(

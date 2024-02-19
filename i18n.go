@@ -8,31 +8,25 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"github.com/ronannnn/infra/cfg"
 	"golang.org/x/text/language"
 )
 
 type LangType string
 
-var DefaultLang = EnUs
+var DefaultLangType = LangTypeEnUs
 
 const (
-	ZhCn LangType = "zh-cn"
-	EnUs LangType = "en-us"
+	LangTypeZhCn LangType = "zh-cn"
+	LangTypeEnUs LangType = "en-us"
 )
-
-type I18nCfg struct {
-	LocalesDir             string `mapstructure:"locales-dir"`
-	ZhCnTomlFilenamePrefix string `mapstructure:"zh-cn-toml-filename-prefix"`
-	EnUsTomlFilenamePrefix string `mapstructure:"en-us-toml-filename-prefix"`
-	CtxKey                 string `mapstructure:"ctx-key"` // ctxKey to get lang from context
-}
 
 type I18n interface {
 	TFromCtx(ctx context.Context, key string, args ...any) string
 	T(lang LangType, key string, args ...any) string
 }
 
-func NewI18n(cfg I18nCfg) I18n {
+func NewI18n(cfg cfg.I18n) I18n {
 	// init zh-CN bundle
 	zhCnBundle := i18n.NewBundle(language.SimplifiedChinese)
 	zhCnBundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
@@ -42,8 +36,8 @@ func NewI18n(cfg I18nCfg) I18n {
 	enUsBundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 	enUsBundle.LoadMessageFile(filepath.Join(cfg.LocalesDir, fmt.Sprintf("%s.toml", cfg.EnUsTomlFilenamePrefix)))
 	return &I18nImpl{
-		zhCnLocalizer: i18n.NewLocalizer(zhCnBundle, string(ZhCn)),
-		enUsLocalizer: i18n.NewLocalizer(enUsBundle, string(EnUs)),
+		zhCnLocalizer: i18n.NewLocalizer(zhCnBundle, string(LangTypeZhCn)),
+		enUsLocalizer: i18n.NewLocalizer(enUsBundle, string(LangTypeEnUs)),
 		ctxKey:        cfg.CtxKey,
 	}
 }
@@ -61,9 +55,9 @@ func (i *I18nImpl) TFromCtx(ctx context.Context, key string, args ...any) string
 func (i *I18nImpl) T(lang LangType, key string, args ...any) string {
 	// get accept-language from context
 	switch lang {
-	case EnUs:
+	case LangTypeEnUs:
 		return i.enUsT(key, args...)
-	case ZhCn:
+	case LangTypeZhCn:
 		fallthrough
 	default:
 		return i.zhCnT(key, args...)

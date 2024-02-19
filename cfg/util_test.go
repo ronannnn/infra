@@ -1,4 +1,4 @@
-package infra
+package cfg
 
 import (
 	"fmt"
@@ -8,13 +8,13 @@ import (
 )
 
 type TestConfig struct {
-	Jwt      JwtCfg `mapstructure:"jwt"`
+	Jwt      Jwt    `mapstructure:"jwt"`
 	Username string `mapstructure:"username"`
 }
 
 func TestConfigReader(t *testing.T) {
 	cfg := TestConfig{}
-	err := ReadCfgFromFile("util_test.toml", &cfg)
+	err := ReadFromFile("util_test.toml", &cfg)
 	require.NoError(t, err)
 	fmt.Printf("%+v\n", cfg)
 	require.Equal(t, "ronan", cfg.Username)
