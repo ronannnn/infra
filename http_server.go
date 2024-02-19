@@ -28,12 +28,12 @@ func (hs HttpServerRunner) Addr(httpAddr string, httpPort int) string {
 
 type BaseHttpServer struct {
 	HttpServerRunner
-	sys cfg.Sys
-	log *zap.SugaredLogger
+	Sys cfg.Sys
+	Log *zap.SugaredLogger
 }
 
 func (hs *BaseHttpServer) Run() {
-	addr := hs.Addr(hs.sys.HttpAddr, hs.sys.HttpPort)
+	addr := hs.Addr(hs.Sys.HttpAddr, hs.Sys.HttpPort)
 	server := &http.Server{Addr: addr, Handler: hs.RegisterRoutes()}
 	// Server run context
 	serverCtx, serverStopCtx := context.WithCancel(context.Background())
@@ -50,14 +50,14 @@ func (hs *BaseHttpServer) Run() {
 		go func() {
 			<-shutdownCtx.Done()
 			if shutdownCtx.Err() == context.DeadlineExceeded {
-				hs.log.Fatal("graceful shutdown timed out.. forcing exit.")
+				hs.Log.Fatal("graceful shutdown timed out.. forcing exit.")
 			}
 		}()
 
 		// Trigger graceful shutdown
 		err := server.Shutdown(shutdownCtx)
 		if err != nil {
-			hs.log.Fatal(err)
+			hs.Log.Fatal(err)
 		}
 		cancelFn()
 		serverStopCtx()
@@ -66,7 +66,7 @@ func (hs *BaseHttpServer) Run() {
 	// Run the server
 	err := server.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
-		hs.log.Fatal(err)
+		hs.Log.Fatal(err)
 	}
 
 	// Wait for server context to be stopped
