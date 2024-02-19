@@ -11,8 +11,8 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-func NewLog(cfg cfg.Log) (log *zap.SugaredLogger, err error) {
-	getOrDefault(&cfg)
+func NewLog(cfg *cfg.Log) (log *zap.SugaredLogger, err error) {
+	getOrDefault(cfg)
 	var level zapcore.Level
 	if level, err = zapcore.ParseLevel(cfg.Level); err != nil {
 		return
@@ -47,7 +47,7 @@ func NewLog(cfg cfg.Log) (log *zap.SugaredLogger, err error) {
 // newWriteSyncer get multiple write syncers
 // 1. stdout if LogInConsole is enabled
 // 2. RotateLogs if LogInRotateFile is enabled
-func newWriteSyncer(cfg cfg.Log) (syncer zapcore.WriteSyncer, err error) {
+func newWriteSyncer(cfg *cfg.Log) (syncer zapcore.WriteSyncer, err error) {
 	var multiWriter []zapcore.WriteSyncer
 	if cfg.LogInConsole {
 		multiWriter = append(multiWriter, zapcore.AddSync(os.Stdout))
