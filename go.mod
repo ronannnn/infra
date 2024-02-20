@@ -4,6 +4,7 @@ go 1.22
 
 require (
 	github.com/fsnotify/fsnotify v1.7.0
+	github.com/go-chi/chi/v5 v5.0.12
 	github.com/lestrrat-go/jwx/v2 v2.0.20
 	github.com/minio/minio-go/v7 v7.0.67
 	github.com/nicksnyder/go-i18n/v2 v2.4.0
@@ -19,7 +20,6 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/glebarez/go-sqlite v1.22.0 // indirect
 	github.com/glebarez/sqlite v1.10.0 // indirect
-	github.com/go-chi/chi/v5 v5.0.12 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
@@ -80,7 +80,6 @@ require (
 	github.com/BurntSushi/toml v1.3.2
 	github.com/casbin/casbin/v2 v2.82.0
 	github.com/casbin/gorm-adapter/v3 v3.21.0
-	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/jwtauth/v5 v5.3.0
 	github.com/go-chi/render v1.0.3
 	github.com/jinzhu/inflection v1.0.0 // indirect
