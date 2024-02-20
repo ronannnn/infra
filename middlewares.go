@@ -14,6 +14,7 @@ import (
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 	"github.com/ronannnn/infra/models"
+	"github.com/ronannnn/infra/models/response"
 	"github.com/ronannnn/infra/services/apirecord"
 	"github.com/ronannnn/infra/services/auth/accesstoken"
 	"go.uber.org/zap"
@@ -72,7 +73,7 @@ func (m *MiddlewareImpl) CasbinInterceptor(next http.Handler) http.Handler {
 		act := r.Method                                         // act
 		_, err := m.casbinEnforcer.Enforce(userId, path, act)
 		if err != nil {
-			models.ErrPrivilege(w, r)
+			response.ErrPrivilege(w, r)
 			return
 		}
 		next.ServeHTTP(w, r)
@@ -97,12 +98,12 @@ func (m *MiddlewareImpl) Authenticator(next http.Handler) http.Handler {
 		token, _, err := jwtauth.FromContext(r.Context())
 
 		if err != nil {
-			models.ErrAccessToken(w, r, err)
+			response.ErrAccessToken(w, r, err)
 			return
 		}
 
 		if token == nil || jwt.Validate(token) != nil {
-			models.ErrAccessToken(w, r, fmt.Errorf("invalid token"))
+			response.ErrAccessToken(w, r, fmt.Errorf("invalid token"))
 			return
 		}
 

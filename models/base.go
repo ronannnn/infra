@@ -15,7 +15,6 @@ var (
 	ErrModified  = func(model string) error {
 		return fmt.Errorf("[%s] data modified by others, please refresh the page", model)
 	}
-	ErrWrongUsernameOrPassword = fmt.Errorf("incorrect username or password")
 )
 
 type BaseModel struct {
@@ -36,8 +35,10 @@ type Base struct {
 }
 
 type OprBy struct {
-	CreatedBy uint `json:"createdBy"`
-	UpdatedBy uint `json:"updatedBy"`
+	CreatedBy uint  `json:"createdBy"`
+	Creator   *User `json:"creator" gorm:"foreignKey:CreatedBy"`
+	UpdatedBy uint  `json:"updatedBy"`
+	Updater   *User `json:"updater" gorm:"foreignKey:UpdatedBy"`
 }
 
 func (o *OprBy) GetOprFromReq(r *http.Request) {

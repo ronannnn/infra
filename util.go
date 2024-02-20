@@ -2,6 +2,7 @@ package infra
 
 import (
 	"os"
+	"reflect"
 )
 
 func pathExists(path string) (bool, error) {
@@ -23,4 +24,8 @@ func createDirsIfNotExist(dirs ...string) (err error) {
 		}
 	}
 	return
+}
+
+func IsZeroValue(v interface{}) bool {
+	return v == nil || v == reflect.Zero(reflect.TypeOf(v)).Interface()
 }
