@@ -34,33 +34,7 @@ func (s StoreImpl) Update(partialUpdatedModel *models.User) (updatedModel models
 	if partialUpdatedModel.Id == 0 {
 		return updatedModel, models.ErrUpdatedId
 	}
-	if err = s.db.Transaction(func(tx *gorm.DB) (err error) {
-		// update associations with Associations()
-		if partialUpdatedModel.Roles != nil {
-			if err = tx.Model(partialUpdatedModel).Association("Roles").Replace(partialUpdatedModel.Roles); err != nil {
-				return err
-			}
-			// set associations to nil to avoid Updates() below,
-			partialUpdatedModel.Roles = nil
-		}
-		if partialUpdatedModel.Menus != nil {
-			if err = tx.Model(partialUpdatedModel).Association("Menus").Replace(partialUpdatedModel.Menus); err != nil {
-				return err
-			}
-			// set associations to nil to avoid Updates() below,
-			partialUpdatedModel.Menus = nil
-		}
-		// update all other non-associations
-		// if no other fields are updated, it still update the version so no error will occur
-		result := tx.Updates(partialUpdatedModel)
-		if result.Error != nil {
-			return result.Error
-		}
-		if result.RowsAffected == 0 {
-			return models.ErrModified("User")
-		}
-		return
-	}); err != nil {
+	if err = s.db.Updates(partialUpdatedModel).Error; err != nil {
 		return updatedModel, err
 	}
 	return s.GetById(partialUpdatedModel.Id)

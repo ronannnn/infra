@@ -25,7 +25,4 @@ type User struct {
 	Email    *string `json:"email"`
 	TelNo    *string `json:"telNo"`
 	Password *string `json:"-"`
-	// others
-	Roles *[]Role `json:"roles" gorm:"many2many:user_roles;comment:用户角色"`
-	Menus *[]Menu `json:"menus" gorm:"many2many:user_menus;"`
 }
