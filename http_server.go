@@ -18,7 +18,7 @@ import (
 type HttpServerBaseRunner interface {
 	RegisterRoutes() http.Handler
 	Addr(httpAddr string, httpPort int) string
-	ServerInfo()
+	ServerInfo() string
 }
 
 type HttpServerRunner struct {
