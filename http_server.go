@@ -18,7 +18,6 @@ import (
 type HttpServerBaseRunner interface {
 	RegisterRoutes() http.Handler
 	Addr(httpAddr string, httpPort int) string
-	ServerInfo() string
 }
 
 type HttpServerRunner struct {
@@ -27,10 +26,6 @@ type HttpServerRunner struct {
 
 func (hs HttpServerRunner) Addr(httpAddr string, httpPort int) string {
 	return fmt.Sprintf("%s:%d", httpAddr, httpPort)
-}
-
-func (hs HttpServerRunner) ServerInfo() string {
-	return "http server launched"
 }
 
 type BaseHttpServer struct {
@@ -71,7 +66,7 @@ func (hs *BaseHttpServer) Run() {
 	}()
 
 	// Run the server
-	hs.Log.Info(hs.ServerInfo())
+	hs.Log.Info(fmt.Sprintf("Server running on %s", addr))
 	err := server.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
 		hs.Log.Fatal(err)
