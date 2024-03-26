@@ -20,7 +20,6 @@ type Minioss interface {
 	GetDownloadUrl(ctx context.Context, bucketName, objectName string) (string, error)
 	GetUploadUrl(ctx context.Context, bucketName, objectName string) (string, error)
 	ListInfo(ctx context.Context, bucketName string) ([]minio.ObjectInfo, error)
-	DeleteBucket(ctx context.Context, bucketName string) error
 }
 
 func NewMinioss(
@@ -111,8 +110,7 @@ type AliOss interface {
 	Delete(ctx context.Context, bucketName, objectName string) error
 	Get(ctx context.Context, bucketName, objectName string) (io.ReadCloser, error)
 	GetDownloadUrl(ctx context.Context, bucketName, objectName string) (string, error)
-	ListInfo(ctx context.Context, bucketName string) (oss.ListObjectsResult, error)
-	DeleteBucket(ctx context.Context, bucketName string) error
+	GetUploadUrl(ctx context.Context, bucketName, objectName string) (string, error)
 }
 
 func NewAliOss(
@@ -184,16 +182,4 @@ func (srv *AliOssImpl) GetUploadUrl(ctx context.Context, bucketName, objectName 
 	} else {
 		return bucket.SignURL(objectName, oss.HTTPPut, srv.cfg.ExpiredInSec)
 	}
-}
-
-func (srv *AliOssImpl) ListInfo(ctx context.Context, bucketName string) (objectList oss.ListObjectsResult, err error) {
-	var bucket *oss.Bucket
-	if bucket, err = srv.aliOssCli.Bucket(bucketName); err != nil {
-		return
-	}
-	return bucket.ListObjects()
-}
-
-func (srv *AliOssImpl) DeleteBucket(ctx context.Context, bucketName string) (err error) {
-	return srv.aliOssCli.DeleteBucket(bucketName)
 }
