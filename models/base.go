@@ -42,12 +42,20 @@ type OprBy struct {
 }
 
 func (o *OprBy) GetOprFromReq(r *http.Request) {
-	oprId := r.Context().Value(CtxKeyUserId).(uint)
-	o.CreatedBy = oprId
-	o.UpdatedBy = oprId
+	oprId := r.Context().Value(CtxKeyUserId)
+	if oprId != nil {
+		if convertedOprId, ok := oprId.(uint); ok {
+			o.CreatedBy = convertedOprId
+			o.UpdatedBy = convertedOprId
+		}
+	}
 }
 
 func (o *OprBy) GetUpdaterFromReq(r *http.Request) {
-	oprId := r.Context().Value(CtxKeyUserId).(uint)
-	o.UpdatedBy = oprId
+	oprId := r.Context().Value(CtxKeyUserId)
+	if oprId != nil {
+		if convertedOprId, ok := oprId.(uint); ok {
+			o.UpdatedBy = convertedOprId
+		}
+	}
 }
