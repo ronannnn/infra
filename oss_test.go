@@ -50,4 +50,11 @@ func TestAliOss(t *testing.T) {
 		require.NotEmpty(t, uploadUrl)
 		require.NoError(t, err)
 	})
+	t.Run("Test Get File Download url", func(t *testing.T) {
+		var downloadUrl string
+		downloadUrl, err = aliOss.GetDownloadUrl(ctx, testCfg.Dfs.RootBucket, testFilename)
+		println(downloadUrl)
+		require.NotEmpty(t, downloadUrl)
+		require.NoError(t, err)
+	})
 }

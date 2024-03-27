@@ -171,10 +171,7 @@ func (srv *AliOssImpl) GetDownloadUrl(ctx context.Context, bucketName, objectNam
 	if bucket, err = srv.aliOssCli.Bucket(bucketName); err != nil {
 		return
 	} else {
-		options := []oss.Option{
-			oss.ContentType("application/x-www-form-urlencoded"),
-		}
-		return bucket.SignURL(objectName, oss.HTTPGet, srv.cfg.ExpiredInSec, options...)
+		return bucket.SignURL(objectName, oss.HTTPGet, srv.cfg.ExpiredInSec)
 	}
 }
 
