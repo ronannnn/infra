@@ -17,7 +17,7 @@ import (
 // golang abstract class reference: https://adrianwit.medium.com/abstract-class-reinvented-with-go-4a7326525034
 
 type HttpServerBaseRunner interface {
-	RegisterRoutes() http.Handler
+	RegisterRoutes() *chi.Mux
 	LogRegisteredRoutes(routes *chi.Mux, log *zap.SugaredLogger)
 	Addr(httpAddr string, httpPort int) string
 }
@@ -49,7 +49,11 @@ type BaseHttpServer struct {
 
 func (hs *BaseHttpServer) Run() {
 	addr := hs.Addr(hs.Sys.HttpAddr, hs.Sys.HttpPort)
-	server := &http.Server{Addr: addr, Handler: hs.RegisterRoutes()}
+	routes := hs.RegisterRoutes()
+	if hs.Sys.PrintRoutes {
+		hs.LogRegisteredRoutes(routes, hs.Log)
+	}
+	server := &http.Server{Addr: addr, Handler: routes}
 	// Server run context
 	serverCtx, serverStopCtx := context.WithCancel(context.Background())
 
