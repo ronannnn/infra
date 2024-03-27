@@ -171,7 +171,10 @@ func (srv *AliOssImpl) GetDownloadUrl(ctx context.Context, bucketName, objectNam
 	if bucket, err = srv.aliOssCli.Bucket(bucketName); err != nil {
 		return
 	} else {
-		return bucket.SignURL(objectName, oss.HTTPGet, srv.cfg.ExpiredInSec)
+		options := []oss.Option{
+			oss.ContentType("application/x-www-form-urlencoded"),
+		}
+		return bucket.SignURL(objectName, oss.HTTPGet, srv.cfg.ExpiredInSec, options...)
 	}
 }
 
@@ -180,6 +183,9 @@ func (srv *AliOssImpl) GetUploadUrl(ctx context.Context, bucketName, objectName 
 	if bucket, err = srv.aliOssCli.Bucket(bucketName); err != nil {
 		return
 	} else {
-		return bucket.SignURL(objectName, oss.HTTPPut, srv.cfg.ExpiredInSec)
+		options := []oss.Option{
+			oss.ContentType("application/x-www-form-urlencoded"),
+		}
+		return bucket.SignURL(objectName, oss.HTTPPut, srv.cfg.ExpiredInSec, options...)
 	}
 }
