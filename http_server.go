@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/ronannnn/infra/cfg"
 	"go.uber.org/zap"
 )
@@ -17,6 +18,7 @@ import (
 
 type HttpServerBaseRunner interface {
 	RegisterRoutes() http.Handler
+	LogRegisteredRoutes(routes *chi.Mux, log *zap.SugaredLogger)
 	Addr(httpAddr string, httpPort int) string
 }
 
@@ -26,6 +28,17 @@ type HttpServerRunner struct {
 
 func (hs HttpServerRunner) Addr(httpAddr string, httpPort int) string {
 	return fmt.Sprintf("%s:%d", httpAddr, httpPort)
+}
+
+func (hs HttpServerRunner) LogRegisteredRoutes(routes *chi.Mux, log *zap.SugaredLogger) {
+	var routesInfo [][]string
+	if err := chi.Walk(routes, func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
+		routesInfo = append(routesInfo, []string{method, route})
+		return nil
+	}); err != nil {
+		log.Errorf("Error while walking routes: %s", err.Error())
+	}
+	LeftJustifyingPrint(routesInfo, log)
 }
 
 type BaseHttpServer struct {
