@@ -21,16 +21,15 @@ func TestAliOss(t *testing.T) {
 	aliOss, err = infra.NewAliOss(&testCfg.Dfs)
 	require.NoError(t, err)
 	ctx := context.Background()
-	testBucketName := "gxphoto"
 	testFilename := "test.txt"
 	t.Run("Test Save File", func(t *testing.T) {
 		testReader := strings.NewReader("Hello, World!")
-		err = aliOss.Save(ctx, testBucketName, testFilename, testReader)
+		err = aliOss.Save(ctx, testCfg.Dfs.RootBucket, testFilename, testReader)
 		require.NoError(t, err)
 	})
 	t.Run("Test Get File", func(t *testing.T) {
 		var rc io.ReadCloser
-		rc, err = aliOss.Get(ctx, testBucketName, testFilename)
+		rc, err = aliOss.Get(ctx, testCfg.Dfs.RootBucket, testFilename)
 		require.NoError(t, err)
 		// convert io.ReadCloser to string
 		buf := new(strings.Builder)
@@ -39,9 +38,16 @@ func TestAliOss(t *testing.T) {
 		require.Equal(t, "Hello, World!", buf.String())
 	})
 	t.Run("Test Delete File", func(t *testing.T) {
-		err = aliOss.Delete(ctx, testBucketName, testFilename)
+		err = aliOss.Delete(ctx, testCfg.Dfs.RootBucket, testFilename)
 		require.NoError(t, err)
-		_, err = aliOss.Get(ctx, testBucketName, testFilename)
+		_, err = aliOss.Get(ctx, testCfg.Dfs.RootBucket, testFilename)
 		require.Error(t, err)
+	})
+	t.Run("Test Get File Upload url", func(t *testing.T) {
+		var uploadUrl string
+		uploadUrl, err = aliOss.GetUploadUrl(ctx, testCfg.Dfs.RootBucket, testFilename)
+		println(uploadUrl)
+		require.NotEmpty(t, uploadUrl)
+		require.NoError(t, err)
 	})
 }
