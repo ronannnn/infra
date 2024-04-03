@@ -85,7 +85,7 @@ func getOrDefault(cfg *cfg.Log) {
 		cfg.Level = "info"
 	}
 	if cfg.StoreDir == "" {
-		cfg.StoreDir = "log"
+		cfg.StoreDir = "logs"
 	}
 	if cfg.LatestFilename == "" {
 		cfg.LatestFilename = "latest.log"

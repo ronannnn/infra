@@ -1,1 +1,5 @@
 *.toml
+
+# logs
+logs/
+*.log
