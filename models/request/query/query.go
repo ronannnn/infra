@@ -9,45 +9,46 @@ import (
 	"gorm.io/gorm"
 )
 
-type QueryRange struct {
+type Range struct {
 	Start any `json:"start"`
 	End   any `json:"end"`
 }
 
+const TagStr = "query"
+
 const (
-	SearchTag = "search"
-	Skip      = "-"
-	Eq        = "eq"
-	Ne        = "ne"
-	Gt        = "gt"
-	Gte       = "gte"
-	Lt        = "lt"
-	Lte       = "lte"
-	Like      = "like"
-	In        = "in"
-	Order     = "order"
-	Select    = "select"
-	Range     = "range"
+	TypeSkip   = "-"
+	TypeEq     = "eq"
+	TypeNe     = "ne"
+	TypeGt     = "gt"
+	TypeGte    = "gte"
+	TypeLt     = "lt"
+	TypeLte    = "lte"
+	TypeLike   = "like"
+	TypeIn     = "in"
+	TypeOrder  = "order"
+	TypeSelect = "select"
+	TypeRange  = "range"
 )
 
-// searchTag
+// queryTag
 // example struct
 //
 //		type Example struct {
-//			Pagination Pagination `json:"pagination" search:"-"` // skip
-//			Username   *string    `json:"username" search:"type:like;column:username"`
+//			Pagination Pagination `json:"pagination" query:"-"` // skip
+//			Username   *string    `json:"username" query:"type:like;column:username"`
 //	 }
-type searchTag struct {
+type tag struct {
 	Type   string
 	Column string
 	Table  string
 }
 
-func parseQueryTag(tag string) *searchTag {
-	r := &searchTag{}
-	tags := strings.Split(tag, ";")
+func parseQueryTag(queryTag string) *tag {
+	r := &tag{}
+	queryTags := strings.Split(queryTag, ";")
 	var ts []string
-	for _, t := range tags {
+	for _, t := range queryTags {
 		ts = strings.Split(t, ":")
 		if len(ts) == 0 {
 			continue
@@ -74,13 +75,13 @@ func ResolveQuery(search any, condition DbCondition) {
 	searchType := reflect.TypeOf(search)
 	searchValue := reflect.ValueOf(search)
 	for i := 0; i < searchType.NumField(); i++ {
-		tagStr, ok := searchType.Field(i).Tag.Lookup(SearchTag)
+		tagStr, ok := searchType.Field(i).Tag.Lookup(TagStr)
 		if !ok {
 			// 递归调用
 			ResolveQuery(searchValue.Field(i).Interface(), condition)
 			continue
 		}
-		if tagStr == Skip ||
+		if tagStr == TypeSkip ||
 			searchValue.Field(i).IsZero() ||
 			((searchValue.Field(i).Kind() == reflect.Array || searchValue.Field(i).Kind() == reflect.Slice) && searchValue.Field(i).Len() == 0) {
 			continue
@@ -94,32 +95,32 @@ func ResolveQuery(search any, condition DbCondition) {
 		}
 		//解析
 		switch tag.Type {
-		case Eq:
+		case TypeEq:
 			condition.SetWhere(fmt.Sprintf("%s = ?", col), []any{searchValue.Field(i).Interface()})
-		case Ne:
+		case TypeNe:
 			condition.SetNot(fmt.Sprintf("%s = ?", col), []any{searchValue.Field(i).Interface()})
-		case Like:
+		case TypeLike:
 			condition.SetWhere(fmt.Sprintf("%s like ?", col), []any{"%" + searchValue.Field(i).String() + "%"})
-		case Gt:
+		case TypeGt:
 			condition.SetWhere(fmt.Sprintf("%s > ?", col), []any{searchValue.Field(i).Interface()})
-		case Gte:
+		case TypeGte:
 			condition.SetWhere(fmt.Sprintf("%s >= ?", col), []any{searchValue.Field(i).Interface()})
-		case Lt:
+		case TypeLt:
 			condition.SetWhere(fmt.Sprintf("%s < ?", col), []any{searchValue.Field(i).Interface()})
-		case Lte:
+		case TypeLte:
 			condition.SetWhere(fmt.Sprintf("%s <= ?", col), []any{searchValue.Field(i).Interface()})
-		case In:
+		case TypeIn:
 			condition.SetWhere(fmt.Sprintf("%s in (?)", col), []any{searchValue.Field(i).Interface()})
-		case Order:
+		case TypeOrder:
 			switch strings.ToLower(searchValue.Field(i).String()) {
 			case "desc", "asc":
 				condition.SetOrder(fmt.Sprintf("%s %s", col, searchValue.Field(i).String()))
 			}
-		case Select:
+		case TypeSelect:
 			condition.SetSelect(col)
-		case Range:
-			start := searchValue.Field(i).Interface().(QueryRange).Start
-			end := searchValue.Field(i).Interface().(QueryRange).End
+		case TypeRange:
+			start := searchValue.Field(i).Interface().(Range).Start
+			end := searchValue.Field(i).Interface().(Range).End
 			if !infra.IsZeroValue(start) {
 				condition.SetWhere(fmt.Sprintf("%s >= ?", col), []any{start})
 			}
@@ -130,7 +131,7 @@ func ResolveQuery(search any, condition DbCondition) {
 	}
 }
 
-func ResolveQueryRange(queryRange QueryRange, fieldName string) func(db *gorm.DB) *gorm.DB {
+func ResolveQueryRange(queryRange Range, fieldName string) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		start := queryRange.Start
 		end := queryRange.End

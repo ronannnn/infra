@@ -93,7 +93,7 @@ func ResolveExcel(excelModel any, condition ExcelCondition) {
 			ResolveExcel(excelValue.Field(i).Interface(), condition)
 			continue
 		}
-		if tagStr == Skip || excelValue.Field(i).IsZero() {
+		if tagStr == TypeSkip || excelValue.Field(i).IsZero() {
 			continue
 		}
 		tag := parseExcelTag(tagStr)
