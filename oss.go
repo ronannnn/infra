@@ -110,6 +110,7 @@ type AliOss interface {
 	Delete(ctx context.Context, bucketName, objectName string) error
 	Get(ctx context.Context, bucketName, objectName string) (io.ReadCloser, error)
 	GetDownloadUrl(ctx context.Context, bucketName, objectName string) (string, error)
+	GetDownloadUrlWithStyle(ctx context.Context, bucketName, objectName string, style string) (string, error)
 	GetUploadUrl(ctx context.Context, bucketName, objectName string) (string, error)
 }
 
@@ -172,6 +173,15 @@ func (srv *AliOssImpl) GetDownloadUrl(ctx context.Context, bucketName, objectNam
 		return
 	} else {
 		return bucket.SignURL(objectName, oss.HTTPGet, srv.cfg.ExpiredInSec)
+	}
+}
+
+func (srv *AliOssImpl) GetDownloadUrlWithStyle(ctx context.Context, bucketName, objectName string, style string) (url string, err error) {
+	var bucket *oss.Bucket
+	if bucket, err = srv.aliOssCli.Bucket(bucketName); err != nil {
+		return
+	} else {
+		return bucket.SignURL(objectName, oss.HTTPGet, srv.cfg.ExpiredInSec, oss.Process(style))
 	}
 }
 
