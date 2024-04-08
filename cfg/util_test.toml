@@ -1,4 +1,4 @@
 username = "ronan"
 
-[jwt]
+[auth]
 access-token-secret = "abc123"
