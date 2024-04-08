@@ -25,4 +25,7 @@ type User struct {
 	Email    *string `json:"email"`
 	TelNo    *string `json:"telNo"`
 	Password *string `json:"-"`
+	// wechat info
+	WechatOpenId  *string `json:"wechatOpenId"`
+	WechatUnionId *string `json:"wechatUnionId"`
 }
