@@ -67,7 +67,9 @@ func newWriteSyncer(cfg *cfg.Log) (syncer zapcore.WriteSyncer, err error) {
 			for {
 				now := time.Now()
 				// 计算距离明天该时间的时间间隔
-				nextDay := time.Date(now.Year(), now.Month(), now.Day()+1, 4, 0, 0, 0, now.Location())
+				nextDay := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, now.Location())
+				// utc-4小时就是我们的4点（我们是东八区）
+				nextDay = nextDay.Add(-4 * time.Hour)
 				duration := nextDay.Sub(now)
 				// 使用定时器，在指定的时间间隔后执行函数
 				timer := time.NewTimer(duration)
