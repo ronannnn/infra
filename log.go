@@ -65,12 +65,14 @@ func newWriteSyncer(cfg *cfg.Log) (syncer zapcore.WriteSyncer, err error) {
 		}
 		go func() {
 			for {
+				// 强制是每天东八区4点rotate log，即UTC时间20点
 				now := time.Now()
-				// 计算距离明天该时间的时间间隔
-				nextDay := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, now.Location())
-				// utc-4小时就是我们的4点（我们是东八区）
-				nextDay = nextDay.Add(-4 * time.Hour)
-				duration := nextDay.Sub(now)
+				// 判断今天的20点是否已经过去，如果过去了，就计算明天的20点
+				updateTime := time.Date(now.Year(), now.Month(), now.Day(), 20, 0, 0, 0, time.Local)
+				if now.After(updateTime) {
+					updateTime = updateTime.AddDate(0, 0, 1)
+				}
+				duration := updateTime.Sub(now)
 				// 使用定时器，在指定的时间间隔后执行函数
 				timer := time.NewTimer(duration)
 				<-timer.C // 等待定时器到期
