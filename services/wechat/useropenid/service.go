@@ -6,6 +6,7 @@ type Service interface {
 	Create(model *UserOpenId) error
 	UpdateOpenIdByUserIdAndAppId(partialUpdatedModel *UserOpenId) error
 	SaveIfNotExists(model *UserOpenId) error
+	ListByAppId(appId string) ([]UserOpenId, error)
 	GetByUserIdAndAppId(userId uint, appId string) (UserOpenId, error)
 }
 
@@ -39,6 +40,10 @@ func (srv *ServiceImpl) SaveIfNotExists(partialUpdatedModel *UserOpenId) (err er
 		return err
 	}
 	return srv.store.updateOpenIdByUserIdAndAppId(srv.db, partialUpdatedModel)
+}
+
+func (srv *ServiceImpl) ListByAppId(appId string) ([]UserOpenId, error) {
+	return srv.store.listByAppId(srv.db, appId)
 }
 
 func (srv *ServiceImpl) GetByUserIdAndAppId(userId uint, appId string) (UserOpenId, error) {

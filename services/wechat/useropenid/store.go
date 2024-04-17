@@ -9,6 +9,7 @@ import (
 type Store interface {
 	create(*gorm.DB, *UserOpenId) error
 	updateOpenIdByUserIdAndAppId(*gorm.DB, *UserOpenId) error
+	listByAppId(*gorm.DB, string) ([]UserOpenId, error)
 	getByUserIdAndAppId(*gorm.DB, uint, string) (UserOpenId, error)
 }
 
@@ -30,6 +31,14 @@ func (s StoreImpl) updateOpenIdByUserIdAndAppId(tx *gorm.DB, newModel *UserOpenI
 	err = tx.
 		Where(&UserOpenId{UserId: newModel.UserId, OfficialAccountAppId: newModel.OfficialAccountAppId}).
 		Updates(UserOpenId{OpenId: newModel.OpenId}).Error
+	return
+}
+
+func (s StoreImpl) listByAppId(tx *gorm.DB, appId string) (userOpenIdList []UserOpenId, err error) {
+	err = tx.
+		Where(&UserOpenId{OfficialAccountAppId: appId}).
+		Find(&userOpenIdList).
+		Error
 	return
 }
 
