@@ -8,55 +8,54 @@ import (
 )
 
 type Store interface {
-	create(model *models.Api) error
-	update(partialUpdatedModel *models.Api) (models.Api, error)
-	deleteById(id uint) error
-	deleteByIds(ids []uint) error
-	list(query query.ApiQuery) (response.PageResult, error)
-	getById(id uint) (models.Api, error)
+	create(*gorm.DB, *Api) error
+	update(*gorm.DB, *Api) (Api, error)
+	deleteById(*gorm.DB, uint) error
+	deleteByIds(*gorm.DB, []uint) error
+	list(*gorm.DB, ApiQuery) (response.PageResult, error)
+	getById(*gorm.DB, uint) (Api, error)
 }
 
-func ProvideStore(db *gorm.DB) Store {
-	return StoreImpl{db: db}
+func ProvideStore() Store {
+	return StoreImpl{}
 }
 
 type StoreImpl struct {
-	db *gorm.DB
 }
 
-func (s StoreImpl) create(model *models.Api) error {
-	return s.db.Create(model).Error
+func (s StoreImpl) create(tx *gorm.DB, model *Api) error {
+	return tx.Create(model).Error
 }
 
-func (s StoreImpl) update(partialUpdatedModel *models.Api) (updatedModel models.Api, err error) {
+func (s StoreImpl) update(tx *gorm.DB, partialUpdatedModel *Api) (updatedModel Api, err error) {
 	if partialUpdatedModel.Id == 0 {
 		return updatedModel, models.ErrUpdatedId
 	}
-	result := s.db.Updates(partialUpdatedModel)
+	result := tx.Updates(partialUpdatedModel)
 	if result.Error != nil {
 		return updatedModel, result.Error
 	}
 	if result.RowsAffected == 0 {
 		return updatedModel, models.ErrModified("Api")
 	}
-	return s.getById(partialUpdatedModel.Id)
+	return s.getById(tx, partialUpdatedModel.Id)
 }
 
-func (s StoreImpl) deleteById(id uint) error {
-	return s.db.Delete(&models.Api{}, "id = ?", id).Error
+func (s StoreImpl) deleteById(tx *gorm.DB, id uint) error {
+	return tx.Delete(&Api{}, "id = ?", id).Error
 }
 
-func (s StoreImpl) deleteByIds(ids []uint) error {
-	return s.db.Delete(&models.Api{}, "id IN ?", ids).Error
+func (s StoreImpl) deleteByIds(tx *gorm.DB, ids []uint) error {
+	return tx.Delete(&Api{}, "id IN ?", ids).Error
 }
 
-func (s StoreImpl) list(apiQuery query.ApiQuery) (result response.PageResult, err error) {
+func (s StoreImpl) list(tx *gorm.DB, apiQuery ApiQuery) (result response.PageResult, err error) {
 	var total int64
-	var list []models.Api
-	if err = s.db.Model(&models.Api{}).Count(&total).Error; err != nil {
+	var list []Api
+	if err = tx.Model(&Api{}).Count(&total).Error; err != nil {
 		return
 	}
-	if err = s.db.
+	if err = tx.
 		Scopes(query.MakeConditionFromQuery(apiQuery)).
 		Scopes(query.Paginate(apiQuery.Pagination.PageNum, apiQuery.Pagination.PageSize)).
 		Find(&list).Error; err != nil {
@@ -71,7 +70,7 @@ func (s StoreImpl) list(apiQuery query.ApiQuery) (result response.PageResult, er
 	return
 }
 
-func (s StoreImpl) getById(id uint) (model models.Api, err error) {
-	err = s.db.First(&model, "id = ?", id).Error
+func (s StoreImpl) getById(tx *gorm.DB, id uint) (model Api, err error) {
+	err = tx.First(&model, "id = ?", id).Error
 	return
 }

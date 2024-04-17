@@ -1,15 +1,14 @@
 package rowrecord
 
 import (
-	"github.com/ronannnn/infra/models"
 	"gorm.io/gorm"
 )
 
 type Store interface {
-	Create(*gorm.DB, []models.RowRecord) error
+	Create(*gorm.DB, []RowRecord) error
 	DeleteById(*gorm.DB, uint) error
 	DeleteByIds(*gorm.DB, []uint) error
-	GetByTableNameAndRowId(tx *gorm.DB, tableName string, rowId uint) ([]models.RowRecord, error)
+	GetByTableNameAndRowId(tx *gorm.DB, tableName string, rowId uint) ([]RowRecord, error)
 }
 
 func ProvideStore(db *gorm.DB) Store {
@@ -18,19 +17,19 @@ func ProvideStore(db *gorm.DB) Store {
 
 type StoreImpl struct{}
 
-func (s *StoreImpl) Create(tx *gorm.DB, models []models.RowRecord) error {
+func (s *StoreImpl) Create(tx *gorm.DB, models []RowRecord) error {
 	return tx.Create(&models).Error
 }
 
 func (s *StoreImpl) DeleteById(tx *gorm.DB, id uint) error {
-	return tx.Delete(&models.RowRecord{}, "id = ?", id).Error
+	return tx.Delete(&RowRecord{}, "id = ?", id).Error
 }
 
 func (s *StoreImpl) DeleteByIds(tx *gorm.DB, ids []uint) error {
-	return tx.Delete(&models.RowRecord{}, "id IN ?", ids).Error
+	return tx.Delete(&RowRecord{}, "id IN ?", ids).Error
 }
 
-func (s *StoreImpl) GetByTableNameAndRowId(tx *gorm.DB, tableName string, rowId uint) (list []models.RowRecord, err error) {
-	err = tx.Where(&models.RowRecord{TableName: tableName, RowId: rowId}).Find(&list).Error
+func (s *StoreImpl) GetByTableNameAndRowId(tx *gorm.DB, tableName string, rowId uint) (list []RowRecord, err error) {
+	err = tx.Where(&RowRecord{TableName: tableName, RowId: rowId}).Find(&list).Error
 	return
 }

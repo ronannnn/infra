@@ -115,7 +115,7 @@ func (m *MiddlewareImpl) ReqRecorder(next http.Handler) http.Handler {
 				userId = ctxUserId.(uint)
 			}
 			latency := time.Since(start)
-			apiRecord := &models.ApiRecord{
+			apiRecord := &apirecord.ApiRecord{
 				Base: models.Base{
 					OprBy: models.OprBy{
 						CreatedBy: userId,

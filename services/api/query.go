@@ -1,10 +1,12 @@
-package query
+package api
+
+import "github.com/ronannnn/infra/models/request/query"
 
 type ApiQuery struct {
-	Pagination  Pagination     `json:"pagination" search:"-" excel:"-"`
-	WhereQuery  ApiWhereQuery  `json:"whereQuery" excel:"-"`
-	OrderQuery  ApiOrderQuery  `json:"orderQuery" excel:"-"`
-	SelectQUery ApiSelectQuery `json:"selectQUery"`
+	Pagination  query.Pagination `json:"pagination" search:"-" excel:"-"`
+	WhereQuery  ApiWhereQuery    `json:"whereQuery" excel:"-"`
+	OrderQuery  ApiOrderQuery    `json:"orderQuery" excel:"-"`
+	SelectQUery ApiSelectQuery   `json:"selectQUery"`
 }
 
 type ApiWhereQuery struct {

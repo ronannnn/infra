@@ -1,12 +1,14 @@
-package models
+package rowrecord
 
 import (
 	"fmt"
 	"reflect"
+
+	"github.com/ronannnn/infra/models"
 )
 
 type RowRecord struct {
-	Base
+	models.Base
 	TableName string `json:"-"`
 	RowId     uint   `json:"rowId"`
 	Key       string `json:"key"`
@@ -22,7 +24,7 @@ type rowRecordHelper struct {
 
 func (trh *rowRecordHelper) record(key string, oldValue any, newValue any, oprId uint) {
 	trh.Records = append(trh.Records, RowRecord{
-		Base:      Base{OprBy: OprBy{CreatedBy: oprId, UpdatedBy: oprId}},
+		Base:      models.Base{OprBy: models.OprBy{CreatedBy: oprId, UpdatedBy: oprId}},
 		TableName: trh.TableName,
 		RowId:     trh.RowId,
 		Key:       key,

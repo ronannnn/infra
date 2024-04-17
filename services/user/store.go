@@ -12,7 +12,7 @@ type Store interface {
 	Update(tx *gorm.DB, partialUpdatedModel *models.User) (models.User, error)
 	DeleteById(tx *gorm.DB, id uint) error
 	DeleteByIds(tx *gorm.DB, ids []uint) error
-	List(tx *gorm.DB, query query.UserQuery) (response.PageResult, error)
+	List(tx *gorm.DB, query UserQuery) (response.PageResult, error)
 	GetById(tx *gorm.DB, id uint) (models.User, error)
 	GetByUsername(tx *gorm.DB, username string) (models.User, error)
 	GetByNickname(tx *gorm.DB, nickname string) (models.User, error)
@@ -48,7 +48,7 @@ func (s StoreImpl) DeleteByIds(tx *gorm.DB, ids []uint) error {
 	return tx.Delete(&models.User{}, "id IN ?", ids).Error
 }
 
-func (s StoreImpl) List(tx *gorm.DB, userQuery query.UserQuery) (result response.PageResult, err error) {
+func (s StoreImpl) List(tx *gorm.DB, userQuery UserQuery) (result response.PageResult, err error) {
 	var total int64
 	var list []models.User
 	if err = tx.Model(&models.User{}).Count(&total).Error; err != nil {

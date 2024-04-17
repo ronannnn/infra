@@ -1,9 +1,11 @@
-package query
+package user
+
+import "github.com/ronannnn/infra/models/request/query"
 
 type UserQuery struct {
-	Pagination Pagination     `json:"pagination" search:"-"`
-	WhereQuery UserWhereQuery `json:"whereQuery"`
-	OrderQuery UserOrderQuery `json:"orderQuery"`
+	Pagination query.Pagination `json:"pagination" search:"-"`
+	WhereQuery UserWhereQuery   `json:"whereQuery"`
+	OrderQuery UserOrderQuery   `json:"orderQuery"`
 }
 
 type UserWhereQuery struct {
