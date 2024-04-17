@@ -4,15 +4,23 @@
     "aliosstest",
     "aliyun",
     "dbname",
+    "errcode",
+    "errmsg",
     "lestrrat",
     "logtest",
     "Minioss",
+    "msgid",
     "natefinch",
     "nicksnyder",
+    "officialaccount",
+    "snapshotuser",
     "sqlserver",
     "stretchr",
     "syncers",
+    "touser",
     "Truef",
-    "veken"
+    "unionid",
+    "veken",
+    "wechattest"
   ]
 }

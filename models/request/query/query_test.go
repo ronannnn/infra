@@ -8,15 +8,15 @@ import (
 )
 
 type Example struct {
-	EqField    string `search:"type:eq;column:eq_field"`
-	NeField    string `search:"type:ne;column:ne_field"`
-	GtField    string `search:"type:gt;column:gt_field"`
-	GteField   string `search:"type:gte;column:gte_field"`
-	LtField    string `search:"type:lt;column:lt_field"`
-	LteField   string `search:"type:lte;column:lte_field"`
-	LikeField  string `search:"type:like;column:like_field"`
-	InField    []uint `search:"type:in;column:in_field"`
-	OrderField string `search:"type:order;column:order_field"`
+	EqField    string `query:"type:eq;column:eq_field"`
+	NeField    string `query:"type:ne;column:ne_field"`
+	GtField    string `query:"type:gt;column:gt_field"`
+	GteField   string `query:"type:gte;column:gte_field"`
+	LtField    string `query:"type:lt;column:lt_field"`
+	LteField   string `query:"type:lte;column:lte_field"`
+	LikeField  string `query:"type:like;column:like_field"`
+	InField    []uint `query:"type:in;column:in_field"`
+	OrderField string `query:"type:order;column:order_field"`
 }
 
 func TestParseSearch(t *testing.T) {
