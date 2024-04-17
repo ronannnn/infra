@@ -33,7 +33,7 @@ func (srv *ServiceImpl) UpdateOpenIdByUserIdAndAppId(partialUpdatedModel *UserOp
 }
 
 func (srv *ServiceImpl) SaveIfNotExists(partialUpdatedModel *UserOpenId) (err error) {
-	if _, err = srv.GetByUserIdAndAppId(partialUpdatedModel.UserId, partialUpdatedModel.OfficialAccountAppId); err != gorm.ErrRecordNotFound {
+	if _, err = srv.GetByUserIdAndAppId(partialUpdatedModel.UserId, partialUpdatedModel.OfficialAccountAppId); err == gorm.ErrRecordNotFound {
 		return srv.Create(partialUpdatedModel)
 	} else if err != nil {
 		return err
