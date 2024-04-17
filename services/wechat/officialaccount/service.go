@@ -43,16 +43,18 @@ func (s *ServiceImpl) GetAccessToken() (result GetAccessTokenResult, err error) 
 	}
 	defer resp.Body.Close()
 	// result
-	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return
+	}
+	if result.ErrCode != 0 {
+		err = fmt.Errorf("GetAccessToken failed: %s", result.ErrMsg)
+	}
 	return
 }
 
 func (s *ServiceImpl) RefreshAccessToken() (err error) {
 	var accessTokenResult GetAccessTokenResult
 	if accessTokenResult, err = s.GetAccessToken(); err != nil {
-		return
-	} else if accessTokenResult.ErrCode != 0 {
-		err = fmt.Errorf("GetAccessToken failed: %s", accessTokenResult.ErrMsg)
 		return
 	}
 	s.AccessToken = accessTokenResult.AccessToken
@@ -75,7 +77,12 @@ func (s *ServiceImpl) GetOpenId(cmd GetOpenIdCmd) (result GetOpenIdResult, err e
 	}
 	defer resp.Body.Close()
 	// result
-	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return
+	}
+	if result.ErrCode != 0 {
+		err = fmt.Errorf("GetOpenId failed: %s", result.ErrMsg)
+	}
 	return
 }
 
@@ -112,6 +119,11 @@ func (s *ServiceImpl) sendTemplateMessageFn(cmd SendTemplateMessageCmd) (result 
 	}
 	defer resp.Body.Close()
 	// result
-	err = json.NewDecoder(resp.Body).Decode(&result)
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return
+	}
+	if result.ErrCode != 0 {
+		err = fmt.Errorf("SendTemplateMessage failed: %s", result.ErrMsg)
+	}
 	return
 }
