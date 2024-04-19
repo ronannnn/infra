@@ -17,6 +17,8 @@ type Service interface {
 	GetOpenId(GetOpenIdCmd) (GetOpenIdResult, error)
 
 	SendTemplateMessage(SendTemplateMessageCmd) (SendTemplateMessageResult, error)
+
+	SendSubscriptionTemplateMessage(SendSubscriptionTemplateMessageCmd) (SendSubscriptionTemplateMessageResult, error)
 }
 
 type ServiceImpl struct {
@@ -115,6 +117,48 @@ func (s *ServiceImpl) sendTemplateMessageFn(cmd SendTemplateMessageCmd) (result 
 	}
 	var resp *http.Response
 	if resp, err = http.Post("https://api.weixin.qq.com/cgi-bin/message/template/send?"+params.Encode(), "application/json", bytes.NewBuffer(jsonData)); err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	// result
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return
+	}
+	if result.ErrCode != 0 {
+		err = fmt.Errorf("SendTemplateMessage failed: %s", result.ErrMsg)
+	}
+	return
+}
+
+func (s *ServiceImpl) SendSubscriptionTemplateMessage(cmd SendSubscriptionTemplateMessageCmd) (result SendSubscriptionTemplateMessageResult, err error) {
+	if s.AccessToken == "" {
+		if err = s.RefreshAccessToken(); err != nil {
+			return
+		}
+	}
+	if result, err = s.sendSubscriptionTemplateMessageFn(cmd); err != nil {
+		if err = s.RefreshAccessToken(); err != nil {
+			return
+		}
+		result, err = s.sendSubscriptionTemplateMessageFn(cmd)
+	}
+	return
+}
+
+// SendSubscriptionTemplateMessage 发送模板消息
+// 文档地址：https://developers.weixin.qq.com/doc/offiaccount/Subscription_Messages/api.html
+// 接口：   POST https://api.weixin.qq.com/cgi-bin/message/subscribe/bizsend?access_token=ACCESS_TOKEN
+func (s *ServiceImpl) sendSubscriptionTemplateMessageFn(cmd SendSubscriptionTemplateMessageCmd) (result SendSubscriptionTemplateMessageResult, err error) {
+	// req
+	params := url.Values{
+		"access_token": {s.AccessToken},
+	}
+	var jsonData []byte
+	if jsonData, err = json.Marshal(cmd); err != nil {
+		return
+	}
+	var resp *http.Response
+	if resp, err = http.Post("https://api.weixin.qq.com/cgi-bin/message/subscribe/bizsend?"+params.Encode(), "application/json", bytes.NewBuffer(jsonData)); err != nil {
 		return
 	}
 	defer resp.Body.Close()

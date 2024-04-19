@@ -34,6 +34,17 @@ type SendTemplateMessageResult struct {
 	MsgId int64 `json:"msgid"`
 }
 
+type SendSubscriptionTemplateMessageCmd struct {
+	ToUser     string                       `json:"touser"`
+	TemplateId string                       `json:"template_id"`
+	Page       string                       `json:"page"`
+	Data       map[string]map[string]string `json:"data"`
+}
+
+type SendSubscriptionTemplateMessageResult struct {
+	CommonResult
+}
+
 type CommonResult struct {
 	ErrCode int    `json:"errcode"`
 	ErrMsg  string `json:"errmsg"`
