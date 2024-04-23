@@ -6,6 +6,12 @@ type GetAccessTokenResult struct {
 	ExpiresIn   int    `json:"expires_in"`
 }
 
+type GetJsApiTicketResult struct {
+	CommonResult
+	Ticket    string `json:"ticket"`
+	ExpiresIn int    `json:"expires_in"`
+}
+
 type GetOpenIdCmd struct {
 	Code string `json:"code"`
 }

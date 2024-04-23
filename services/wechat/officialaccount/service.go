@@ -14,6 +14,9 @@ type Service interface {
 	GetAccessToken() (GetAccessTokenResult, error)
 	RefreshAccessToken() error
 
+	GetJsApiTicket() (GetJsApiTicketResult, error)
+	RefreshJsApiTicket() error
+
 	GetOpenId(GetOpenIdCmd) (GetOpenIdResult, error)
 
 	SendTemplateMessage(SendTemplateMessageCmd) (SendTemplateMessageResult, error)
@@ -24,6 +27,7 @@ type Service interface {
 type ServiceImpl struct {
 	cfg         *cfg.WechatOfficialAccount
 	AccessToken string
+	JsApiTicket string
 }
 
 func ProvideService(cfg *cfg.WechatOfficialAccount) Service {
@@ -60,6 +64,43 @@ func (s *ServiceImpl) RefreshAccessToken() (err error) {
 		return
 	}
 	s.AccessToken = accessTokenResult.AccessToken
+	return
+}
+
+// GetJsApiTicket 获取 jsapi_ticket
+// 文档地址：https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/JS-SDK.html
+// 接口：   GET https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=ACCESS_TOKEN&type=jsapi
+func (s *ServiceImpl) GetJsApiTicket() (result GetJsApiTicketResult, err error) {
+	if s.AccessToken == "" {
+		if err = s.RefreshAccessToken(); err != nil {
+			return
+		}
+	}
+	params := url.Values{
+		"access_token": {s.AccessToken},
+		"type":         {"jsapi"},
+	}
+	var resp *http.Response
+	if resp, err = http.Get("https://api.weixin.qq.com/cgi-bin/ticket/getticket?" + params.Encode()); err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	// result
+	if err = json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return
+	}
+	if result.ErrCode != 0 {
+		err = fmt.Errorf("GetJsApiTicket failed: %s", result.ErrMsg)
+	}
+	return
+}
+
+func (s *ServiceImpl) RefreshJsApiTicket() (err error) {
+	var jsApiTicketResult GetJsApiTicketResult
+	if jsApiTicketResult, err = s.GetJsApiTicket(); err != nil {
+		return
+	}
+	s.JsApiTicket = jsApiTicketResult.Ticket
 	return
 }
 
