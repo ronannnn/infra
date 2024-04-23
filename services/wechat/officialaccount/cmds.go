@@ -12,6 +12,19 @@ type GetJsApiTicketResult struct {
 	ExpiresIn int    `json:"expires_in"`
 }
 
+type GetJsSdkConfigCmd struct {
+	NonceStr string `json:"noncestr"`
+	Url      string `json:"url"`
+}
+
+type GetJsSdkConfigResult struct {
+	JsApiTicket string `json:"jsApiTicket"`
+	NonceStr    string `json:"nonceStr"`
+	Timestamp   int64  `json:"timestamp"`
+	Url         string `json:"url"`
+	Signature   string `json:"signature"`
+}
+
 type GetOpenIdCmd struct {
 	Code string `json:"code"`
 }

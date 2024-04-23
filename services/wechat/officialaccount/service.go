@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/ronannnn/infra/cfg"
 )
@@ -16,6 +17,7 @@ type Service interface {
 
 	GetJsApiTicket() (GetJsApiTicketResult, error)
 	RefreshJsApiTicket() error
+	GetSignedJsSdkConfig(GetJsSdkConfigCmd) (GetJsSdkConfigResult, error)
 
 	GetOpenId(GetOpenIdCmd) (GetOpenIdResult, error)
 
@@ -101,6 +103,21 @@ func (s *ServiceImpl) RefreshJsApiTicket() (err error) {
 		return
 	}
 	s.JsApiTicket = jsApiTicketResult.Ticket
+	return
+}
+
+// GetSignedJsSdkConfig 获取签名后的 js-sdk 配置
+func (s *ServiceImpl) GetSignedJsSdkConfig(cmd GetJsSdkConfigCmd) (result GetJsSdkConfigResult, err error) {
+	if s.JsApiTicket == "" {
+		if err = s.RefreshJsApiTicket(); err != nil {
+			return
+		}
+	}
+	result.JsApiTicket = s.JsApiTicket
+	result.NonceStr = cmd.NonceStr
+	result.Timestamp = time.Now().Unix()
+	result.Url = cmd.Url
+	result.Signature = signJsSdkConfig(s.JsApiTicket, result.NonceStr, result.Timestamp, result.Url)
 	return
 }
 

@@ -1,6 +1,7 @@
 package officialaccount_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/ronannnn/infra/cfg"
@@ -86,4 +87,26 @@ func TestWeChatSendSubscriptionTemplateMessage(t *testing.T) {
 	})
 	require.NoError(t, err)
 	require.Equal(t, 0, result.ErrCode)
+}
+
+func TestGetSignedJsSdkConfig(t *testing.T) {
+	var err error
+	testCfg := struct {
+		WechatOfficialAccount cfg.WechatOfficialAccount `mapstructure:"wechat-official-account"`
+	}{}
+	err = cfg.ReadFromFile("../../../configs/config.wechattest2.toml", &testCfg)
+	require.NoError(t, err)
+
+	srv := officialaccount.ProvideService(&testCfg.WechatOfficialAccount)
+	err = srv.RefreshJsApiTicket()
+	require.NoError(t, err)
+	result, err := srv.GetSignedJsSdkConfig(officialaccount.GetJsSdkConfigCmd{
+		NonceStr: "gx-photo",
+		Url:      "https://photo.gx-logistics.com/tasks/common/",
+	})
+	require.NoError(t, err)
+	require.NotEmpty(t, result.NonceStr)
+	require.NotEmpty(t, result.Signature)
+	require.NotEmpty(t, result.Timestamp)
+	fmt.Printf("%+v\n", result)
 }
