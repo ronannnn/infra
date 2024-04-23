@@ -18,11 +18,13 @@ type GetJsSdkConfigCmd struct {
 }
 
 type GetJsSdkConfigResult struct {
+	AppId     string `json:"appId"`
+	NonceStr  string `json:"nonceStr"`
+	Timestamp int64  `json:"timestamp"`
+	Signature string `json:"signature"`
+
 	JsApiTicket string `json:"jsApiTicket"`
-	NonceStr    string `json:"nonceStr"`
-	Timestamp   int64  `json:"timestamp"`
 	Url         string `json:"url"`
-	Signature   string `json:"signature"`
 }
 
 type GetOpenIdCmd struct {

@@ -52,6 +52,23 @@ func TestWeChatSendTemplateMessage(t *testing.T) {
 	require.Equal(t, 0, result.ErrCode)
 }
 
+func TestGetOpenId(t *testing.T) {
+	var err error
+	testCfg := struct {
+		WechatOfficialAccount cfg.WechatOfficialAccount `mapstructure:"wechat-official-account"`
+	}{}
+	err = cfg.ReadFromFile("../../../configs/config.wechattest2.toml", &testCfg)
+	require.NoError(t, err)
+
+	srv := officialaccount.ProvideService(&testCfg.WechatOfficialAccount)
+	result, err := srv.GetOpenId(officialaccount.GetOpenIdCmd{
+		Code: "081fSIkl2fQOjd4kNcml2AfWmv4fSIkw",
+	})
+	require.NoError(t, err)
+	require.NotEmpty(t, result)
+	fmt.Printf("%+v\n", result)
+}
+
 func TestWeChatSendSubscriptionTemplateMessage(t *testing.T) {
 	var err error
 	testCfg := struct {
@@ -63,10 +80,10 @@ func TestWeChatSendSubscriptionTemplateMessage(t *testing.T) {
 	srv := officialaccount.ProvideService(&testCfg.WechatOfficialAccount)
 	err = srv.RefreshAccessToken()
 	require.NoError(t, err)
-	result, err := srv.SendTemplateMessage(officialaccount.SendTemplateMessageCmd{
-		ToUser:     "o0WeS6Sphhj6ZmaDcU-R_0KVKNOo",
+	result, err := srv.SendSubscriptionTemplateMessage(officialaccount.SendSubscriptionTemplateMessageCmd{
+		ToUser:     "oVfKG1sgTQUE-rxrPkELzkPjAkD0",
 		TemplateId: "tOAHBHlWhVckcpc1jzm03qcHxJy2rxlfMCmbzxBuVfw",
-		Url:        "https://photo.gx-logistics.com/tasks/common",
+		Page:       "https://photo.gx-logistics.com/tasks/common",
 		Data: map[string]map[string]string{
 			"character_string1": {
 				"value": "BSX24040009",
@@ -102,7 +119,7 @@ func TestGetSignedJsSdkConfig(t *testing.T) {
 	require.NoError(t, err)
 	result, err := srv.GetSignedJsSdkConfig(officialaccount.GetJsSdkConfigCmd{
 		NonceStr: "gx-photo",
-		Url:      "https://photo.gx-logistics.com/tasks/common/",
+		Url:      "http://localhost:3000/tasks/common/",
 	})
 	require.NoError(t, err)
 	require.NotEmpty(t, result.NonceStr)

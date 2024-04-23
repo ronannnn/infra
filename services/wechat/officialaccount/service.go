@@ -114,6 +114,7 @@ func (s *ServiceImpl) GetSignedJsSdkConfig(cmd GetJsSdkConfigCmd) (result GetJsS
 		}
 	}
 	result.JsApiTicket = s.JsApiTicket
+	result.AppId = s.cfg.AppId
 	result.NonceStr = cmd.NonceStr
 	result.Timestamp = time.Now().Unix()
 	result.Url = cmd.Url
