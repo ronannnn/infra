@@ -85,14 +85,13 @@ func (srv *ServiceImpl) UpdateTokens(ctx context.Context, refreshToken string, u
 	}
 	// get user id from refresh token
 	username, _ := token.Get("username")
-	loginDeviceType, _ := token.Get("loginDeviceType")
 	userId, exists := token.Get("userId")
 	if !exists {
 		return "", "", false, fmt.Errorf("invalid refresh token: missing userId")
 	}
 	// compare with it in db
 	var tokenInDb string
-	if tokenInDb, err = srv.refreshtokenStore.Get(ctx, srv.db, uint(userId.(float64)), loginDeviceType.(useragent.DeviceType)); err != nil {
+	if tokenInDb, err = srv.refreshtokenStore.Get(ctx, srv.db, uint(userId.(float64)), useragent.Parse(userAgent).DeviceType()); err != nil {
 		return
 	}
 	if tokenInDb != refreshToken {
