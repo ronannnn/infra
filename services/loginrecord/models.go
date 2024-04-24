@@ -10,9 +10,10 @@ type Status int
 
 const (
 	StatusSuccess Status = iota + 1
+	StatusFailed
+	StatusDupLogin
 	StatusErrUsernameOrPassword
 	StatusErrUserNotExists
-	StatusErrDupLogin
 )
 
 type LoginRecord struct {
