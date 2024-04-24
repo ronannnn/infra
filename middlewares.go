@@ -18,7 +18,6 @@ import (
 	"github.com/ronannnn/infra/models/response"
 	"github.com/ronannnn/infra/services/apirecord"
 	"github.com/ronannnn/infra/services/jwt/accesstoken"
-	"github.com/ronannnn/infra/services/loginrecord"
 	"go.uber.org/zap"
 )
 
@@ -36,8 +35,6 @@ type Middleware interface {
 	Verifier(http.Handler) http.Handler
 	Authenticator(http.Handler) http.Handler
 	AuthInfoSetter(next http.Handler) http.Handler
-	// login record
-	LoginRecorder(next http.Handler) http.Handler
 }
 
 func ProvideMiddleware(
@@ -47,8 +44,6 @@ func ProvideMiddleware(
 	// auth
 	authCfg *cfg.Auth,
 	accessTokenService accesstoken.Service,
-	// login record
-	loginRecordService loginrecord.Service,
 ) Middleware {
 	return &MiddlewareImpl{
 		log:                log,
@@ -56,7 +51,6 @@ func ProvideMiddleware(
 		apirecordService:   apirecordService,
 		authCfg:            authCfg,
 		accessTokenService: accessTokenService,
-		loginRecordService: loginRecordService,
 	}
 }
 
@@ -66,7 +60,6 @@ type MiddlewareImpl struct {
 	apirecordService   apirecord.Service
 	authCfg            *cfg.Auth
 	accessTokenService accesstoken.Service
-	loginRecordService loginrecord.Service
 }
 
 func (m *MiddlewareImpl) Lang(next http.Handler) http.Handler {
@@ -214,22 +207,5 @@ func (m *MiddlewareImpl) AuthInfoSetter(next http.Handler) http.Handler {
 		ctx := context.WithValue(r.Context(), models.CtxKeyUserId, uint(userId.(float64)))
 		ctx = context.WithValue(ctx, models.CtxKeyUsername, username.(string))
 		next.ServeHTTP(w, r.WithContext(ctx))
-	})
-}
-
-func (m *MiddlewareImpl) LoginRecorder(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// 获取Header中的user agent和device id
-		userId := r.Context().Value(models.CtxKeyUserId).(uint)
-		ua := r.Context().Value(models.CtxKeyUa)
-		deviceId := r.Context().Value(models.CtxKeyDeviceId).(string)
-		m.loginRecordService.Create(&loginrecord.LoginRecord{
-			UserId:    userId,
-			DeviceId:  deviceId,
-			LoginTime: time.Now(),
-			UserAgent: ua.(string),
-			Ip:        r.RemoteAddr,
-		})
-		next.ServeHTTP(w, r)
 	})
 }
