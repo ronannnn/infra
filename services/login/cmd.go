@@ -9,6 +9,12 @@ type UsernameCmd struct {
 	DeviceId  string `json:"deviceId"`
 }
 
+type Result struct {
+	RefreshToken string `json:"refreshToken"`
+	AccessToken  string `json:"accessToken"`
+	DupLogin     bool   `json:"dupLogin"`
+}
+
 // refresh refresh token and access token
 type RefreshTokensCmd struct {
 	RefreshToken string `json:"refreshToken"`
