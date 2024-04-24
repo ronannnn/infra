@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/ronannnn/infra/cfg"
+	"github.com/ronannnn/infra/utils"
 	"go.uber.org/zap"
 )
 
@@ -38,7 +39,7 @@ func (hs HttpServerRunner) LogRegisteredRoutes(routes *chi.Mux, log *zap.Sugared
 	}); err != nil {
 		log.Errorf("Error while walking routes: %s", err.Error())
 	}
-	LeftJustifyingPrint(routesInfo, log)
+	utils.LeftJustifyingPrint(routesInfo, log)
 }
 
 type BaseHttpServer struct {

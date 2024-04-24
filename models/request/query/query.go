@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/ronannnn/infra"
+	"github.com/ronannnn/infra/utils"
 	"gorm.io/gorm"
 )
 
@@ -121,10 +121,10 @@ func ResolveQuery(search any, condition DbCondition) {
 		case TypeRange:
 			start := searchValue.Field(i).Interface().(Range).Start
 			end := searchValue.Field(i).Interface().(Range).End
-			if !infra.IsZeroValue(start) {
+			if !utils.IsZeroValue(start) {
 				condition.SetWhere(fmt.Sprintf("%s >= ?", col), []any{start})
 			}
-			if !infra.IsZeroValue(end) {
+			if !utils.IsZeroValue(end) {
 				condition.SetWhere(fmt.Sprintf("%s <= ?", col), []any{end})
 			}
 		}
@@ -135,10 +135,10 @@ func ResolveQueryRange(queryRange Range, fieldName string) func(db *gorm.DB) *go
 	return func(db *gorm.DB) *gorm.DB {
 		start := queryRange.Start
 		end := queryRange.End
-		if !infra.IsZeroValue(start) {
+		if !utils.IsZeroValue(start) {
 			db.Where(fmt.Sprintf("%s >= ?", fieldName), start)
 		}
-		if !infra.IsZeroValue(end) {
+		if !utils.IsZeroValue(end) {
 			db.Where(fmt.Sprintf("%s <= ?", fieldName), end)
 		}
 		return db

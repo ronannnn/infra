@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ronannnn/infra/cfg"
+	"github.com/ronannnn/infra/utils"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -54,7 +55,7 @@ func newWriteSyncer(cfg *cfg.Log) (syncer zapcore.WriteSyncer, err error) {
 	}
 	if cfg.LogInRotateFile {
 		// create directory for storing log files
-		if err = createDirsIfNotExist(cfg.StoreDir); err != nil {
+		if err = utils.CreateDirsIfNotExist(cfg.StoreDir); err != nil {
 			return
 		}
 		var fileWriter = &lumberjack.Logger{

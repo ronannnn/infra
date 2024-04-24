@@ -18,12 +18,15 @@ import (
 	"github.com/ronannnn/infra/models/response"
 	"github.com/ronannnn/infra/services/apirecord"
 	"github.com/ronannnn/infra/services/jwt/accesstoken"
+	"github.com/ronannnn/infra/services/loginrecord"
 	"go.uber.org/zap"
 )
 
 type Middleware interface {
-	// set request language
+	// header info
 	Lang(http.Handler) http.Handler
+	Ua(http.Handler) http.Handler
+	DeviceId(http.Handler) http.Handler
 	// verify privilege
 	CasbinInterceptor(http.Handler) http.Handler
 	// record request info
@@ -33,6 +36,8 @@ type Middleware interface {
 	Verifier(http.Handler) http.Handler
 	Authenticator(http.Handler) http.Handler
 	AuthInfoSetter(next http.Handler) http.Handler
+	// login record
+	LoginRecorder(next http.Handler) http.Handler
 }
 
 func ProvideMiddleware(
@@ -41,14 +46,17 @@ func ProvideMiddleware(
 	apirecordService apirecord.Service,
 	// auth
 	authCfg *cfg.Auth,
-	accesstokenService accesstoken.Service,
+	accessTokenService accesstoken.Service,
+	// login record
+	loginRecordService loginrecord.Service,
 ) Middleware {
 	return &MiddlewareImpl{
 		log:                log,
 		casbinEnforcer:     casbinEnforcer,
 		apirecordService:   apirecordService,
 		authCfg:            authCfg,
-		accesstokenService: accesstokenService,
+		accessTokenService: accessTokenService,
+		loginRecordService: loginRecordService,
 	}
 }
 
@@ -57,7 +65,8 @@ type MiddlewareImpl struct {
 	casbinEnforcer     *casbin.SyncedCachedEnforcer
 	apirecordService   apirecord.Service
 	authCfg            *cfg.Auth
-	accesstokenService accesstoken.Service
+	accessTokenService accesstoken.Service
+	loginRecordService loginrecord.Service
 }
 
 func (m *MiddlewareImpl) Lang(next http.Handler) http.Handler {
@@ -67,6 +76,22 @@ func (m *MiddlewareImpl) Lang(next http.Handler) http.Handler {
 			lang = string(DefaultLangType)
 		}
 		ctx := context.WithValue(r.Context(), models.CtxKeyLang, lang)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func (m *MiddlewareImpl) Ua(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ua := r.Header.Get("User-Agent")
+		ctx := context.WithValue(r.Context(), models.CtxKeyUa, ua)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func (m *MiddlewareImpl) DeviceId(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		deviceId := r.Header.Get("Device-Id")
+		ctx := context.WithValue(r.Context(), models.CtxKeyDeviceId, deviceId)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -150,7 +175,7 @@ func (m *MiddlewareImpl) Verifier(next http.Handler) http.Handler {
 	if !m.authCfg.Enabled {
 		return next
 	}
-	return jwtauth.Verifier(m.accesstokenService.GetJwtAuth())(next)
+	return jwtauth.Verifier(m.accessTokenService.GetJwtAuth())(next)
 }
 
 // Authenticator override chi.Authenticator
@@ -189,5 +214,22 @@ func (m *MiddlewareImpl) AuthInfoSetter(next http.Handler) http.Handler {
 		ctx := context.WithValue(r.Context(), models.CtxKeyUserId, uint(userId.(float64)))
 		ctx = context.WithValue(ctx, models.CtxKeyUsername, username.(string))
 		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func (m *MiddlewareImpl) LoginRecorder(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// 获取Header中的user agent和device id
+		userId := r.Context().Value(models.CtxKeyUserId).(uint)
+		ua := r.Context().Value(models.CtxKeyUa)
+		deviceId := r.Context().Value(models.CtxKeyDeviceId).(string)
+		m.loginRecordService.Create(&loginrecord.LoginRecord{
+			UserId:    userId,
+			DeviceId:  deviceId,
+			LoginTime: time.Now(),
+			UserAgent: ua.(string),
+			Ip:        r.RemoteAddr,
+		})
+		next.ServeHTTP(w, r)
 	})
 }

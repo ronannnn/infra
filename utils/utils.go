@@ -1,4 +1,4 @@
-package infra
+package utils
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func pathExists(path string) (bool, error) {
+func PathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil { // path exists
 		return true, nil
@@ -19,9 +19,9 @@ func pathExists(path string) (bool, error) {
 	return false, err // other error
 }
 
-func createDirsIfNotExist(dirs ...string) (err error) {
+func CreateDirsIfNotExist(dirs ...string) (err error) {
 	for _, dir := range dirs {
-		if existing, pathExistsErr := pathExists(dir); !existing && pathExistsErr == nil {
+		if existing, pathExistsErr := PathExists(dir); !existing && pathExistsErr == nil {
 			if err = os.MkdirAll(dir, os.ModePerm); err != nil {
 				return
 			}

@@ -14,7 +14,7 @@ import (
 
 type LangType string
 
-var DefaultLangType = LangTypeEnUs
+var DefaultLangType = LangTypeZhCn
 
 const (
 	LangTypeZhCn LangType = "zh-cn"

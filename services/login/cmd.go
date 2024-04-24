@@ -3,8 +3,10 @@ package login
 // request commands and response results
 // login with username and password
 type UsernameCmd struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	UserAgent string `json:"userAgent"`
+	DeviceId  string `json:"deviceId"`
 }
 
 // refresh refresh token and access token

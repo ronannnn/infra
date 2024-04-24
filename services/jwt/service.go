@@ -10,6 +10,7 @@ import (
 	"github.com/ronannnn/infra/cfg"
 	"github.com/ronannnn/infra/services/jwt/accesstoken"
 	"github.com/ronannnn/infra/services/jwt/refreshtoken"
+	"github.com/ronannnn/infra/utils/useragent"
 	"gorm.io/gorm"
 )
 
@@ -19,13 +20,11 @@ var (
 
 type Service interface {
 	// generate access token and refresh token， used for login
-	GenerateTokens(ctx context.Context, claims refreshtoken.BaseClaims) (refreshToken string, accessToken string, err error)
+	GenerateTokens(ctx context.Context, claims refreshtoken.BaseClaims, userAgent string, deviceId string) (refreshToken string, accessToken string, dupLogin bool, err error)
 	// update access token and refresh token
-	UpdateTokens(ctx context.Context, refreshToken string) (newRefreshToken string, accessToken string, err error)
+	UpdateTokens(ctx context.Context, refreshToken string, userAgent string, deviceId string) (newRefreshToken string, accessToken string, dupLogin bool, err error)
 	// disable refresh token
-	DisableRefreshToken(ctx context.Context, tokenWithPrefix string) error
-	// disable refresh token by user id
-	DisableRefreshTokenByUserId(ctx context.Context, userId uint) error
+	DeleteTokenByUserIdAndLoginDeviceType(ctx context.Context, userId uint, loginDeviceType useragent.DeviceType) error
 }
 
 func ProvideService(
@@ -52,14 +51,22 @@ type ServiceImpl struct {
 	accesstokenService  accesstoken.Service
 }
 
-func (srv *ServiceImpl) GenerateTokens(ctx context.Context, claims refreshtoken.BaseClaims) (refreshToken string, accessToken string, err error) {
+func (srv *ServiceImpl) GenerateTokens(ctx context.Context, claims refreshtoken.BaseClaims, userAgent string, deviceId string) (refreshToken string, accessToken string, dupLogin bool, err error) {
 	err = srv.db.Transaction(func(tx *gorm.DB) (err error) {
+		// get refresh token
 		refreshTokenClaims := claims.ToMap()
 		jwtauth.SetExpiryIn(refreshTokenClaims, time.Duration(srv.cfg.RefreshTokenMinuteDuration)*time.Minute)
 		if _, refreshToken, err = srv.refreshtokenService.GetJwtAuth().Encode(refreshTokenClaims); err != nil {
 			return
 		}
-		if err = srv.refreshtokenStore.SaveTokenByUserId(ctx, tx, claims.UserId, refreshToken); err != nil {
+		// get login device type
+		loginDeviceType := useragent.Parse(userAgent).DeviceType()
+		if dupLogin, err = srv.refreshtokenStore.Save(ctx, tx, &refreshtoken.RefreshToken{
+			UserId:          &claims.UserId,
+			RefreshToken:    &refreshToken,
+			LoginDeviceType: &loginDeviceType,
+			DeviceId:        &deviceId,
+		}); err != nil {
 			return
 		}
 		accessTokenClaims := claims.ToMap()
@@ -70,46 +77,34 @@ func (srv *ServiceImpl) GenerateTokens(ctx context.Context, claims refreshtoken.
 	return
 }
 
-func (srv *ServiceImpl) UpdateTokens(ctx context.Context, refreshToken string) (newRefreshToken string, accessToken string, err error) {
+func (srv *ServiceImpl) UpdateTokens(ctx context.Context, refreshToken string, userAgent string, deviceId string) (newRefreshToken string, accessToken string, dupLogin bool, err error) {
 	var token jwt.Token
 	// validate refresh token
 	if token, err = jwtauth.VerifyToken(srv.refreshtokenService.GetJwtAuth(), refreshToken); err != nil {
-		return "", "", fmt.Errorf("invalid refresh token: %w", err)
+		return "", "", false, fmt.Errorf("invalid refresh token: %w", err)
 	}
 	// get user id from refresh token
 	username, _ := token.Get("username")
+	loginDeviceType, _ := token.Get("loginDeviceType")
 	userId, exists := token.Get("userId")
 	if !exists {
-		return "", "", fmt.Errorf("invalid refresh token: missing userId")
+		return "", "", false, fmt.Errorf("invalid refresh token: missing userId")
 	}
 	// compare with it in db
 	var tokenInDb string
-	if tokenInDb, err = srv.refreshtokenStore.GetTokenByUserId(ctx, srv.db, uint(userId.(float64))); err != nil {
+	if tokenInDb, err = srv.refreshtokenStore.Get(ctx, srv.db, uint(userId.(float64)), loginDeviceType.(useragent.DeviceType)); err != nil {
 		return
 	}
 	if tokenInDb != refreshToken {
-		return "", "", fmt.Errorf("incorrect refresh token")
+		return "", "", false, fmt.Errorf("incorrect refresh token")
 	}
 	return srv.GenerateTokens(ctx, refreshtoken.BaseClaims{
 		UserId:   uint(userId.(float64)),
 		Username: username.(string),
-	})
-}
-
-func (srv *ServiceImpl) DisableRefreshToken(ctx context.Context, tokenString string) error {
-	var err error
-	var token jwt.Token
-	if token, err = srv.refreshtokenService.GetJwtAuth().Decode(tokenString); err != nil {
-		return err
-	}
-	userId, exists := token.Get("userId")
-	if !exists {
-		return ErrInvalidTokenUserIdNotFound
-	}
-	return srv.DisableRefreshTokenByUserId(ctx, uint(userId.(float64)))
+	}, userAgent, deviceId)
 }
 
 // disable refresh token by user id
-func (srv *ServiceImpl) DisableRefreshTokenByUserId(ctx context.Context, userId uint) error {
-	return srv.refreshtokenStore.DeleteByUserId(ctx, srv.db, userId)
+func (srv *ServiceImpl) DeleteTokenByUserIdAndLoginDeviceType(ctx context.Context, userId uint, loginDeviceType useragent.DeviceType) error {
+	return srv.refreshtokenStore.Delete(ctx, srv.db, userId, loginDeviceType)
 }
