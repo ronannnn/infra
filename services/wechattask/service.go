@@ -15,6 +15,7 @@ type Service interface {
 	DeleteByIds(ctx context.Context, ids []uint) error
 	List(ctx context.Context, query WechatTaskQuery) (response.PageResult, error)
 	GetById(ctx context.Context, id uint) (WechatTask, error)
+	GetByUuid(ctx context.Context, uuid string) (WechatTask, error)
 }
 
 func ProvideService(
@@ -57,4 +58,8 @@ func (srv *ServiceImpl) List(ctx context.Context, query WechatTaskQuery) (respon
 
 func (srv *ServiceImpl) GetById(ctx context.Context, id uint) (WechatTask, error) {
 	return srv.store.GetById(srv.db, id)
+}
+
+func (srv *ServiceImpl) GetByUuid(ctx context.Context, uuid string) (WechatTask, error) {
+	return srv.store.GetByUuid(srv.db, uuid)
 }
