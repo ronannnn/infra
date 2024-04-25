@@ -4,10 +4,25 @@ import "github.com/ronannnn/infra/models"
 
 type WechatTask struct {
 	models.Base
-	Uuid          *string             `json:"uuid" gorm:"type:varchar(255);uniqueIndex"` // 任务唯一标识
-	Name          *string             `json:"name"`                                      // 任务名称
-	Disabled      *bool               `json:"disabled"`                                  // 是否禁用该任务
-	WechatUserIds *[]WechatTaskUserId `json:"wechatUserIds" gorm:"many2many:wechat_tasks_user_ids"`
+	Uuid          *string            `json:"uuid" gorm:"type:varchar(255);uniqueIndex"` // 任务唯一标识
+	Name          *string            `json:"name"`                                      // 任务名称
+	Disabled      *bool              `json:"disabled"`                                  // 是否禁用该任务
+	WechatUserIds *WechatTaskUserIds `json:"wechatUserIds" gorm:"many2many:wechat_tasks_user_ids"`
+}
+
+type WechatTaskUserIds []WechatTaskUserId
+
+func (w *WechatTaskUserIds) UserIds() []string {
+	var userIds []string
+	for _, user := range *w {
+		if user.Disabled != nil && *user.Disabled {
+			continue
+		}
+		if user.WechatUserId != nil {
+			userIds = append(userIds, *user.WechatUserId)
+		}
+	}
+	return userIds
 }
 
 type WechatTaskUserId struct {
