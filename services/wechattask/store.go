@@ -14,6 +14,7 @@ type Store interface {
 	DeleteByIds(tx *gorm.DB, ids []uint) error
 	List(tx *gorm.DB, query WechatTaskQuery) (response.PageResult, error)
 	GetById(tx *gorm.DB, id uint) (WechatTask, error)
+	GetByUuid(tx *gorm.DB, uuid string) (WechatTask, error)
 }
 
 func ProvideStore(
@@ -93,6 +94,11 @@ func (s StoreImpl) List(tx *gorm.DB, userQuery WechatTaskQuery) (result response
 
 func (s StoreImpl) GetById(tx *gorm.DB, id uint) (model WechatTask, err error) {
 	err = tx.Preload("WechatUserIds").First(&model, "id = ?", id).Error
+	return
+}
+
+func (s StoreImpl) GetByUuid(tx *gorm.DB, uuid string) (model WechatTask, err error) {
+	err = tx.Preload("WechatUserIds").First(&model, "uuid = ?", uuid).Error
 	return
 }
 
