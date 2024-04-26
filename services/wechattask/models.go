@@ -7,7 +7,7 @@ type WechatTask struct {
 	Uuid              *string            `json:"uuid" gorm:"type:varchar(36);uniqueIndex"` // 任务唯一标识
 	Name              *string            `json:"name"`                                     // 任务名称
 	Disabled          *bool              `json:"disabled"`                                 // 是否禁用该任务
-	WechatTaskUserIds *WechatTaskUserIds `json:"wechatTaskUserIds" gorm:"many2many:wechat_tasks_user_ids_idx"`
+	WechatTaskUserIds *WechatTaskUserIds `json:"wechatTaskUserIds" gorm:"many2many:wechat_tasks_wechat_task_user_ids"`
 }
 
 type WechatTaskUserIds []WechatTaskUserId
@@ -78,5 +78,5 @@ type WechatTaskUserId struct {
 	UserId      *string       `json:"userId"`   // 微信用户唯一标识
 	UserType    *UserType     `json:"userType"` // 微信用户类型: 好友，群组
 	Disabled    *bool         `json:"disabled"` // 是否禁用该用户
-	WechatTasks *[]WechatTask `json:"wechatTasks" gorm:"many2many:wechat_tasks_user_ids_idx"`
+	WechatTasks *[]WechatTask `json:"wechatTasks" gorm:"many2many:wechat_tasks_wechat_task_user_ids"`
 }
