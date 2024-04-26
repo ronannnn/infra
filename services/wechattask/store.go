@@ -38,16 +38,16 @@ func (s StoreImpl) Update(tx *gorm.DB, partialUpdatedModel *WechatTask) (updated
 		return updatedModel, models.ErrUpdatedId
 	}
 	err = tx.Transaction(func(tx2 *gorm.DB) (err error) {
-		if partialUpdatedModel.WechatUserIds != nil {
-			if err = tx2.Model(partialUpdatedModel).Association("WechatUserIds").Unscoped().Replace(partialUpdatedModel.WechatUserIds); err != nil {
+		if partialUpdatedModel.WechatTaskUserIds != nil {
+			if err = tx2.Model(partialUpdatedModel).Association("WechatTaskUserIds").Unscoped().Replace(partialUpdatedModel.WechatTaskUserIds); err != nil {
 				return
 			}
-			for _, WechatTaskUserId := range *partialUpdatedModel.WechatUserIds {
+			for _, WechatTaskUserId := range *partialUpdatedModel.WechatTaskUserIds {
 				if _, err = s.wechatTaskUserIdStore.update(tx2, &WechatTaskUserId); err != nil {
 					return
 				}
 			}
-			partialUpdatedModel.WechatUserIds = nil
+			partialUpdatedModel.WechatTaskUserIds = nil
 		}
 		result := tx2.Updates(partialUpdatedModel)
 		if result.Error != nil {
