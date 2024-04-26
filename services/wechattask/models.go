@@ -78,5 +78,5 @@ type WechatTaskUserId struct {
 	UserId      *string       `json:"userId"`   // 微信用户唯一标识
 	UserType    *UserType     `json:"userType"` // 微信用户类型: 好友，群组
 	Disabled    *bool         `json:"disabled"` // 是否禁用该用户
-	WechatTasks *[]WechatTask `json:"wechatTasks" gorm:"many2many:wechat_tasks_user_ids"`
+	WechatTasks *[]WechatTask `json:"wechatTasks" gorm:"many2many:wechat_tasks_user_ids_idx"`
 }

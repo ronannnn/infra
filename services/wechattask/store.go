@@ -54,7 +54,7 @@ func (s StoreImpl) Update(tx *gorm.DB, partialUpdatedModel *WechatTask) (updated
 			return result.Error
 		}
 		if result.RowsAffected == 0 {
-			return models.ErrModified("WechatTask")
+			return models.ErrModified("Wechat Task")
 		}
 		updatedModel, err = s.GetById(tx2, partialUpdatedModel.Id)
 		return
@@ -79,7 +79,7 @@ func (s StoreImpl) List(tx *gorm.DB, userQuery WechatTaskQuery) (result response
 	if err = tx.
 		Scopes(query.MakeConditionFromQuery(userQuery)).
 		Scopes(query.Paginate(userQuery.Pagination.PageNum, userQuery.Pagination.PageSize)).
-		Preload("WechatUserIds").
+		Scopes(wechatTaskPreload()).
 		Find(&list).Error; err != nil {
 		return
 	}
@@ -93,12 +93,12 @@ func (s StoreImpl) List(tx *gorm.DB, userQuery WechatTaskQuery) (result response
 }
 
 func (s StoreImpl) GetById(tx *gorm.DB, id uint) (model WechatTask, err error) {
-	err = tx.Preload("WechatUserIds").First(&model, "id = ?", id).Error
+	err = tx.Scopes(wechatTaskPreload()).First(&model, "id = ?", id).Error
 	return
 }
 
 func (s StoreImpl) GetByUuid(tx *gorm.DB, uuid string) (model WechatTask, err error) {
-	err = tx.Preload("WechatUserIds").First(&model, "uuid = ?", uuid).Error
+	err = tx.Scopes(wechatTaskPreload()).First(&model, "uuid = ?", uuid).Error
 	return
 }
 
@@ -124,7 +124,7 @@ func (s *WechatTaskUserIdImpl) update(tx *gorm.DB, partialUpdatedModel *WechatTa
 			return result.Error
 		}
 		if result.RowsAffected == 0 {
-			return models.ErrModified("In Subtasks")
+			return models.ErrModified("Wechat Task User Id")
 		}
 		updatedModel, err = s.getById(tx2, partialUpdatedModel.Id)
 		return
