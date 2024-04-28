@@ -113,11 +113,17 @@ type AliOssObjectMeta struct {
 	XOssStorageClass string // 存储类型
 }
 
+func (m *AliOssObjectMeta) IsArchived() bool {
+	return m.XOssStorageClass == "Archive" ||
+		m.XOssStorageClass == "ColdArchive" ||
+		m.XOssStorageClass == "DeepColdArchive"
+}
+
 type AliOss interface {
 	Save(ctx context.Context, bucketName, objectName string, reader io.Reader) error
 	Delete(ctx context.Context, bucketName, objectName string) error
 	Get(ctx context.Context, bucketName, objectName string) (io.ReadCloser, error)
-	GetMeta(ctx context.Context, bucketName, objectName string) (AliOssObjectMeta, error)
+	GetObjectMeta(ctx context.Context, bucketName, objectName string) (AliOssObjectMeta, error)
 	GetDownloadUrl(ctx context.Context, bucketName, objectName string) (string, error)
 	GetDownloadUrlWithStyle(ctx context.Context, bucketName, objectName string, style string) (string, error)
 	GetUploadUrl(ctx context.Context, bucketName, objectName string) (string, error)
@@ -176,7 +182,7 @@ func (srv *AliOssImpl) Get(ctx context.Context, bucketName, objectName string) (
 	}
 }
 
-func (srv *AliOssImpl) GetMeta(ctx context.Context, bucketName, objectName string) (meta AliOssObjectMeta, err error) {
+func (srv *AliOssImpl) GetObjectMeta(ctx context.Context, bucketName, objectName string) (meta AliOssObjectMeta, err error) {
 	var bucket *oss.Bucket
 	if bucket, err = srv.aliOssCli.Bucket(bucketName); err != nil {
 		return
