@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"time"
 
@@ -105,10 +106,18 @@ func (srv *MiniossImpl) DeleteBucket(ctx context.Context, bucketName string) err
 	return srv.minioCli.RemoveBucket(ctx, bucketName)
 }
 
+// AliOssObjectMeta 对象元数据
+// https://help.aliyun.com/zh/oss/developer-reference/headobject?spm=a2c4g.11186623.0.0.4f61a19f8FolJt
+type AliOssObjectMeta struct {
+	XOssObjectType   string // object类型
+	XOssStorageClass string // 存储类型
+}
+
 type AliOss interface {
 	Save(ctx context.Context, bucketName, objectName string, reader io.Reader) error
 	Delete(ctx context.Context, bucketName, objectName string) error
 	Get(ctx context.Context, bucketName, objectName string) (io.ReadCloser, error)
+	GetMeta(ctx context.Context, bucketName, objectName string) (AliOssObjectMeta, error)
 	GetDownloadUrl(ctx context.Context, bucketName, objectName string) (string, error)
 	GetDownloadUrlWithStyle(ctx context.Context, bucketName, objectName string, style string) (string, error)
 	GetUploadUrl(ctx context.Context, bucketName, objectName string) (string, error)
@@ -165,6 +174,22 @@ func (srv *AliOssImpl) Get(ctx context.Context, bucketName, objectName string) (
 	} else {
 		return bucket.GetObject(objectName)
 	}
+}
+
+func (srv *AliOssImpl) GetMeta(ctx context.Context, bucketName, objectName string) (meta AliOssObjectMeta, err error) {
+	var bucket *oss.Bucket
+	if bucket, err = srv.aliOssCli.Bucket(bucketName); err != nil {
+		return
+	}
+	var metaHeader http.Header
+	if metaHeader, err = bucket.GetObjectDetailedMeta(objectName); err != nil {
+		return
+	}
+	meta = AliOssObjectMeta{
+		XOssObjectType:   metaHeader.Get("x-oss-object-type"),
+		XOssStorageClass: metaHeader.Get("x-oss-storage-class"),
+	}
+	return
 }
 
 func (srv *AliOssImpl) GetDownloadUrl(ctx context.Context, bucketName, objectName string) (url string, err error) {
