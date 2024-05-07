@@ -29,7 +29,7 @@ type Response struct {
 	Data     any      `json:"data,omitempty"`
 	Message  string   `json:"message,omitempty"`
 	Code     int      `json:"code,omitempty"`
-	ShowType ShowType `json:"showType,omitempty"`
+	ShowType ShowType `json:"showType"`
 }
 
 func Result(w http.ResponseWriter, r *http.Request, response Response) {
@@ -51,6 +51,10 @@ func FailWithMsg(w http.ResponseWriter, r *http.Request, msg string) {
 
 func FailWithErr(w http.ResponseWriter, r *http.Request, err error) {
 	Result(w, r, Response{Message: err.Error(), Code: NormalErrorCode, ShowType: ErrorMessage})
+}
+
+func FailWithSilentErr(w http.ResponseWriter, r *http.Request, err error) {
+	Result(w, r, Response{Message: err.Error(), Code: NormalErrorCode, ShowType: Silent})
 }
 
 func ErrAccessToken(w http.ResponseWriter, r *http.Request, err error) {
