@@ -4,7 +4,7 @@ import "github.com/ronannnn/infra/models/request/query"
 
 type CompanyQuery struct {
 	Pagination query.Pagination    `json:"pagination"`
-	WhereQuery []CompanyWhereQuery `json:"whereQuery" query:"category:where"`
+	WhereQuery CompanyWhereQuery   `json:"whereQuery" query:"category:where"`
 	OrderQuery []CompanyOrderQuery `json:"orderQuery" query:"category:order"`
 }
 

@@ -4,7 +4,7 @@ import "github.com/ronannnn/infra/models/request/query"
 
 type UserQuery struct {
 	Pagination query.Pagination `json:"pagination"`
-	WhereQuery []UserWhereQuery `json:"whereQuery" query:"category:where"`
+	WhereQuery UserWhereQuery   `json:"whereQuery" query:"category:where"`
 	OrderQuery []UserOrderQuery `json:"orderQuery" query:"category:order"`
 }
 

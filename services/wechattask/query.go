@@ -4,7 +4,7 @@ import "github.com/ronannnn/infra/models/request/query"
 
 type WechatTaskQuery struct {
 	Pagination query.Pagination       `json:"pagination"`
-	WhereQuery []WechatTaskWhereQuery `json:"whereQuery" query:"category:where"`
+	WhereQuery WechatTaskWhereQuery   `json:"whereQuery" query:"category:where"`
 	OrderQuery []WechatTaskOrderQuery `json:"orderQuery" query:"category:order"`
 }
 

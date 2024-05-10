@@ -4,7 +4,7 @@ import "github.com/ronannnn/infra/models/request/query"
 
 type MenuQuery struct {
 	Pagination query.Pagination `json:"pagination"`
-	WhereQuery []MenuWhereQuery `json:"whereQuery" query:"category:where"`
+	WhereQuery MenuWhereQuery   `json:"whereQuery" query:"category:where"`
 	OrderQuery []MenuOrderQuery `json:"orderQuery" query:"category:order"`
 }
 

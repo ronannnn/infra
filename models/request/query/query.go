@@ -101,7 +101,7 @@ func ResolveQuery(search any, condition DbCondition) {
 		if tag.Category == CategorySelect {
 			ResolveSelects(queryValue.Field(i).Interface(), condition)
 		} else if tag.Category == CategoryWhere {
-			ResolveWheres(queryValue.Field(i).Interface(), condition)
+			ResolveWhere(queryValue.Field(i).Interface(), condition)
 		} else if tag.Category == CategoryOrder {
 			ResolveOrders(queryValue.Field(i).Interface(), condition)
 		}
@@ -139,15 +139,6 @@ func ResolveSelect(selectModel any, condition DbCondition) {
 			col = fmt.Sprintf("`%s`.`%s`", tag.Table, tag.Column)
 		}
 		condition.SetSelect(col)
-	}
-}
-
-func ResolveWheres(wheres any, condition DbCondition) {
-	kind := reflect.TypeOf(wheres).Kind()
-	if kind == reflect.Slice || kind == reflect.Array {
-		for i := 0; i < reflect.ValueOf(wheres).Len(); i++ {
-			ResolveWhere(reflect.ValueOf(wheres).Index(i).Interface(), condition)
-		}
 	}
 }
 

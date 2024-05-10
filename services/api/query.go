@@ -4,7 +4,7 @@ import "github.com/ronannnn/infra/models/request/query"
 
 type ApiQuery struct {
 	Pagination  query.Pagination `json:"pagination" excel:"-"`
-	WhereQuery  []ApiWhereQuery  `json:"whereQuery" query:"category:where" excel:"-"`
+	WhereQuery  ApiWhereQuery    `json:"whereQuery" query:"category:where" excel:"-"`
 	OrderQuery  []ApiOrderQuery  `json:"orderQuery" query:"category:order" excel:"-"`
 	SelectQUery []ApiSelectQuery `json:"selectQUery" query:"category:select"`
 }

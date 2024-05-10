@@ -4,7 +4,7 @@ import "github.com/ronannnn/infra/models/request/query"
 
 type DepartmentQuery struct {
 	Pagination query.Pagination       `json:"pagination"`
-	WhereQuery []DepartmentWhereQuery `json:"whereQuery" query:"category:where"`
+	WhereQuery DepartmentWhereQuery   `json:"whereQuery" query:"category:where"`
 	OrderQuery []DepartmentOrderQuery `json:"orderQuery" query:"category:order"`
 }
 

@@ -4,7 +4,7 @@ import "github.com/ronannnn/infra/models/request/query"
 
 type RoleQuery struct {
 	Pagination query.Pagination `json:"pagination"`
-	WhereQuery []RoleWhereQuery `json:"whereQuery" query:"category:where"`
+	WhereQuery RoleWhereQuery   `json:"whereQuery" query:"category:where"`
 	OrderQuery []RoleOrderQuery `json:"orderQuery" query:"category:order"`
 }
 
