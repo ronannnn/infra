@@ -16,7 +16,7 @@ type Example struct {
 	LteField   string `query:"type:lte;column:lte_field"`
 	LikeField  string `query:"type:like;column:like_field"`
 	InField    []uint `query:"type:in;column:in_field"`
-	OrderField string `query:"type:order;column:order_field"`
+	OrderField string `query:"column:order_field"`
 }
 
 func TestParseSearch(t *testing.T) {

@@ -6,42 +6,46 @@ import (
 	"strings"
 
 	"github.com/ronannnn/infra/utils"
-	"gorm.io/gorm"
 )
+
+const TagStr = "query"
 
 type Range struct {
 	Start any `json:"start"`
 	End   any `json:"end"`
 }
 
-const TagStr = "query"
+const (
+	CategorySelect = "select"
+	CategoryWhere  = "where"
+	CategoryOrder  = "order"
+)
 
 const (
-	TypeSkip   = "-"
-	TypeEq     = "eq"
-	TypeNe     = "ne"
-	TypeGt     = "gt"
-	TypeGte    = "gte"
-	TypeLt     = "lt"
-	TypeLte    = "lte"
-	TypeLike   = "like"
-	TypeIn     = "in"
-	TypeOrder  = "order"
-	TypeSelect = "select"
-	TypeRange  = "range"
+	TypeSkip  = "-"
+	TypeEq    = "eq"
+	TypeNe    = "ne"
+	TypeGt    = "gt"
+	TypeGte   = "gte"
+	TypeLt    = "lt"
+	TypeLte   = "lte"
+	TypeLike  = "like"
+	TypeIn    = "in"
+	TypeRange = "range"
 )
 
 // queryTag
 // example struct
 //
 //		type Example struct {
-//			Pagination Pagination `json:"pagination" query:"-"` // skip
+//			Pagination Pagination `json:"pagination"` // skip
 //			Username   *string    `json:"username" query:"type:like;column:username"`
 //	 }
 type tag struct {
-	Type   string
-	Column string
-	Table  string
+	Category string
+	Type     string
+	Table    string
+	Column   string
 }
 
 func parseQueryTag(queryTag string) *tag {
@@ -54,17 +58,21 @@ func parseQueryTag(queryTag string) *tag {
 			continue
 		}
 		switch ts[0] {
+		case "category":
+			if len(ts) > 1 {
+				r.Category = ts[1]
+			}
 		case "type":
 			if len(ts) > 1 {
 				r.Type = ts[1]
 			}
-		case "column":
-			if len(ts) > 1 {
-				r.Column = ts[1]
-			}
 		case "table":
 			if len(ts) > 1 {
 				r.Table = ts[1]
+			}
+		case "column":
+			if len(ts) > 1 {
+				r.Column = ts[1]
 			}
 		}
 	}
@@ -72,18 +80,91 @@ func parseQueryTag(queryTag string) *tag {
 }
 
 func ResolveQuery(search any, condition DbCondition) {
-	searchType := reflect.TypeOf(search)
-	searchValue := reflect.ValueOf(search)
-	for i := 0; i < searchType.NumField(); i++ {
-		tagStr, ok := searchType.Field(i).Tag.Lookup(TagStr)
+	queryType := reflect.TypeOf(search)
+	queryValue := reflect.ValueOf(search)
+	for i := 0; i < queryType.NumField(); i++ {
+		tagStr, ok := queryType.Field(i).Tag.Lookup(TagStr)
+		// 如果没有tag则跳过
 		if !ok {
-			// 递归调用
-			ResolveQuery(searchValue.Field(i).Interface(), condition)
 			continue
 		}
+		// 如果没有tag或者是空值或者是空数组跳过
+		// 没有tag
+		if !ok ||
+			// 是空值
+			queryValue.Field(i).IsZero() ||
+			// 空数组
+			((queryValue.Field(i).Kind() == reflect.Array || queryValue.Field(i).Kind() == reflect.Slice) && queryValue.Field(i).Len() == 0) {
+			continue
+		}
+		tag := parseQueryTag(tagStr)
+		if tag.Category == CategorySelect {
+			ResolveSelects(queryValue.Field(i).Interface(), condition)
+		} else if tag.Category == CategoryWhere {
+			ResolveWheres(queryValue.Field(i).Interface(), condition)
+		} else if tag.Category == CategoryOrder {
+			ResolveOrders(queryValue.Field(i).Interface(), condition)
+		}
+	}
+}
+
+func ResolveSelects(selects any, condition DbCondition) {
+	kind := reflect.TypeOf(selects).Kind()
+	if kind == reflect.Slice || kind == reflect.Array {
+		for i := 0; i < reflect.ValueOf(selects).Len(); i++ {
+			ResolveSelect(reflect.ValueOf(selects).Index(i).Interface(), condition)
+		}
+	}
+}
+
+func ResolveSelect(selectModel any, condition DbCondition) {
+	queryType := reflect.TypeOf(selectModel)
+	queryValue := reflect.ValueOf(selectModel)
+	for i := 0; i < queryType.NumField(); i++ {
+		tagStr, ok := queryType.Field(i).Tag.Lookup(TagStr)
+		if !ok {
+			// 递归调用
+			ResolveSelect(queryValue.Field(i).Interface(), condition)
+			continue
+		}
+		// 如果是skip或者是空值则跳过
+		if tagStr == TypeSkip || queryValue.Field(i).IsZero() {
+			continue
+		}
+		tag := parseQueryTag(tagStr)
+		var col string
+		if tag.Table == "" {
+			col = fmt.Sprintf("`%s`", tag.Column)
+		} else {
+			col = fmt.Sprintf("`%s`.`%s`", tag.Table, tag.Column)
+		}
+		condition.SetSelect(col)
+	}
+}
+
+func ResolveWheres(wheres any, condition DbCondition) {
+	kind := reflect.TypeOf(wheres).Kind()
+	if kind == reflect.Slice || kind == reflect.Array {
+		for i := 0; i < reflect.ValueOf(wheres).Len(); i++ {
+			ResolveWhere(reflect.ValueOf(wheres).Index(i).Interface(), condition)
+		}
+	}
+}
+
+func ResolveWhere(where any, condition DbCondition) {
+	queryType := reflect.TypeOf(where)
+	queryValue := reflect.ValueOf(where)
+	for i := 0; i < queryType.NumField(); i++ {
+		tagStr, ok := queryType.Field(i).Tag.Lookup(TagStr)
+		if !ok {
+			// 递归调用
+			ResolveWhere(queryValue.Field(i).Interface(), condition)
+			continue
+		}
+		// 如果是skip或者是空值或者是空数组跳过
 		if tagStr == TypeSkip ||
-			searchValue.Field(i).IsZero() ||
-			((searchValue.Field(i).Kind() == reflect.Array || searchValue.Field(i).Kind() == reflect.Slice) && searchValue.Field(i).Len() == 0) {
+			queryValue.Field(i).IsZero() ||
+			((queryValue.Field(i).Kind() == reflect.Array || queryValue.Field(i).Kind() == reflect.Slice) && queryValue.Field(i).Len() == 0) {
 			continue
 		}
 		tag := parseQueryTag(tagStr)
@@ -96,31 +177,24 @@ func ResolveQuery(search any, condition DbCondition) {
 		//解析
 		switch tag.Type {
 		case TypeEq:
-			condition.SetWhere(fmt.Sprintf("%s = ?", col), []any{searchValue.Field(i).Interface()})
+			condition.SetWhere(fmt.Sprintf("%s = ?", col), []any{queryValue.Field(i).Interface()})
 		case TypeNe:
-			condition.SetNot(fmt.Sprintf("%s = ?", col), []any{searchValue.Field(i).Interface()})
+			condition.SetNot(fmt.Sprintf("%s = ?", col), []any{queryValue.Field(i).Interface()})
 		case TypeLike:
-			condition.SetWhere(fmt.Sprintf("%s like ?", col), []any{"%" + searchValue.Field(i).String() + "%"})
+			condition.SetWhere(fmt.Sprintf("%s like ?", col), []any{"%" + queryValue.Field(i).String() + "%"})
 		case TypeGt:
-			condition.SetWhere(fmt.Sprintf("%s > ?", col), []any{searchValue.Field(i).Interface()})
+			condition.SetWhere(fmt.Sprintf("%s > ?", col), []any{queryValue.Field(i).Interface()})
 		case TypeGte:
-			condition.SetWhere(fmt.Sprintf("%s >= ?", col), []any{searchValue.Field(i).Interface()})
+			condition.SetWhere(fmt.Sprintf("%s >= ?", col), []any{queryValue.Field(i).Interface()})
 		case TypeLt:
-			condition.SetWhere(fmt.Sprintf("%s < ?", col), []any{searchValue.Field(i).Interface()})
+			condition.SetWhere(fmt.Sprintf("%s < ?", col), []any{queryValue.Field(i).Interface()})
 		case TypeLte:
-			condition.SetWhere(fmt.Sprintf("%s <= ?", col), []any{searchValue.Field(i).Interface()})
+			condition.SetWhere(fmt.Sprintf("%s <= ?", col), []any{queryValue.Field(i).Interface()})
 		case TypeIn:
-			condition.SetWhere(fmt.Sprintf("%s in (?)", col), []any{searchValue.Field(i).Interface()})
-		case TypeOrder:
-			switch strings.ToLower(searchValue.Field(i).String()) {
-			case "desc", "asc":
-				condition.SetOrder(fmt.Sprintf("%s %s", col, searchValue.Field(i).String()))
-			}
-		case TypeSelect:
-			condition.SetSelect(col)
+			condition.SetWhere(fmt.Sprintf("%s in (?)", col), []any{queryValue.Field(i).Interface()})
 		case TypeRange:
-			start := searchValue.Field(i).Interface().(Range).Start
-			end := searchValue.Field(i).Interface().(Range).End
+			start := queryValue.Field(i).Interface().(Range).Start
+			end := queryValue.Field(i).Interface().(Range).End
 			if !utils.IsZeroValue(start) {
 				condition.SetWhere(fmt.Sprintf("%s >= ?", col), []any{start})
 			}
@@ -131,16 +205,41 @@ func ResolveQuery(search any, condition DbCondition) {
 	}
 }
 
-func ResolveQueryRange(queryRange Range, fieldName string) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		start := queryRange.Start
-		end := queryRange.End
-		if !utils.IsZeroValue(start) {
-			db.Where(fmt.Sprintf("%s >= ?", fieldName), start)
+func ResolveOrders(orders any, condition DbCondition) {
+	kind := reflect.TypeOf(orders).Kind()
+	if kind == reflect.Slice || kind == reflect.Array {
+		for i := 0; i < reflect.ValueOf(orders).Len(); i++ {
+			ResolveOrder(reflect.ValueOf(orders).Index(i).Interface(), condition)
 		}
-		if !utils.IsZeroValue(end) {
-			db.Where(fmt.Sprintf("%s <= ?", fieldName), end)
+	}
+}
+
+func ResolveOrder(order any, condition DbCondition) {
+	queryType := reflect.TypeOf(order)
+	queryValue := reflect.ValueOf(order)
+	for i := 0; i < queryType.NumField(); i++ {
+		tagStr, ok := queryType.Field(i).Tag.Lookup(TagStr)
+		if !ok {
+			// 递归调用
+			ResolveOrder(queryValue.Field(i).Interface(), condition)
+			continue
 		}
-		return db
+		if tagStr == TypeSkip ||
+			queryValue.Field(i).IsZero() ||
+			((queryValue.Field(i).Kind() == reflect.Array || queryValue.Field(i).Kind() == reflect.Slice) && queryValue.Field(i).Len() == 0) {
+			continue
+		}
+		tag := parseQueryTag(tagStr)
+		var col string
+		if tag.Table == "" {
+			col = fmt.Sprintf("`%s`", tag.Column)
+		} else {
+			col = fmt.Sprintf("`%s`.`%s`", tag.Table, tag.Column)
+		}
+		//解析
+		switch strings.ToLower(queryValue.Field(i).String()) {
+		case "desc", "asc":
+			condition.SetOrder(fmt.Sprintf("%s %s", col, queryValue.Field(i).String()))
+		}
 	}
 }

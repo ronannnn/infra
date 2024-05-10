@@ -3,32 +3,32 @@ package api
 import "github.com/ronannnn/infra/models/request/query"
 
 type ApiQuery struct {
-	Pagination  query.Pagination `json:"pagination" search:"-" excel:"-"`
-	WhereQuery  ApiWhereQuery    `json:"whereQuery" excel:"-"`
-	OrderQuery  ApiOrderQuery    `json:"orderQuery" excel:"-"`
-	SelectQUery ApiSelectQuery   `json:"selectQUery"`
+	Pagination  query.Pagination `json:"pagination" excel:"-"`
+	WhereQuery  []ApiWhereQuery  `json:"whereQuery" query:"category:where" excel:"-"`
+	OrderQuery  []ApiOrderQuery  `json:"orderQuery" query:"category:order" excel:"-"`
+	SelectQUery []ApiSelectQuery `json:"selectQUery" query:"category:select"`
 }
 
 type ApiWhereQuery struct {
-	Name        string   `json:"name" search:"type:like;column:name"`
-	Method      []string `json:"method" search:"type:in;column:method"`
-	Path        string   `json:"path" search:"type:like;column:path"`
-	Description string   `json:"description" search:"type:like;column:description"`
+	Name        string   `json:"name" query:"type:like;column:name"`
+	Method      []string `json:"method" query:"type:in;column:method"`
+	Path        string   `json:"path" query:"type:like;column:path"`
+	Description string   `json:"description" query:"type:like;column:description"`
 }
 
 type ApiOrderQuery struct {
-	CreatedAt   string `json:"createdAt" search:"type:order;column:created_at"`
-	Name        string `json:"name" search:"type:order;column:name"`
-	Method      string `json:"method" search:"type:order;column:method"`
-	Path        string `json:"path" search:"type:order;column:path"`
-	Description string `json:"description" search:"type:order;column:description"`
+	CreatedAt   string `json:"createdAt" query:"column:created_at"`
+	Name        string `json:"name" query:"column:name"`
+	Method      string `json:"method" query:"column:method"`
+	Path        string `json:"path" query:"column:path"`
+	Description string `json:"description" query:"column:description"`
 }
 
 type ApiSelectQuery struct {
-	Name        bool `json:"name" search:"type:select;column:name" excel:"column:Name;width:20"`
-	Method      bool `json:"method" search:"type:select;column:method" excel:"column:Method;width:10"`
-	Path        bool `json:"path" search:"type:select;column:path" excel:"column:Path;width:20"`
-	Description bool `json:"description" search:"type:select;column:description" excel:"column:Description;width:20"`
+	Name        bool `json:"name" query:"column:name" excel:"column:Name;width:20"`
+	Method      bool `json:"method" query:"column:method" excel:"column:Method;width:10"`
+	Path        bool `json:"path" query:"column:path" excel:"column:Path;width:20"`
+	Description bool `json:"description" query:"column:description" excel:"column:Description;width:20"`
 }
 
 func (a *ApiQuery) TableName() string {

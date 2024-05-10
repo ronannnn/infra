@@ -15,16 +15,3 @@ type Department struct {
 	ParentId  *uint            `json:"parentId"`
 	Parent    *Department      `json:"parent"`
 }
-
-type DepartmentQuery struct {
-	WhereQuery DepartmentWhereQuery `json:"whereQuery"`
-	OrderQuery DepartmentOrderQuery `json:"orderQuery"`
-}
-
-type DepartmentWhereQuery struct {
-	Name string `json:"name" search:"type:like;column:name"`
-}
-
-type DepartmentOrderQuery struct {
-	CreatedAt string `json:"createdAt" search:"type:order;column:created_at"`
-}

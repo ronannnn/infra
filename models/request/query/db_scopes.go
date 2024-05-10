@@ -1,6 +1,11 @@
 package query
 
-import "gorm.io/gorm"
+import (
+	"fmt"
+
+	"github.com/ronannnn/infra/utils"
+	"gorm.io/gorm"
+)
 
 // Paginate for gorm pagination scopes
 func Paginate(pageNum, pageSize int) func(db *gorm.DB) *gorm.DB {
@@ -37,6 +42,20 @@ func MakeCondition(condition *DbConditionImpl) func(db *gorm.DB) *gorm.DB {
 		}
 		if len(condition.Select) > 0 {
 			db = db.Select(condition.Select)
+		}
+		return db
+	}
+}
+
+func ResolveQueryRange(queryRange Range, fieldName string) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		start := queryRange.Start
+		end := queryRange.End
+		if !utils.IsZeroValue(start) {
+			db.Where(fmt.Sprintf("%s >= ?", fieldName), start)
+		}
+		if !utils.IsZeroValue(end) {
+			db.Where(fmt.Sprintf("%s <= ?", fieldName), end)
 		}
 		return db
 	}
