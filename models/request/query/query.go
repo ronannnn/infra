@@ -36,15 +36,18 @@ type Range struct {
 }
 
 const (
-	TypeEq    = "eq"
-	TypeNe    = "ne"
-	TypeGt    = "gt"
-	TypeGte   = "gte"
-	TypeLt    = "lt"
-	TypeLte   = "lte"
-	TypeLike  = "like"
-	TypeIn    = "in"
-	TypeRange = "range"
+	TypeEq        = "eq"
+	TypeNe        = "ne"
+	TypeGt        = "gt"
+	TypeGte       = "gte"
+	TypeLt        = "lt"
+	TypeLte       = "lte"
+	TypeLike      = "like"
+	TypeStartLike = "start_like"
+	TypeEndLike   = "end_like"
+	TypeIn        = "in"
+	TypeNotIn     = "not_in"
+	TypeRange     = "range"
 )
 
 type QuerySetter interface {
@@ -87,8 +90,6 @@ func ResolveWhereQuery(items []WhereQueryItem, tblName string, fieldColMapper ma
 				condition.SetWhere(fmt.Sprintf("%s = ?", fullColName), []any{item.Value})
 			case TypeNe:
 				condition.SetNot(fmt.Sprintf("%s != ?", fullColName), []any{item.Value})
-			case TypeLike:
-				condition.SetWhere(fmt.Sprintf("%s like ?", fullColName), []any{"%" + item.Value.(string) + "%"})
 			case TypeGt:
 				condition.SetWhere(fmt.Sprintf("%s > ?", fullColName), []any{item.Value})
 			case TypeGte:
@@ -97,8 +98,16 @@ func ResolveWhereQuery(items []WhereQueryItem, tblName string, fieldColMapper ma
 				condition.SetWhere(fmt.Sprintf("%s < ?", fullColName), []any{item.Value})
 			case TypeLte:
 				condition.SetWhere(fmt.Sprintf("%s <= ?", fullColName), []any{item.Value})
+			case TypeLike:
+				condition.SetWhere(fmt.Sprintf("%s like ?", fullColName), []any{"%" + item.Value.(string) + "%"})
+			case TypeStartLike:
+				condition.SetWhere(fmt.Sprintf("%s like ?", fullColName), []any{item.Value.(string) + "%"})
+			case TypeEndLike:
+				condition.SetWhere(fmt.Sprintf("%s like ?", fullColName), []any{"%" + item.Value.(string)})
 			case TypeIn:
 				condition.SetWhere(fmt.Sprintf("%s in (?)", fullColName), []any{item.Value})
+			case TypeNotIn:
+				condition.SetWhere(fmt.Sprintf("%s not in (?)", fullColName), []any{item.Value})
 			case TypeRange:
 				start := item.Value.(Range).Start
 				end := item.Value.(Range).End

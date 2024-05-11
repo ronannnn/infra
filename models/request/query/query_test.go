@@ -44,7 +44,10 @@ func TestParseSearch(t *testing.T) {
 			{Field: "height", Opr: query.TypeGte, Value: 170.5},
 			{Field: "height", Opr: query.TypeLte, Value: 185},
 			{Field: "carNumber", Opr: query.TypeLike, Value: "浙"},
+			{Field: "carNumber", Opr: query.TypeStartLike, Value: "浙"},
+			{Field: "carNumber", Opr: query.TypeEndLike, Value: "浙"},
 			{Field: "status", Opr: query.TypeIn, Value: []uint{1, 2, 3}},
+			{Field: "status", Opr: query.TypeNotIn, Value: []uint{4, 5}},
 			{Field: "birth", Opr: query.TypeRange, Value: query.Range{Start: "2000-01-01", End: "2000-12-31"}},
 		},
 		OrderQuery: []query.OrderQueryItem{
@@ -60,16 +63,19 @@ func TestParseSearch(t *testing.T) {
 	require.EqualValues(t, "`test_users`.`username`", condition.Select[0])
 	require.EqualValues(t, "`test_users`.`car_number`", condition.Select[1])
 	// where
-	require.EqualValues(t, "ronan", condition.Where["`test_users`.`username` = ?"][0])
-	require.EqualValues(t, "awe", condition.Not["`test_users`.`nickname` != ?"][0])
-	require.EqualValues(t, 18, condition.Where["`test_users`.`age` > ?"][0])
-	require.EqualValues(t, 25, condition.Where["`test_users`.`age` < ?"][0])
-	require.EqualValues(t, 170.5, condition.Where["`test_users`.`height` >= ?"][0])
-	require.EqualValues(t, 185, condition.Where["`test_users`.`height` <= ?"][0])
-	require.EqualValues(t, "%浙%", condition.Where["`test_users`.`car_number` like ?"][0])
-	require.EqualValues(t, 3, len(condition.Where["`test_users`.`status` in (?)"][0].([]uint)))
-	require.EqualValues(t, "2000-01-01", condition.Where["`test_users`.`birth` >= ?"][0])
-	require.EqualValues(t, "2000-12-31", condition.Where["`test_users`.`birth` <= ?"][0])
+	require.EqualValues(t, "ronan", condition.Where["`test_users`.`username` = ?"][0][0])
+	require.EqualValues(t, "awe", condition.Not["`test_users`.`nickname` != ?"][0][0])
+	require.EqualValues(t, 18, condition.Where["`test_users`.`age` > ?"][0][0])
+	require.EqualValues(t, 25, condition.Where["`test_users`.`age` < ?"][0][0])
+	require.EqualValues(t, 170.5, condition.Where["`test_users`.`height` >= ?"][0][0])
+	require.EqualValues(t, 185, condition.Where["`test_users`.`height` <= ?"][0][0])
+	require.EqualValues(t, "%浙%", condition.Where["`test_users`.`car_number` like ?"][0][0])
+	require.EqualValues(t, "浙%", condition.Where["`test_users`.`car_number` like ?"][1][0])
+	require.EqualValues(t, "%浙", condition.Where["`test_users`.`car_number` like ?"][2][0])
+	require.EqualValues(t, 3, len(condition.Where["`test_users`.`status` in (?)"][0][0].([]uint)))
+	require.EqualValues(t, 2, len(condition.Where["`test_users`.`status` not in (?)"][0][0].([]uint)))
+	require.EqualValues(t, "2000-01-01", condition.Where["`test_users`.`birth` >= ?"][0][0])
+	require.EqualValues(t, "2000-12-31", condition.Where["`test_users`.`birth` <= ?"][0][0])
 	// order
 	require.EqualValues(t, 2, len(condition.Order))
 	require.EqualValues(t, "`test_users`.`birth` desc", condition.Order[0])

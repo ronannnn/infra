@@ -9,32 +9,47 @@ type DbCondition interface {
 }
 
 type DbConditionImpl struct {
-	Where  map[string][]any
-	Or     map[string][]any
-	Not    map[string][]any
+	Where  map[string][][]any
+	Or     map[string][][]any
+	Not    map[string][][]any
 	Order  []string
 	Select []string
 }
 
 func (e *DbConditionImpl) SetWhere(k string, v []any) {
 	if e.Where == nil {
-		e.Where = make(map[string][]any)
+		e.Where = make(map[string][][]any)
 	}
-	e.Where[k] = v
+	old, ok := e.Where[k]
+	if ok {
+		e.Where[k] = append(old, v)
+	} else {
+		e.Where[k] = [][]any{v}
+	}
 }
 
 func (e *DbConditionImpl) SetOr(k string, v []any) {
 	if e.Or == nil {
-		e.Or = make(map[string][]any)
+		e.Or = make(map[string][][]any)
 	}
-	e.Or[k] = v
+	old, ok := e.Or[k]
+	if ok {
+		e.Or[k] = append(old, v)
+	} else {
+		e.Or[k] = [][]any{v}
+	}
 }
 
 func (e *DbConditionImpl) SetNot(k string, v []any) {
 	if e.Not == nil {
-		e.Not = make(map[string][]any)
+		e.Not = make(map[string][][]any)
 	}
-	e.Not[k] = v
+	old, ok := e.Not[k]
+	if ok {
+		e.Not[k] = append(old, v)
+	} else {
+		e.Not[k] = [][]any{v}
+	}
 }
 
 func (e *DbConditionImpl) SetOrder(k string) {
