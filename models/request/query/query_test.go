@@ -58,6 +58,7 @@ func TestParseQuery(t *testing.T) {
 		},
 		WhereQuery: []query.WhereQueryItem{
 			{Field: "username", Opr: query.TypeEq, Value: "ronan"},
+			{Field: "username", Opr: query.TypeEq, Value: nil},
 			{Field: "nickname", Opr: query.TypeNe, Value: "awe"},
 			{Field: "age", Opr: query.TypeGt, Value: 18},
 			{Field: "age", Opr: query.TypeLt, Value: 25},
@@ -83,12 +84,14 @@ func TestParseQuery(t *testing.T) {
 	require.EqualValues(t, "`test_users`.`username`", condition.Select[0])
 	require.EqualValues(t, "`test_users`.`car_number`", condition.Select[1])
 	// where
+	require.EqualValues(t, 1, len(condition.Where["`test_users`.`username` = ?"]))
 	require.EqualValues(t, "ronan", condition.Where["`test_users`.`username` = ?"][0][0])
 	require.EqualValues(t, "awe", condition.Not["`test_users`.`nickname` != ?"][0][0])
 	require.EqualValues(t, 18, condition.Where["`test_users`.`age` > ?"][0][0])
 	require.EqualValues(t, 25, condition.Where["`test_users`.`age` < ?"][0][0])
 	require.EqualValues(t, 170.5, condition.Where["`test_users`.`height` >= ?"][0][0])
 	require.EqualValues(t, 185, condition.Where["`test_users`.`height` <= ?"][0][0])
+	require.EqualValues(t, 3, len(condition.Where["`test_users`.`car_number` like ?"]))
 	require.EqualValues(t, "%浙%", condition.Where["`test_users`.`car_number` like ?"][0][0])
 	require.EqualValues(t, "浙%", condition.Where["`test_users`.`car_number` like ?"][1][0])
 	require.EqualValues(t, "%浙", condition.Where["`test_users`.`car_number` like ?"][2][0])

@@ -31,8 +31,18 @@ func CreateDirsIfNotExist(dirs ...string) (err error) {
 	return
 }
 
-func IsZeroValue(v interface{}) bool {
-	return v == nil || v == reflect.Zero(reflect.TypeOf(v)).Interface()
+func IsZeroValue(v any) bool {
+	if v == nil {
+		return true
+	}
+
+	rv := reflect.ValueOf(v)
+	switch rv.Kind() {
+	case reflect.Slice, reflect.Map:
+		return rv.Len() == 0
+	default:
+		return v == reflect.Zero(reflect.TypeOf(v)).Interface()
+	}
 }
 
 // LeftJustifyingPrint 打印的log内容中，第二列之后的内容会左对齐

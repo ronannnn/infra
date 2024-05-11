@@ -83,6 +83,9 @@ func ResolveSelectQuery(items []SelectQueryItem, tblName string, fieldColMapper 
 
 func ResolveWhereQuery(items []WhereQueryItem, tblName string, fieldColMapper map[string]string, condition DbCondition) (err error) {
 	for _, item := range items {
+		if utils.IsZeroValue(item.Value) {
+			continue
+		}
 		if col, ok := fieldColMapper[item.Field]; ok {
 			fullColName := fmt.Sprintf("`%s`.`%s`", tblName, col)
 			switch item.Opr {
