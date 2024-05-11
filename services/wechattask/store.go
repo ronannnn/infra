@@ -82,7 +82,7 @@ func (s StoreImpl) List(tx *gorm.DB, wechatTaskQuery query.Query) (result respon
 	}
 	if err = tx.
 		Scopes(queryScope).
-		Scopes(query.Paginate(wechatTaskQuery.Pagination.PageNum, wechatTaskQuery.Pagination.PageSize)).
+		Scopes(query.Paginate(wechatTaskQuery.Pagination)).
 		Scopes(wechatTaskPreload()).
 		Find(&list).Error; err != nil {
 		return

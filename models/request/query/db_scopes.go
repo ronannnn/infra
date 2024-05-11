@@ -8,13 +8,13 @@ import (
 )
 
 // Paginate for gorm pagination scopes
-func Paginate(pageNum, pageSize int) func(db *gorm.DB) *gorm.DB {
+func Paginate(pagination Pagination) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		if pageSize <= 0 || pageNum <= 0 {
+		if pagination.PageSize <= 0 || pagination.PageNum <= 0 {
 			return db
 		}
-		offset := pageSize * (pageNum - 1)
-		return db.Offset(offset).Limit(pageSize)
+		offset := pagination.PageSize * (pagination.PageNum - 1)
+		return db.Offset(offset).Limit(pagination.PageSize)
 	}
 }
 

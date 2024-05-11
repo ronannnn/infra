@@ -60,7 +60,7 @@ func (s StoreImpl) List(tx *gorm.DB, userQuery query.Query) (result response.Pag
 	}
 	if err = tx.
 		Scopes(queryScope).
-		Scopes(query.Paginate(userQuery.Pagination.PageNum, userQuery.Pagination.PageSize)).
+		Scopes(query.Paginate(userQuery.Pagination)).
 		Preload("Roles").
 		Preload("Roles.Menus").
 		Find(&list).Error; err != nil {
