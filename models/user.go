@@ -29,3 +29,11 @@ type User struct {
 	WechatOpenId  *string `json:"wechatOpenId"`
 	WechatUnionId *string `json:"wechatUnionId"`
 }
+
+func (u User) TableName() string {
+	return "users"
+}
+
+func (u User) FieldColMapper() map[string]string {
+	return CamelToSnakeFromStruct(u)
+}

@@ -24,3 +24,11 @@ const (
 	MenuTypeMenu
 	MenuTypeBtn
 )
+
+func (Menu) TableName() string {
+	return "departments"
+}
+
+func (m Menu) FieldColMapper() map[string]string {
+	return models.CamelToSnakeFromStruct(m)
+}

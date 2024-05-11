@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/ronannnn/infra/cfg"
+	"github.com/ronannnn/infra/models/request/query"
 	"github.com/ronannnn/infra/models/response"
 	"gorm.io/gorm"
 )
@@ -13,7 +14,7 @@ type Service interface {
 	Update(ctx context.Context, partialUpdatedModel *WechatTask) (WechatTask, error)
 	DeleteById(ctx context.Context, id uint) error
 	DeleteByIds(ctx context.Context, ids []uint) error
-	List(ctx context.Context, query WechatTaskQuery) (response.PageResult, error)
+	List(ctx context.Context, query query.Query) (response.PageResult, error)
 	GetById(ctx context.Context, id uint) (WechatTask, error)
 	GetByUuid(ctx context.Context, uuid string) (WechatTask, error)
 }
@@ -52,7 +53,7 @@ func (srv *ServiceImpl) DeleteByIds(ctx context.Context, ids []uint) error {
 	return srv.store.DeleteByIds(srv.db, ids)
 }
 
-func (srv *ServiceImpl) List(ctx context.Context, query WechatTaskQuery) (response.PageResult, error) {
+func (srv *ServiceImpl) List(ctx context.Context, query query.Query) (response.PageResult, error) {
 	return srv.store.List(srv.db, query)
 }
 

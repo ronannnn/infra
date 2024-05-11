@@ -15,3 +15,11 @@ type Department struct {
 	ParentId  *uint            `json:"parentId"`
 	Parent    *Department      `json:"parent"`
 }
+
+func (Department) TableName() string {
+	return "departments"
+}
+
+func (d Department) FieldColMapper() map[string]string {
+	return models.CamelToSnakeFromStruct(d)
+}

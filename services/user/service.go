@@ -5,6 +5,7 @@ import (
 
 	"github.com/ronannnn/infra/cfg"
 	"github.com/ronannnn/infra/models"
+	"github.com/ronannnn/infra/models/request/query"
 	"github.com/ronannnn/infra/models/response"
 	"gorm.io/gorm"
 )
@@ -14,7 +15,7 @@ type Service interface {
 	Update(ctx context.Context, partialUpdatedModel *models.User) (models.User, error)
 	DeleteById(ctx context.Context, id uint) error
 	DeleteByIds(ctx context.Context, ids []uint) error
-	List(ctx context.Context, query UserQuery) (response.PageResult, error)
+	List(ctx context.Context, query query.Query) (response.PageResult, error)
 	GetById(ctx context.Context, id uint) (models.User, error)
 	GetByNickname(ctx context.Context, nickname string) (models.User, error)
 }
@@ -56,7 +57,7 @@ func (srv *ServiceImpl) DeleteByIds(ctx context.Context, ids []uint) error {
 	return srv.store.DeleteByIds(srv.db, ids)
 }
 
-func (srv *ServiceImpl) List(ctx context.Context, query UserQuery) (response.PageResult, error) {
+func (srv *ServiceImpl) List(ctx context.Context, query query.Query) (response.PageResult, error) {
 	return srv.store.List(srv.db, query)
 }
 

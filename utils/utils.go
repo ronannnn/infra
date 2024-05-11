@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"regexp"
 	"strings"
 
 	"go.uber.org/zap"
@@ -55,4 +56,10 @@ func LeftJustifyingPrint(rows [][]string, log *zap.SugaredLogger) {
 		}
 		log.Infof("%s", strings.Join(paddedRow, " "))
 	}
+}
+
+func CamelToSnake(s string) string {
+	re := regexp.MustCompile(`(?m)([a-z])([A-Z])`)
+	snake := re.ReplaceAllString(s, `${1}_${2}`)
+	return strings.ToLower(snake)
 }

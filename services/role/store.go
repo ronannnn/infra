@@ -12,7 +12,7 @@ type Store interface {
 	Update(tx *gorm.DB, partialUpdatedModel *Role) (Role, error)
 	DeleteById(tx *gorm.DB, id uint) error
 	DeleteByIds(tx *gorm.DB, ids []uint) error
-	List(tx *gorm.DB, query RoleQuery) (response.PageResult, error)
+	List(tx *gorm.DB, query query.Query) (response.PageResult, error)
 	GetById(tx *gorm.DB, id uint) (Role, error)
 }
 
@@ -64,14 +64,14 @@ func (s StoreImpl) DeleteByIds(tx *gorm.DB, ids []uint) error {
 	return tx.Delete(&Role{}, "id IN ?", ids).Error
 }
 
-func (s StoreImpl) List(tx *gorm.DB, roleQuery RoleQuery) (result response.PageResult, err error) {
+func (s StoreImpl) List(tx *gorm.DB, roleQuery query.Query) (result response.PageResult, err error) {
 	var total int64
 	var list []Role
 	if err = tx.Model(&Role{}).Count(&total).Error; err != nil {
 		return
 	}
 	if err = tx.
-		Scopes(query.MakeConditionFromQuery(roleQuery)).
+		Scopes(query.MakeConditionFromQuery(roleQuery, Role{})).
 		Scopes(query.Paginate(roleQuery.Pagination.PageNum, roleQuery.Pagination.PageSize)).
 		Preload("Menus").
 		Find(&list).Error; err != nil {

@@ -13,3 +13,11 @@ type Role struct {
 	Remark     *string      `json:"remark"`     // 备注
 	Menus      *[]menu.Menu `json:"menus" gorm:"many2many:role_menus;"`
 }
+
+func (Role) TableName() string {
+	return "departments"
+}
+
+func (r Role) FieldColMapper() map[string]string {
+	return models.CamelToSnakeFromStruct(r)
+}

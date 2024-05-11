@@ -1,6 +1,7 @@
 package department
 
 import (
+	"github.com/ronannnn/infra/models/request/query"
 	"github.com/ronannnn/infra/models/response"
 	"gorm.io/gorm"
 )
@@ -10,7 +11,7 @@ type Service interface {
 	Update(partialUpdatedModel *Department) (Department, error)
 	DeleteById(id uint) error
 	DeleteByIds(ids []uint) error
-	List(query DepartmentQuery) (response.PageResult, error)
+	List(query query.Query) (response.PageResult, error)
 	GetById(id uint) (Department, error)
 }
 
@@ -45,7 +46,7 @@ func (srv *ServiceImpl) DeleteByIds(ids []uint) error {
 	return srv.store.DeleteByIds(srv.db, ids)
 }
 
-func (srv *ServiceImpl) List(query DepartmentQuery) (response.PageResult, error) {
+func (srv *ServiceImpl) List(query query.Query) (response.PageResult, error) {
 	return srv.store.List(srv.db, query)
 }
 

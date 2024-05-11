@@ -10,6 +10,14 @@ type WechatTask struct {
 	WechatTaskUserIds *WechatTaskUserIds `json:"wechatTaskUserIds" gorm:"many2many:wechat_tasks_wechat_task_user_ids"`
 }
 
+func (WechatTask) TableName() string {
+	return "departments"
+}
+
+func (wt WechatTask) FieldColMapper() map[string]string {
+	return models.CamelToSnakeFromStruct(wt)
+}
+
 type WechatTaskUserIds []WechatTaskUserId
 
 func (w *WechatTaskUserIds) UserIds() []string {

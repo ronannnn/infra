@@ -12,7 +12,7 @@ type Store interface {
 	update(*gorm.DB, *Api) (Api, error)
 	deleteById(*gorm.DB, uint) error
 	deleteByIds(*gorm.DB, []uint) error
-	list(*gorm.DB, ApiQuery) (response.PageResult, error)
+	list(*gorm.DB, query.Query) (response.PageResult, error)
 	getById(*gorm.DB, uint) (Api, error)
 }
 
@@ -49,14 +49,14 @@ func (s StoreImpl) deleteByIds(tx *gorm.DB, ids []uint) error {
 	return tx.Delete(&Api{}, "id IN ?", ids).Error
 }
 
-func (s StoreImpl) list(tx *gorm.DB, apiQuery ApiQuery) (result response.PageResult, err error) {
+func (s StoreImpl) list(tx *gorm.DB, apiQuery query.Query) (result response.PageResult, err error) {
 	var total int64
 	var list []Api
 	if err = tx.Model(&Api{}).Count(&total).Error; err != nil {
 		return
 	}
 	if err = tx.
-		Scopes(query.MakeConditionFromQuery(apiQuery)).
+		Scopes(query.MakeConditionFromQuery(apiQuery, Api{})).
 		Scopes(query.Paginate(apiQuery.Pagination.PageNum, apiQuery.Pagination.PageSize)).
 		Find(&list).Error; err != nil {
 		return

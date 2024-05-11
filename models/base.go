@@ -4,8 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"reflect"
 	"time"
 
+	"github.com/ronannnn/infra/utils"
 	"gorm.io/gorm"
 	"gorm.io/plugin/optimisticlock"
 )
@@ -58,4 +60,31 @@ func (o *OprBy) GetUpdaterFromReq(r *http.Request) {
 			o.UpdatedBy = convertedOprId
 		}
 	}
+}
+
+// utils
+
+func CamelToSnakeWithBaseFromStrings(fields []string) map[string]string {
+	mapper := make(map[string]string)
+	for _, field := range fields {
+		mapper[field] = utils.CamelToSnake(field)
+	}
+	return mapper
+}
+
+func CamelToSnakeFromStruct(obj any) map[string]string {
+	structType := reflect.TypeOf(obj)
+	fields := []string{}
+	for i := 0; i < structType.NumField(); i++ {
+		jsonTag, jsonTagOk := structType.Field(i).Tag.Lookup("json")
+		if !jsonTagOk || jsonTag == "-" {
+			continue
+		}
+		gormTag, gormTagOk := structType.Field(i).Tag.Lookup("gorm")
+		if gormTagOk && gormTag == "-" {
+			continue
+		}
+		fields = append(fields, jsonTag)
+	}
+	return CamelToSnakeWithBaseFromStrings(fields)
 }

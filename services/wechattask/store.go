@@ -12,7 +12,7 @@ type Store interface {
 	Update(tx *gorm.DB, partialUpdatedModel *WechatTask) (WechatTask, error)
 	DeleteById(tx *gorm.DB, id uint) error
 	DeleteByIds(tx *gorm.DB, ids []uint) error
-	List(tx *gorm.DB, query WechatTaskQuery) (response.PageResult, error)
+	List(tx *gorm.DB, query query.Query) (response.PageResult, error)
 	GetById(tx *gorm.DB, id uint) (WechatTask, error)
 	GetByUuid(tx *gorm.DB, uuid string) (WechatTask, error)
 }
@@ -70,15 +70,15 @@ func (s StoreImpl) DeleteByIds(tx *gorm.DB, ids []uint) error {
 	return tx.Delete(&WechatTask{}, "id IN ?", ids).Error
 }
 
-func (s StoreImpl) List(tx *gorm.DB, userQuery WechatTaskQuery) (result response.PageResult, err error) {
+func (s StoreImpl) List(tx *gorm.DB, wechatTaskQuery query.Query) (result response.PageResult, err error) {
 	var total int64
 	var list []WechatTask
 	if err = tx.Model(&WechatTask{}).Count(&total).Error; err != nil {
 		return
 	}
 	if err = tx.
-		Scopes(query.MakeConditionFromQuery(userQuery)).
-		Scopes(query.Paginate(userQuery.Pagination.PageNum, userQuery.Pagination.PageSize)).
+		Scopes(query.MakeConditionFromQuery(wechatTaskQuery, WechatTask{})).
+		Scopes(query.Paginate(wechatTaskQuery.Pagination.PageNum, wechatTaskQuery.Pagination.PageSize)).
 		Scopes(wechatTaskPreload()).
 		Find(&list).Error; err != nil {
 		return
@@ -86,8 +86,8 @@ func (s StoreImpl) List(tx *gorm.DB, userQuery WechatTaskQuery) (result response
 	result = response.PageResult{
 		List:     list,
 		Total:    total,
-		PageNum:  userQuery.Pagination.PageNum,
-		PageSize: userQuery.Pagination.PageSize,
+		PageNum:  wechatTaskQuery.Pagination.PageNum,
+		PageSize: wechatTaskQuery.Pagination.PageSize,
 	}
 	return
 }

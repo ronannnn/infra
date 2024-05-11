@@ -12,7 +12,7 @@ type Store interface {
 	Update(tx *gorm.DB, partialUpdatedModel *Menu) (Menu, error)
 	DeleteById(tx *gorm.DB, id uint) error
 	DeleteByIds(tx *gorm.DB, ids []uint) error
-	List(tx *gorm.DB, query MenuQuery) (response.PageResult, error)
+	List(tx *gorm.DB, query query.Query) (response.PageResult, error)
 	GetById(tx *gorm.DB, id uint) (Menu, error)
 }
 
@@ -64,14 +64,14 @@ func (s StoreImpl) DeleteByIds(tx *gorm.DB, ids []uint) error {
 	return tx.Delete(&Menu{}, "id IN ?", ids).Error
 }
 
-func (s StoreImpl) List(tx *gorm.DB, menuQuery MenuQuery) (result response.PageResult, err error) {
+func (s StoreImpl) List(tx *gorm.DB, menuQuery query.Query) (result response.PageResult, err error) {
 	var total int64
 	var list []Menu
 	if err = tx.Model(&Menu{}).Count(&total).Error; err != nil {
 		return
 	}
 	if err = tx.
-		Scopes(query.MakeConditionFromQuery(menuQuery)).
+		Scopes(query.MakeConditionFromQuery(menuQuery, Menu{})).
 		Preload("Apis").
 		Find(&list).Error; err != nil {
 		return
