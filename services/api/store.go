@@ -55,8 +55,12 @@ func (s StoreImpl) list(tx *gorm.DB, apiQuery query.Query) (result response.Page
 	if err = tx.Model(&Api{}).Count(&total).Error; err != nil {
 		return
 	}
+	queryScope, err := query.MakeConditionFromQuery(apiQuery, Api{})
+	if err != nil {
+		return
+	}
 	if err = tx.
-		Scopes(query.MakeConditionFromQuery(apiQuery, Api{})).
+		Scopes(queryScope).
 		Scopes(query.Paginate(apiQuery.Pagination.PageNum, apiQuery.Pagination.PageSize)).
 		Find(&list).Error; err != nil {
 		return

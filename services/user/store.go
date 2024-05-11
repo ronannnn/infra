@@ -54,8 +54,12 @@ func (s StoreImpl) List(tx *gorm.DB, userQuery query.Query) (result response.Pag
 	if err = tx.Model(&models.User{}).Count(&total).Error; err != nil {
 		return
 	}
+	queryScope, err := query.MakeConditionFromQuery(userQuery, models.User{})
+	if err != nil {
+		return
+	}
 	if err = tx.
-		Scopes(query.MakeConditionFromQuery(userQuery, models.User{})).
+		Scopes(queryScope).
 		Scopes(query.Paginate(userQuery.Pagination.PageNum, userQuery.Pagination.PageSize)).
 		Preload("Roles").
 		Preload("Roles.Menus").

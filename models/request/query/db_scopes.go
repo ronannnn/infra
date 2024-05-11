@@ -18,12 +18,15 @@ func Paginate(pageNum, pageSize int) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-func MakeConditionFromQuery(query Query, setter QuerySetter) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		condition := &DbConditionImpl{}
-		ResolveQuery(query, setter, condition)
+func MakeConditionFromQuery(query Query, setter QuerySetter) (fn func(db *gorm.DB) *gorm.DB, err error) {
+	condition := &DbConditionImpl{}
+	if err = ResolveQuery(query, setter, condition); err != nil {
+		return
+	}
+	fn = func(db *gorm.DB) *gorm.DB {
 		return MakeCondition(condition)(db)
 	}
+	return
 }
 
 func MakeCondition(condition *DbConditionImpl) func(db *gorm.DB) *gorm.DB {

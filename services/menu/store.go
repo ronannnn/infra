@@ -70,8 +70,12 @@ func (s StoreImpl) List(tx *gorm.DB, menuQuery query.Query) (result response.Pag
 	if err = tx.Model(&Menu{}).Count(&total).Error; err != nil {
 		return
 	}
+	queryScope, err := query.MakeConditionFromQuery(menuQuery, Menu{})
+	if err != nil {
+		return
+	}
 	if err = tx.
-		Scopes(query.MakeConditionFromQuery(menuQuery, Menu{})).
+		Scopes(queryScope).
 		Preload("Apis").
 		Find(&list).Error; err != nil {
 		return
