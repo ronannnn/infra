@@ -9,13 +9,14 @@ import (
 )
 
 type TestUser struct {
-	Username  string `json:"username"`
-	Nickname  string `json:"nickname"`
-	Age       int    `json:"age"`
-	Height    string `json:"height"`
-	CarNumber string `json:"carNumber"`
-	Status    uint   `json:"status"`
-	Birth     string `json:"birth"`
+	models.Base
+	Username  *string `json:"username"`
+	Nickname  *string `json:"nickname"`
+	Age       *int    `json:"age"`
+	Height    *string `json:"height"`
+	CarNumber *string `json:"carNumber"`
+	Status    *uint   `json:"status"`
+	Birth     *string `json:"birth"`
 }
 
 func (u TestUser) TableName() string {
@@ -26,7 +27,26 @@ func (u TestUser) FieldColMapper() map[string]string {
 	return models.CamelToSnakeFromStruct(u)
 }
 
-func TestParseSearch(t *testing.T) {
+func TestFieldColMapper(t *testing.T) {
+	user := TestUser{}
+	mapper := user.FieldColMapper()
+	require.EqualValues(t, "id", mapper["id"])
+	require.EqualValues(t, "created_at", mapper["createdAt"])
+	require.EqualValues(t, "updated_at", mapper["updatedAt"])
+	require.EqualValues(t, "created_by", mapper["createdBy"])
+	require.EqualValues(t, "updated_by", mapper["updatedBy"])
+	require.EqualValues(t, "version", mapper["version"])
+
+	require.EqualValues(t, "username", mapper["username"])
+	require.EqualValues(t, "nickname", mapper["nickname"])
+	require.EqualValues(t, "age", mapper["age"])
+	require.EqualValues(t, "height", mapper["height"])
+	require.EqualValues(t, "car_number", mapper["carNumber"])
+	require.EqualValues(t, "status", mapper["status"])
+	require.EqualValues(t, "birth", mapper["birth"])
+}
+
+func TestParseQuery(t *testing.T) {
 	example := query.Query{
 		Pagination: query.Pagination{
 			PageNum:  1,
@@ -51,7 +71,7 @@ func TestParseSearch(t *testing.T) {
 			{Field: "birth", Opr: query.TypeRange, Value: query.Range{Start: "2000-01-01", End: "2000-12-31"}},
 		},
 		OrderQuery: []query.OrderQueryItem{
-			{Field: "birth", Order: "desc"},
+			{Field: "createdAt", Order: "desc"},
 			{Field: "nickname", Order: "asc"},
 		},
 	}
@@ -78,6 +98,6 @@ func TestParseSearch(t *testing.T) {
 	require.EqualValues(t, "2000-12-31", condition.Where["`test_users`.`birth` <= ?"][0][0])
 	// order
 	require.EqualValues(t, 2, len(condition.Order))
-	require.EqualValues(t, "`test_users`.`birth` desc", condition.Order[0])
+	require.EqualValues(t, "`test_users`.`created_at` desc", condition.Order[0])
 	require.EqualValues(t, "`test_users`.`nickname` asc", condition.Order[1])
 }

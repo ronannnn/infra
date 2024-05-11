@@ -73,18 +73,27 @@ func CamelToSnakeWithBaseFromStrings(fields []string) map[string]string {
 }
 
 func CamelToSnakeFromStruct(obj any) map[string]string {
-	structType := reflect.TypeOf(obj)
 	fields := []string{}
+	getJsonTagsFromStruct(obj, &fields)
+	return CamelToSnakeWithBaseFromStrings(fields)
+}
+
+func getJsonTagsFromStruct(obj any, fields *[]string) {
+	structType := reflect.TypeOf(obj)
+	structValue := reflect.ValueOf(obj)
 	for i := 0; i < structType.NumField(); i++ {
 		jsonTag, jsonTagOk := structType.Field(i).Tag.Lookup("json")
-		if !jsonTagOk || jsonTag == "-" {
+		if !jsonTagOk {
+			getJsonTagsFromStruct(structValue.Field(i).Interface(), fields)
+			continue
+		}
+		if jsonTag == "-" {
 			continue
 		}
 		gormTag, gormTagOk := structType.Field(i).Tag.Lookup("gorm")
 		if gormTagOk && gormTag == "-" {
 			continue
 		}
-		fields = append(fields, jsonTag)
+		*fields = append(*fields, jsonTag)
 	}
-	return CamelToSnakeWithBaseFromStrings(fields)
 }
