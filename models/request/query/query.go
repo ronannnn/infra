@@ -36,6 +36,7 @@ type Range struct {
 }
 
 const (
+	TypeCustom    = "custom" // 用户自定义gorm scope，不做任何处理
 	TypeEq        = "eq"
 	TypeNe        = "ne"
 	TypeGt        = "gt"
@@ -89,6 +90,7 @@ func ResolveWhereQuery(items []WhereQueryItem, tblName string, fieldColMapper ma
 		if col, ok := fieldColMapper[item.Field]; ok {
 			fullColName := fmt.Sprintf("`%s`.`%s`", tblName, col)
 			switch item.Opr {
+			case TypeCustom:
 			case TypeEq:
 				condition.SetWhere(fmt.Sprintf("%s = ?", fullColName), []any{item.Value})
 			case TypeNe:
