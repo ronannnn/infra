@@ -113,8 +113,8 @@ func ResolveWhereQuery(items []WhereQueryItem, tblName string, fieldColMapper ma
 			case TypeNotIn:
 				condition.SetWhere(fmt.Sprintf("%s not in (?)", fullColName), []any{item.Value})
 			case TypeRange:
-				start := item.Value.(Range).Start
-				end := item.Value.(Range).End
+				start := item.Value.(map[string]any)["start"]
+				end := item.Value.(map[string]any)["end"]
 				if !utils.IsZeroValue(start) {
 					condition.SetWhere(fmt.Sprintf("`%s`.`%s` >= ?", tblName, col), []any{start})
 				}
