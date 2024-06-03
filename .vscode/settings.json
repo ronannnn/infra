@@ -18,6 +18,8 @@
     "FBAN",
     "FBAV",
     "Googlebot",
+    "Imap",
+    "imapclient",
     "jsapi",
     "KHTML",
     "lestrrat",

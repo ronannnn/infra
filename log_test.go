@@ -10,9 +10,13 @@ import (
 	"go.uber.org/zap"
 )
 
+type LogTestCfg struct {
+	Log cfg.Log `mapstructure:"log"`
+}
+
 func TestLogRotatedFiles(t *testing.T) {
 	var err error
-	testCfg := cfg.Cfg{}
+	testCfg := LogTestCfg{}
 	err = cfg.ReadFromFile("configs/config.logtest.toml", &testCfg)
 	require.NoError(t, err)
 	// init log

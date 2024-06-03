@@ -4,9 +4,12 @@ go 1.22
 
 require (
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
+	github.com/emersion/go-imap/v2 v2.0.0-beta.3
+	github.com/emersion/go-message v0.18.1
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-chi/jwtauth/v5 v5.3.1
+	github.com/k3a/html2text v1.2.1
 	github.com/lestrrat-go/jwx/v2 v2.0.20
 	github.com/minio/minio-go/v7 v7.0.67
 	github.com/nicksnyder/go-i18n/v2 v2.4.0
@@ -21,6 +24,7 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/emersion/go-sasl v0.0.0-20231106173351-e73c9f7bad43 // indirect
 	github.com/glebarez/go-sqlite v1.22.0 // indirect
 	github.com/glebarez/sqlite v1.10.0 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
