@@ -2,7 +2,6 @@ package infra_test
 
 import (
 	"testing"
-	"time"
 
 	"github.com/ronannnn/infra"
 	"github.com/ronannnn/infra/cfg"
@@ -24,5 +23,4 @@ func TestLogRotatedFiles(t *testing.T) {
 	log, err = infra.NewLog(&testCfg.Log)
 	require.NoError(t, err)
 	log.Info("test log")
-	time.Sleep(10 * time.Second)
 }

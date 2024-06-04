@@ -1,6 +1,7 @@
 package imap_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/ronannnn/infra"
@@ -15,7 +16,7 @@ type ImapTestCfg struct {
 	Log  cfg.Log  `mapstructure:"log"`
 }
 
-func TestImapService(t *testing.T) {
+func TestImapFetchService(t *testing.T) {
 	var err error
 	testCfg := ImapTestCfg{}
 	err = cfg.ReadFromFile("../../configs/config.imap.toml", &testCfg)
@@ -28,6 +29,28 @@ func TestImapService(t *testing.T) {
 	var srv imap.Service
 	srv, err = imap.ProvideService(&testCfg.Imap, log)
 	require.NoError(t, err)
-	_, err = srv.FetchLatestEmails()
+	_, err = srv.Fetch(0)
 	require.NoError(t, err)
+}
+
+func TestImapStartService(t *testing.T) {
+	var err error
+	testCfg := ImapTestCfg{}
+	err = cfg.ReadFromFile("../../configs/config.imap.toml", &testCfg)
+	require.NoError(t, err)
+	// init log
+	var log *zap.SugaredLogger
+	log, err = infra.NewLog(&testCfg.Log)
+	require.NoError(t, err)
+	// init imap service
+	var srv imap.Service
+	srv, err = imap.ProvideService(&testCfg.Imap, log)
+	require.NoError(t, err)
+	emailEntitiesChan := make(chan imap.EmailEntity)
+	err = srv.Start(context.Background(), emailEntitiesChan)
+	require.NoError(t, err)
+	for {
+		emailEntity := <-emailEntitiesChan
+		log.Infof("%+v", emailEntity)
+	}
 }
