@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/ronannnn/infra/models"
+	"github.com/ronannnn/infra/utils/useragent"
 )
 
 type Status int
@@ -18,10 +19,11 @@ const (
 
 type LoginRecord struct {
 	models.Base
-	UserId    uint      `json:"userId"`
-	DeviceId  string    `json:"deviceId"` // 前端生成的UUID
-	LoginTime time.Time `json:"loginTime"`
-	Ip        string    `json:"ip"`
-	UserAgent string    `json:"userAgent"`
-	Status    Status    `json:"status"`
+	UserId          uint                  `json:"userId"`
+	DeviceId        string                `json:"deviceId"` // 前端生成的UUID
+	LoginDeviceType *useragent.DeviceType `json:"loginDeviceType"`
+	LoginTime       time.Time             `json:"loginTime"`
+	Ip              string                `json:"ip"`
+	UserAgent       string                `json:"userAgent"`
+	Status          Status                `json:"status"`
 }
