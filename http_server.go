@@ -48,7 +48,7 @@ type BaseHttpServer struct {
 	Log *zap.SugaredLogger
 }
 
-func (hs *BaseHttpServer) Run() {
+func (hs *BaseHttpServer) Run(startTime time.Time) {
 	addr := hs.Addr(hs.Sys.HttpAddr, hs.Sys.HttpPort)
 	routes := hs.RegisterRoutes()
 	if hs.Sys.PrintRoutes {
@@ -84,7 +84,7 @@ func (hs *BaseHttpServer) Run() {
 	}()
 
 	// Run the server
-	hs.Log.Info(fmt.Sprintf("Server running on %s", addr))
+	hs.Log.Info(fmt.Sprintf("Server running on %s in %s", addr, time.Since(startTime)))
 	err := server.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
 		hs.Log.Fatal(err)
