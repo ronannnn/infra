@@ -99,3 +99,9 @@ func getOrDefault(cfg *cfg.Log) {
 		cfg.TimeFormat = "2006-01-02 15:04:05.000"
 	}
 }
+
+func PrintModuleLaunchedDuration(log *zap.SugaredLogger, moduleName string, startTime time.Time) {
+	if log != nil {
+		log.Infof("Module %s initialized in %s", moduleName, time.Since(startTime))
+	}
+}
