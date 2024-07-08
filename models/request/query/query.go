@@ -9,7 +9,8 @@ import (
 )
 
 type SelectQueryItem struct {
-	Field string `json:"field"` // 字段名
+	Field    string `json:"field"`    // 字段名
+	Distinct bool   `json:"distinct"` // 是否去重
 }
 
 type WhereQueryItem struct {
@@ -74,7 +75,11 @@ func ResolveQuery(query Query, setter QuerySetter, condition DbCondition) (err e
 func ResolveSelectQuery(items []SelectQueryItem, tblName string, fieldColMapper map[string]string, condition DbCondition) (err error) {
 	for _, item := range items {
 		if col, ok := fieldColMapper[item.Field]; ok {
-			condition.SetSelect(fmt.Sprintf("`%s`.`%s`", tblName, col))
+			if item.Distinct {
+				condition.SetSelect(fmt.Sprintf("distinct `%s`.`%s`", tblName, col))
+			} else {
+				condition.SetSelect(fmt.Sprintf("`%s`.`%s`", tblName, col))
+			}
 		} else {
 			return fmt.Errorf("field %s not found", item.Field)
 		}
