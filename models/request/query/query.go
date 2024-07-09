@@ -29,6 +29,7 @@ type Query struct {
 	SelectQuery []SelectQueryItem `json:"selectQuery"`
 	WhereQuery  []WhereQueryItem  `json:"whereQuery"`
 	OrderQuery  []OrderQueryItem  `json:"orderQuery"`
+	SkipCount   bool              `json:"skipCount"`
 }
 
 type Range struct {
