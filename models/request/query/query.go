@@ -78,6 +78,8 @@ func ResolveSelectQuery(items []SelectQueryItem, tblName string, fieldColMapper 
 		if col, ok := fieldColMapper[item.Field]; ok {
 			if item.Distinct {
 				// condition.SetDistinct(fmt.Sprintf("`%s`.`%s`", tblName, col)) 似乎带上table的写法会失效
+				// 好吧，没有tblName也不行
+				// gorm这块没做好
 				condition.SetDistinct(col)
 			} else {
 				condition.SetSelect(fmt.Sprintf("`%s`.`%s`", tblName, col))
