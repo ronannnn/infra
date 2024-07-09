@@ -55,6 +55,7 @@ func TestParseQuery(t *testing.T) {
 		SelectQuery: []query.SelectQueryItem{
 			{Field: "username"},
 			{Field: "carNumber"},
+			{Field: "status", Distinct: true},
 		},
 		WhereQuery: []query.WhereQueryItem{
 			{Field: "username", Opr: query.TypeEq, Value: "ronan"},
@@ -69,7 +70,7 @@ func TestParseQuery(t *testing.T) {
 			{Field: "carNumber", Opr: query.TypeEndLike, Value: "浙"},
 			{Field: "status", Opr: query.TypeIn, Value: []uint{1, 2, 3}},
 			{Field: "status", Opr: query.TypeNotIn, Value: []uint{4, 5}},
-			{Field: "birth", Opr: query.TypeRange, Value: query.Range{Start: "2000-01-01", End: "2000-12-31"}},
+			{Field: "birth", Opr: query.TypeRange, Value: map[string]any{"start": "2000-01-01", "end": "2000-12-31"}},
 		},
 		OrderQuery: []query.OrderQueryItem{
 			{Field: "createdAt", Order: "desc"},
@@ -79,6 +80,9 @@ func TestParseQuery(t *testing.T) {
 	var condition query.DbConditionImpl
 	err := query.ResolveQuery(example, TestUser{}, &condition)
 	require.NoError(t, err)
+	// distinct
+	require.EqualValues(t, 1, len(condition.Distinct))
+	require.EqualValues(t, "`test_users`.`status`", condition.Distinct[0])
 	// select
 	require.EqualValues(t, 2, len(condition.Select))
 	require.EqualValues(t, "`test_users`.`username`", condition.Select[0])
