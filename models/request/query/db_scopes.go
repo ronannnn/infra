@@ -52,6 +52,9 @@ func MakeCondition(condition *DbConditionImpl) func(db *gorm.DB) *gorm.DB {
 		if len(condition.Select) > 0 {
 			db = db.Select(condition.Select)
 		}
+		if len(condition.Distinct) > 0 {
+			db = db.Distinct(condition.Distinct)
+		}
 		return db
 	}
 }

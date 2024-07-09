@@ -6,14 +6,16 @@ type DbCondition interface {
 	SetNot(k string, v []any)
 	SetOrder(k string)
 	SetSelect(k string)
+	SetDistinct(k string)
 }
 
 type DbConditionImpl struct {
-	Where  map[string][][]any
-	Or     map[string][][]any
-	Not    map[string][][]any
-	Order  []string
-	Select []string
+	Where    map[string][][]any
+	Or       map[string][][]any
+	Not      map[string][][]any
+	Order    []string
+	Select   []string
+	Distinct []string
 }
 
 func (e *DbConditionImpl) SetWhere(k string, v []any) {
@@ -64,6 +66,13 @@ func (e *DbConditionImpl) SetSelect(k string) {
 		e.Select = make([]string, 0)
 	}
 	e.Select = append(e.Select, k)
+}
+
+func (e *DbConditionImpl) SetDistinct(k string) {
+	if e.Distinct == nil {
+		e.Distinct = make([]string, 0)
+	}
+	e.Distinct = append(e.Distinct, k)
 }
 
 func (e *DbConditionImpl) UnquotedSelect() []string {
