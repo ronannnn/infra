@@ -27,9 +27,13 @@ type OrderQueryItem struct {
 type Query struct {
 	Pagination  Pagination        `json:"pagination"`
 	SelectQuery []SelectQueryItem `json:"selectQuery"`
-	WhereQuery  []WhereQueryItem  `json:"whereQuery"`
-	OrderQuery  []OrderQueryItem  `json:"orderQuery"`
-	SkipCount   bool              `json:"skipCount"`
+
+	WhereQuery []WhereQueryItem `json:"whereQuery"`
+	OrQuery    []WhereQueryItem `json:"orQuery"`
+
+	OrderQuery []OrderQueryItem `json:"orderQuery"`
+
+	SkipCount bool `json:"skipCount"`
 }
 
 type Range struct {
@@ -70,6 +74,9 @@ func ResolveQuery(query Query, setter QuerySetter, condition DbCondition) (err e
 	if err = ResolveOrderQuery(query.OrderQuery, tblName, fieldColMapper, condition); err != nil {
 		return
 	}
+	if err = ResolveOrQuery(query.OrQuery, tblName, fieldColMapper, condition); err != nil {
+		return
+	}
 	return
 }
 
@@ -102,7 +109,7 @@ func ResolveWhereQuery(items []WhereQueryItem, tblName string, fieldColMapper ma
 			case TypeEq:
 				condition.SetWhere(fmt.Sprintf("%s = ?", fullColName), []any{item.Value})
 			case TypeNe:
-				condition.SetNot(fmt.Sprintf("%s != ?", fullColName), []any{item.Value})
+				condition.SetWhere(fmt.Sprintf("%s != ?", fullColName), []any{item.Value})
 			case TypeGt:
 				condition.SetWhere(fmt.Sprintf("%s > ?", fullColName), []any{item.Value})
 			case TypeGte:
@@ -129,6 +136,55 @@ func ResolveWhereQuery(items []WhereQueryItem, tblName string, fieldColMapper ma
 				}
 				if !utils.IsZeroValue(end) {
 					condition.SetWhere(fmt.Sprintf("`%s`.`%s` <= ?", tblName, col), []any{end})
+				}
+			default:
+				return fmt.Errorf("opr %s not found", item.Opr)
+			}
+		} else {
+			return fmt.Errorf("field %s not found", item.Field)
+		}
+	}
+	return
+}
+
+func ResolveOrQuery(items []WhereQueryItem, tblName string, fieldColMapper map[string]string, condition DbCondition) (err error) {
+	for _, item := range items {
+		if utils.IsZeroValue(item.Value) || item.Opr == TypeCustom {
+			continue
+		}
+		if col, ok := fieldColMapper[item.Field]; ok {
+			fullColName := fmt.Sprintf("`%s`.`%s`", tblName, col)
+			switch item.Opr {
+			case TypeEq:
+				condition.SetOr(fmt.Sprintf("%s = ?", fullColName), []any{item.Value})
+			case TypeNe:
+				condition.SetOr(fmt.Sprintf("%s != ?", fullColName), []any{item.Value})
+			case TypeGt:
+				condition.SetOr(fmt.Sprintf("%s > ?", fullColName), []any{item.Value})
+			case TypeGte:
+				condition.SetOr(fmt.Sprintf("%s >= ?", fullColName), []any{item.Value})
+			case TypeLt:
+				condition.SetOr(fmt.Sprintf("%s < ?", fullColName), []any{item.Value})
+			case TypeLte:
+				condition.SetOr(fmt.Sprintf("%s <= ?", fullColName), []any{item.Value})
+			case TypeLike:
+				condition.SetOr(fmt.Sprintf("%s like ?", fullColName), []any{"%" + item.Value.(string) + "%"})
+			case TypeStartLike:
+				condition.SetOr(fmt.Sprintf("%s like ?", fullColName), []any{item.Value.(string) + "%"})
+			case TypeEndLike:
+				condition.SetOr(fmt.Sprintf("%s like ?", fullColName), []any{"%" + item.Value.(string)})
+			case TypeIn:
+				condition.SetOr(fmt.Sprintf("%s in (?)", fullColName), []any{item.Value})
+			case TypeNotIn:
+				condition.SetOr(fmt.Sprintf("%s not in (?)", fullColName), []any{item.Value})
+			case TypeRange:
+				start := item.Value.(map[string]any)["start"]
+				end := item.Value.(map[string]any)["end"]
+				if !utils.IsZeroValue(start) {
+					condition.SetOr(fmt.Sprintf("`%s`.`%s` >= ?", tblName, col), []any{start})
+				}
+				if !utils.IsZeroValue(end) {
+					condition.SetOr(fmt.Sprintf("`%s`.`%s` <= ?", tblName, col), []any{end})
 				}
 			default:
 				return fmt.Errorf("opr %s not found", item.Opr)
