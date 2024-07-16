@@ -17,6 +17,7 @@ type TestUser struct {
 	CarNumber *string `json:"carNumber"`
 	Status    *uint   `json:"status"`
 	Birth     *string `json:"birth"`
+	Human     *bool   `json:"human"`
 }
 
 func (u TestUser) TableName() string {
@@ -44,6 +45,7 @@ func TestFieldColMapper(t *testing.T) {
 	require.EqualValues(t, "car_number", mapper["carNumber"])
 	require.EqualValues(t, "status", mapper["status"])
 	require.EqualValues(t, "birth", mapper["birth"])
+	require.EqualValues(t, "human", mapper["human"])
 }
 
 func TestParseQuery(t *testing.T) {
@@ -71,6 +73,8 @@ func TestParseQuery(t *testing.T) {
 			{Field: "status", Opr: query.TypeIn, Value: []uint{1, 2, 3}},
 			{Field: "status", Opr: query.TypeNotIn, Value: []uint{4, 5}},
 			{Field: "birth", Opr: query.TypeRange, Value: map[string]any{"start": "2000-01-01", "end": "2000-12-31"}},
+			{Field: "human", Opr: query.TypeIs, Value: true},
+			{Field: "human", Opr: query.TypeIsNot, Value: false},
 		},
 		OrderQuery: []query.OrderQueryItem{
 			{Field: "createdAt", Order: "desc"},
@@ -82,7 +86,7 @@ func TestParseQuery(t *testing.T) {
 	require.NoError(t, err)
 	// distinct
 	require.EqualValues(t, 1, len(condition.Distinct))
-	require.EqualValues(t, "`test_users`.`status`", condition.Distinct[0])
+	require.EqualValues(t, "status", condition.Distinct[0])
 	// select
 	require.EqualValues(t, 2, len(condition.Select))
 	require.EqualValues(t, "`test_users`.`username`", condition.Select[0])
@@ -90,7 +94,7 @@ func TestParseQuery(t *testing.T) {
 	// where
 	require.EqualValues(t, 1, len(condition.Where["`test_users`.`username` = ?"]))
 	require.EqualValues(t, "ronan", condition.Where["`test_users`.`username` = ?"][0][0])
-	require.EqualValues(t, "awe", condition.Not["`test_users`.`nickname` != ?"][0][0])
+	require.EqualValues(t, "awe", condition.Where["`test_users`.`nickname` != ?"][0][0])
 	require.EqualValues(t, 18, condition.Where["`test_users`.`age` > ?"][0][0])
 	require.EqualValues(t, 25, condition.Where["`test_users`.`age` < ?"][0][0])
 	require.EqualValues(t, 170.5, condition.Where["`test_users`.`height` >= ?"][0][0])
@@ -103,6 +107,8 @@ func TestParseQuery(t *testing.T) {
 	require.EqualValues(t, 2, len(condition.Where["`test_users`.`status` not in (?)"][0][0].([]uint)))
 	require.EqualValues(t, "2000-01-01", condition.Where["`test_users`.`birth` >= ?"][0][0])
 	require.EqualValues(t, "2000-12-31", condition.Where["`test_users`.`birth` <= ?"][0][0])
+	require.EqualValues(t, true, condition.Where["`test_users`.`human` is ?"][0][0])
+	require.EqualValues(t, false, condition.Where["`test_users`.`human` is not ?"][0][0])
 	// order
 	require.EqualValues(t, 2, len(condition.Order))
 	require.EqualValues(t, "`test_users`.`created_at` desc", condition.Order[0])

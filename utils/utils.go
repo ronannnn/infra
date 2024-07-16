@@ -40,6 +40,8 @@ func IsZeroValue(v any) bool {
 	switch rv.Kind() {
 	case reflect.Slice, reflect.Map:
 		return rv.Len() == 0
+	case reflect.Bool:
+		return false
 	default:
 		return v == reflect.Zero(reflect.TypeOf(v)).Interface()
 	}

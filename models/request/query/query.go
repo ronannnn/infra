@@ -55,6 +55,8 @@ const (
 	TypeIn        = "in"
 	TypeNotIn     = "not_in"
 	TypeRange     = "range"
+	TypeIs        = "is"
+	TypeIsNot     = "is_not"
 )
 
 type QuerySetter interface {
@@ -132,11 +134,15 @@ func ResolveWhereQuery(items []WhereQueryItem, tblName string, fieldColMapper ma
 				start := item.Value.(map[string]any)["start"]
 				end := item.Value.(map[string]any)["end"]
 				if !utils.IsZeroValue(start) {
-					condition.SetWhere(fmt.Sprintf("`%s`.`%s` >= ?", tblName, col), []any{start})
+					condition.SetWhere(fmt.Sprintf("%s >= ?", fullColName), []any{start})
 				}
 				if !utils.IsZeroValue(end) {
-					condition.SetWhere(fmt.Sprintf("`%s`.`%s` <= ?", tblName, col), []any{end})
+					condition.SetWhere(fmt.Sprintf("%s <= ?", fullColName), []any{end})
 				}
+			case TypeIs:
+				condition.SetWhere(fmt.Sprintf("%s is ?", fullColName), []any{item.Value})
+			case TypeIsNot:
+				condition.SetWhere(fmt.Sprintf("%s is not ?", fullColName), []any{item.Value})
 			default:
 				return fmt.Errorf("opr %s not found", item.Opr)
 			}
@@ -181,11 +187,15 @@ func ResolveOrQuery(items []WhereQueryItem, tblName string, fieldColMapper map[s
 				start := item.Value.(map[string]any)["start"]
 				end := item.Value.(map[string]any)["end"]
 				if !utils.IsZeroValue(start) {
-					condition.SetOr(fmt.Sprintf("`%s`.`%s` >= ?", tblName, col), []any{start})
+					condition.SetOr(fmt.Sprintf("%s >= ?", fullColName), []any{start})
 				}
 				if !utils.IsZeroValue(end) {
-					condition.SetOr(fmt.Sprintf("`%s`.`%s` <= ?", tblName, col), []any{end})
+					condition.SetOr(fmt.Sprintf("%s <= ?", fullColName), []any{end})
 				}
+			case TypeIs:
+				condition.SetOr(fmt.Sprintf("%s is ?", fullColName), []any{item.Value})
+			case TypeIsNot:
+				condition.SetOr(fmt.Sprintf("%s is not ?", fullColName), []any{item.Value})
 			default:
 				return fmt.Errorf("opr %s not found", item.Opr)
 			}
