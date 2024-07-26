@@ -52,6 +52,9 @@ func IsZeroValue(v any) bool {
 // DELETE /api/v1/tasks/out/subtasks/{id}
 // GET    /api/v1/tasks/out/{id}
 func LeftJustifyingPrint(rows [][]string, log *zap.SugaredLogger) {
+	if len(rows) == 0 {
+		return
+	}
 	maxFieldLength := make([]int, len(rows[0]))
 	for _, row := range rows {
 		for i, field := range row {
