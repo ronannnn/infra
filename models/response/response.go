@@ -50,6 +50,14 @@ func OkWithErrorNotifMsg(w http.ResponseWriter, r *http.Request, msg string) {
 	Result(w, r, Response{Success: true, Message: msg, ShowType: ErrorNotification})
 }
 
+func OkWithDataAndWarningNotifMsg(w http.ResponseWriter, r *http.Request, data any, msg string) {
+	Result(w, r, Response{Success: true, Data: data, Message: msg, ShowType: WarningNotification})
+}
+
+func OkWithDataAndErrorNotifMsg(w http.ResponseWriter, r *http.Request, data any, msg string) {
+	Result(w, r, Response{Success: true, Data: data, Message: msg, ShowType: ErrorNotification})
+}
+
 func OkWithData(w http.ResponseWriter, r *http.Request, data any) {
 	Result(w, r, Response{Success: true, Data: data})
 }
