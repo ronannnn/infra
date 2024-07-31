@@ -16,11 +16,12 @@ const (
 type ShowType int
 
 const (
-	Silent       ShowType = 0
-	WarnMessage  ShowType = 1
-	ErrorMessage ShowType = 2
-	Notification ShowType = 4
-	Redirect     ShowType = 9
+	Silent              ShowType = 0
+	WarningMessage      ShowType = 1
+	ErrorMessage        ShowType = 2
+	WarningNotification ShowType = 4
+	ErrorNotification   ShowType = 5
+	Redirect            ShowType = 9
 )
 
 // Response According to https://pro.ant.design/zh-CN/docs/request
@@ -39,6 +40,14 @@ func Result(w http.ResponseWriter, r *http.Request, response Response) {
 
 func Ok(w http.ResponseWriter, r *http.Request) {
 	Result(w, r, Response{Success: true})
+}
+
+func OkWithWarningNotifMsg(w http.ResponseWriter, r *http.Request, msg string) {
+	Result(w, r, Response{Success: true, Message: msg, ShowType: WarningNotification})
+}
+
+func OkWithErrorNotifMsg(w http.ResponseWriter, r *http.Request, msg string) {
+	Result(w, r, Response{Success: true, Message: msg, ShowType: ErrorNotification})
 }
 
 func OkWithData(w http.ResponseWriter, r *http.Request, data any) {
