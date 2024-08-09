@@ -12,11 +12,11 @@ import (
 )
 
 // example from https://github.com/rabbitmq/amqp091-go/blob/main/_examples/client/client.go
-// Client is the base struct for handling connection recovery, consumption and
+// RabbitmqClient is the base struct for handling connection recovery, consumption and
 // publishing. Note that this struct has an internal mutex to safeguard against
 // data races. As you develop and iterate over this example, you may need to add
 // further locks, or safeguards, to keep your application safe from data races
-type Client struct {
+type RabbitmqClient struct {
 	log             *zap.SugaredLogger
 	m               *sync.Mutex
 	queueName       string
@@ -51,8 +51,8 @@ var (
 func NewRabbitMq(
 	log *zap.SugaredLogger,
 	rmqCfg *cfg.Rabbitmq,
-) *Client {
-	client := Client{
+) *RabbitmqClient {
+	client := RabbitmqClient{
 		m:         &sync.Mutex{},
 		log:       log,
 		queueName: rmqCfg.QueueName,
@@ -64,7 +64,7 @@ func NewRabbitMq(
 
 // handleReconnect will wait for a connection error on
 // notifyConnClose, and then continuously attempt to reconnect.
-func (client *Client) handleReconnect(addr string) {
+func (client *RabbitmqClient) handleReconnect(addr string) {
 	for {
 		client.m.Lock()
 		client.isReady = false
@@ -91,7 +91,7 @@ func (client *Client) handleReconnect(addr string) {
 }
 
 // connect will create a new AMQP connection
-func (client *Client) connect(addr string) (conn *amqp.Connection, err error) {
+func (client *RabbitmqClient) connect(addr string) (conn *amqp.Connection, err error) {
 	if conn, err = amqp.Dial(addr); err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func (client *Client) connect(addr string) (conn *amqp.Connection, err error) {
 
 // handleReInit will wait for a channel error
 // and then continuously attempt to re-initialize both channels
-func (client *Client) handleReInit(conn *amqp.Connection) bool {
+func (client *RabbitmqClient) handleReInit(conn *amqp.Connection) bool {
 	for {
 		client.m.Lock()
 		client.isReady = false
@@ -137,7 +137,7 @@ func (client *Client) handleReInit(conn *amqp.Connection) bool {
 }
 
 // init will initialize channel & declare queue
-func (client *Client) init(conn *amqp.Connection) error {
+func (client *RabbitmqClient) init(conn *amqp.Connection) error {
 	ch, err := conn.Channel()
 	if err != nil {
 		return err
@@ -170,7 +170,7 @@ func (client *Client) init(conn *amqp.Connection) error {
 
 // changeConnection takes a new connection to the queue,
 // and updates the close listener to reflect this.
-func (client *Client) changeConnection(connection *amqp.Connection) {
+func (client *RabbitmqClient) changeConnection(connection *amqp.Connection) {
 	client.connection = connection
 	client.notifyConnClose = make(chan *amqp.Error, 1)
 	client.connection.NotifyClose(client.notifyConnClose)
@@ -178,7 +178,7 @@ func (client *Client) changeConnection(connection *amqp.Connection) {
 
 // changeChannel takes a new channel to the queue,
 // and updates the channel listeners to reflect this.
-func (client *Client) changeChannel(channel *amqp.Channel) {
+func (client *RabbitmqClient) changeChannel(channel *amqp.Channel) {
 	client.channel = channel
 	client.notifyChanClose = make(chan *amqp.Error, 1)
 	client.notifyConfirm = make(chan amqp.Confirmation, 1)
@@ -189,7 +189,7 @@ func (client *Client) changeChannel(channel *amqp.Channel) {
 // Push will push data onto the queue, and wait for a confirmation.
 // This will block until the server sends a confirmation. Errors are
 // only returned if the push action itself fails, see UnsafePush.
-func (client *Client) Push(data []byte) error {
+func (client *RabbitmqClient) Push(data []byte) error {
 	for {
 		client.m.Lock()
 		if client.isReady {
@@ -223,7 +223,7 @@ func (client *Client) Push(data []byte) error {
 // confirmation. It returns an error if it fails to connect.
 // No guarantees are provided for whether the server will
 // receive the message.
-func (client *Client) UnsafePush(data []byte) error {
+func (client *RabbitmqClient) UnsafePush(data []byte) error {
 	client.m.Lock()
 	if !client.isReady {
 		client.m.Unlock()
@@ -251,7 +251,7 @@ func (client *Client) UnsafePush(data []byte) error {
 // It is required to call delivery.Ack when it has been
 // successfully processed, or delivery.Nack when it fails.
 // Ignoring this will cause data to build up on the server.
-func (client *Client) Consume() (<-chan amqp.Delivery, error) {
+func (client *RabbitmqClient) Consume() (<-chan amqp.Delivery, error) {
 	for {
 		client.m.Lock()
 		if client.isReady {
@@ -283,7 +283,7 @@ func (client *Client) Consume() (<-chan amqp.Delivery, error) {
 }
 
 // Close will cleanly shut down the channel and connection.
-func (client *Client) Close() error {
+func (client *RabbitmqClient) Close() error {
 	client.m.Lock()
 	// we read and write isReady in two locations, so we grab the lock and hold onto
 	// it until we are finished
