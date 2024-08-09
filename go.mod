@@ -91,6 +91,7 @@ require (
 	github.com/go-chi/render v1.0.3
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/multierr v1.11.0 // indirect
