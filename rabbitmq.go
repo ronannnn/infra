@@ -186,6 +186,12 @@ func (client *RabbitmqClient) changeChannel(channel *amqp.Channel) {
 	client.channel.NotifyPublish(client.notifyConfirm)
 }
 
+func (client *RabbitmqClient) ChangeChannelNotifyClose() (chClosedCh chan *amqp.Error) {
+	chClosedCh = make(chan *amqp.Error, 1)
+	client.channel.NotifyClose(chClosedCh)
+	return
+}
+
 // Push will push data onto the queue, and wait for a confirmation.
 // This will block until the server sends a confirmation. Errors are
 // only returned if the push action itself fails, see UnsafePush.
