@@ -2,6 +2,7 @@ package infra
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"sync"
 	"time"
@@ -58,13 +59,22 @@ func NewRabbitMq(
 		queueName: rmqCfg.QueueName,
 		done:      make(chan bool),
 	}
-	go client.handleReconnect(rmqCfg.Addr)
+	if rmqCfg.EnableSsl {
+		client.log.Info("[rmq] enable ssl")
+		tlsConfig := &tls.Config{
+			InsecureSkipVerify: true, // 如果不需要验证服务器证书，可以设置为 true
+		}
+		go client.handleReconnect(rmqCfg.Addr, tlsConfig)
+	} else {
+		go client.handleReconnect(rmqCfg.Addr, nil)
+	}
+
 	return &client
 }
 
 // handleReconnect will wait for a connection error on
 // notifyConnClose, and then continuously attempt to reconnect.
-func (client *RabbitmqClient) handleReconnect(addr string) {
+func (client *RabbitmqClient) handleReconnect(addr string, amqps *tls.Config) {
 	for {
 		client.m.Lock()
 		client.isReady = false
@@ -72,7 +82,7 @@ func (client *RabbitmqClient) handleReconnect(addr string) {
 
 		client.log.Info("[rmq] attempting to connect")
 
-		conn, err := client.connect(addr)
+		conn, err := client.connect(addr, amqps)
 		if err != nil {
 			client.log.Error("[rmq] failed to connect. Retrying...")
 
@@ -91,9 +101,15 @@ func (client *RabbitmqClient) handleReconnect(addr string) {
 }
 
 // connect will create a new AMQP connection
-func (client *RabbitmqClient) connect(addr string) (conn *amqp.Connection, err error) {
-	if conn, err = amqp.Dial(addr); err != nil {
-		return nil, err
+func (client *RabbitmqClient) connect(addr string, amqps *tls.Config) (conn *amqp.Connection, err error) {
+	if amqps == nil {
+		if conn, err = amqp.Dial(addr); err != nil {
+			return nil, err
+		}
+	} else {
+		if conn, err = amqp.DialTLS(addr, amqps); err != nil {
+			return nil, err
+		}
 	}
 
 	client.changeConnection(conn)
