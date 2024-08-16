@@ -60,12 +60,13 @@ func NewRabbitMq(
 		done:      make(chan bool),
 	}
 	if rmqCfg.EnableSsl {
-		client.log.Info("[rmq] enable ssl")
+		client.log.Info("[rmq] connect with ssl")
 		tlsConfig := &tls.Config{
 			InsecureSkipVerify: true, // 如果不需要验证服务器证书，可以设置为 true
 		}
 		go client.handleReconnect(rmqCfg.Addr, tlsConfig)
 	} else {
+		client.log.Info("[rmq] connect without ssl")
 		go client.handleReconnect(rmqCfg.Addr, nil)
 	}
 
@@ -84,7 +85,7 @@ func (client *RabbitmqClient) handleReconnect(addr string, amqps *tls.Config) {
 
 		conn, err := client.connect(addr, amqps)
 		if err != nil {
-			client.log.Error("[rmq] failed to connect. Retrying...")
+			client.log.Error("[rmq] failed to connect. Retrying...", zap.Error(err))
 
 			select {
 			case <-client.done:
