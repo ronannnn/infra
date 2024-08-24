@@ -3,7 +3,6 @@ package infra
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -14,8 +13,11 @@ import (
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 	"github.com/ronannnn/infra/cfg"
+	"github.com/ronannnn/infra/handler"
+	"github.com/ronannnn/infra/i18n"
 	"github.com/ronannnn/infra/models"
-	"github.com/ronannnn/infra/models/response"
+	"github.com/ronannnn/infra/msg"
+	"github.com/ronannnn/infra/reason"
 	"github.com/ronannnn/infra/services/apirecord"
 	"github.com/ronannnn/infra/services/jwt/accesstoken"
 	"go.uber.org/zap"
@@ -44,6 +46,8 @@ func ProvideMiddleware(
 	// auth
 	authCfg *cfg.Auth,
 	accessTokenService accesstoken.Service,
+	// handler
+	httpHandler handler.HttpHandler,
 ) Middleware {
 	return &MiddlewareImpl{
 		log:                log,
@@ -51,6 +55,7 @@ func ProvideMiddleware(
 		apirecordService:   apirecordService,
 		authCfg:            authCfg,
 		accessTokenService: accessTokenService,
+		httpHandler:        httpHandler,
 	}
 }
 
@@ -60,13 +65,14 @@ type MiddlewareImpl struct {
 	apirecordService   apirecord.Service
 	authCfg            *cfg.Auth
 	accessTokenService accesstoken.Service
+	httpHandler        handler.HttpHandler
 }
 
 func (m *MiddlewareImpl) Lang(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		lang := r.Header.Get("Accept-Language")
 		if lang == "" {
-			lang = string(DefaultLangType)
+			lang = string(i18n.DefaultLanguage)
 		}
 		ctx := context.WithValue(r.Context(), models.CtxKeyLang, lang)
 		next.ServeHTTP(w, r.WithContext(ctx))
@@ -96,7 +102,7 @@ func (m *MiddlewareImpl) CasbinInterceptor(next http.Handler) http.Handler {
 		act := r.Method                                         // act
 		_, err := m.casbinEnforcer.Enforce(userId, path, act)
 		if err != nil {
-			response.ErrPrivilege(w, r)
+			m.httpHandler.Fail(w, r, msg.NewError(reason.ForbiddenError), nil)
 			return
 		}
 		next.ServeHTTP(w, r)
@@ -180,12 +186,12 @@ func (m *MiddlewareImpl) Authenticator(next http.Handler) http.Handler {
 		token, _, err := jwtauth.FromContext(r.Context())
 
 		if err != nil {
-			response.ErrAccessToken(w, r, err)
+			m.httpHandler.FailWithCode(w, r, msg.NewError(reason.UnauthorizedError).WithError(err), nil, handler.AccessTokenErrorCode)
 			return
 		}
 
 		if token == nil || jwt.Validate(token) != nil {
-			response.ErrAccessToken(w, r, fmt.Errorf("invalid token"))
+			m.httpHandler.FailWithCode(w, r, msg.NewError(reason.UnauthorizedError).WithError(err), nil, handler.AccessTokenErrorCode)
 			return
 		}
 

@@ -1,0 +1,6 @@
+base:
+  test: "测试"
+entity:
+  user:
+    age: "年龄"
+    name: "姓名"

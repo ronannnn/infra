@@ -1,4 +1,4 @@
-package errors
+package msg
 
 import (
 	"bytes"
@@ -8,15 +8,16 @@ import (
 
 // Error is error with info
 type Error struct {
-	Reason  string
-	Message string
-	Err     error
-	Stack   string
+	Message
+	Err   error
+	Stack string
 }
 
-// New create error
-func New(reason string) *Error {
-	return &Error{Reason: reason}
+// NewError create error
+func NewError(reason string) (err *Error) {
+	err = &Error{}
+	err.Reason = reason
+	return
 }
 
 // Error return error with info
@@ -30,9 +31,15 @@ func (e *Error) WithReason(reason string) *Error {
 	return e
 }
 
+// WithReasonTemplateData with reason template data
+func (e *Error) WithReasonTemplateData(data any) *Error {
+	e.ReasonTemplateData = data
+	return e
+}
+
 // WithMsg with message
-func (e *Error) WithMsg(message string) *Error {
-	e.Message = message
+func (e *Error) WithMsg(msg string) *Error {
+	e.Msg = msg
 	return e
 }
 
@@ -55,7 +62,7 @@ func (e *Error) Format(state fmt.State, verb rune) {
 		str.WriteString("reason: ")
 		str.WriteString(e.Reason + ", ")
 		str.WriteString("message: ")
-		str.WriteString(e.Message)
+		str.WriteString(e.Msg)
 		if e.Err != nil {
 			str.WriteString(", error: ")
 			str.WriteString(e.Err.Error())

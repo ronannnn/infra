@@ -1,0 +1,3 @@
+base:
+  test: "测试"
+  withData: "{{.Name}}在{{.Place}}"

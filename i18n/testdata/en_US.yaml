@@ -1,0 +1,3 @@
+base:
+  test: "en_test"
+  withData: "{{.Name}} is at {{.Place}}"

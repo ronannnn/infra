@@ -1,10 +1,10 @@
-package errors_test
+package msg_test
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/ronannnn/infra/errors"
+	"github.com/ronannnn/infra/msg"
 )
 
 func TestNew(t *testing.T) {
@@ -26,7 +26,7 @@ func C() error {
 }
 
 func D() error {
-	return errors.New("internal server error").
+	return msg.NewError("internal server error").
 		WithMsg("db connection error!!").
 		WithError(fmt.Errorf("db connection error")).
 		WithStack()
