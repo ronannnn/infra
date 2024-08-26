@@ -10,7 +10,7 @@ import (
 )
 
 type LogTestCfg struct {
-	Log cfg.Log `mapstructure:"log"`
+	Log log.Cfg `mapstructure:"log"`
 }
 
 func TestLogRotatedFiles(t *testing.T) {

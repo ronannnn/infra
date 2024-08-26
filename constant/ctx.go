@@ -1,5 +1,10 @@
 package constant
 
+type CtxKey string
+
 const (
-	AcceptLanguage = "Accept-Language"
+	CtxKeyAcceptLanguage CtxKey = "Accept-Language"
+	CtxKeyLang           CtxKey = "Lang"
+	CtxKeyUa             CtxKey = "User-Agent"
+	CtxKeyDeviceId       CtxKey = "Device-Id"
 )

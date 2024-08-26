@@ -11,7 +11,6 @@ import (
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	"github.com/ronannnn/infra/cfg"
 )
 
 type Minioss interface {
@@ -24,7 +23,7 @@ type Minioss interface {
 }
 
 func NewMinioss(
-	cfg *cfg.Dfs,
+	cfg *Cfg,
 ) (Minioss, error) {
 	if client, err := minio.New(cfg.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(cfg.AccessKeyId, cfg.AccessKeySecret, ""),
@@ -40,7 +39,7 @@ func NewMinioss(
 }
 
 type MiniossImpl struct {
-	cfg      *cfg.Dfs
+	cfg      *Cfg
 	minioCli *minio.Client
 }
 
@@ -130,7 +129,7 @@ type AliOss interface {
 }
 
 func NewAliOss(
-	cfg *cfg.Dfs,
+	cfg *Cfg,
 ) (AliOss, error) {
 	if client, err := oss.New(cfg.Endpoint, cfg.AccessKeyId, cfg.AccessKeySecret); err != nil {
 		return nil, err
@@ -143,7 +142,7 @@ func NewAliOss(
 }
 
 type AliOssImpl struct {
-	cfg       *cfg.Dfs
+	cfg       *Cfg
 	aliOssCli *oss.Client
 }
 

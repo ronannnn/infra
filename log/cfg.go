@@ -1,6 +1,6 @@
-package cfg
+package log
 
-type Log struct {
+type Cfg struct {
 	Level           string `mapstructure:"level"`
 	StoreDir        string `mapstructure:"store-dir"`
 	LatestFilename  string `mapstructure:"latest-filename"`

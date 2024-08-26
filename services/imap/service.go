@@ -7,7 +7,7 @@ import (
 	"github.com/emersion/go-imap/v2"
 	"github.com/emersion/go-imap/v2/imapclient"
 	_ "github.com/emersion/go-message/charset"
-	"github.com/ronannnn/infra/cfg"
+	infraImap "github.com/ronannnn/infra/imap"
 	"go.uber.org/zap"
 )
 
@@ -17,7 +17,7 @@ type Service interface {
 }
 
 func ProvideService(
-	cfg *cfg.Imap,
+	cfg *infraImap.Cfg,
 	log *zap.SugaredLogger,
 ) (srv Service, err error) {
 	srv = &ServiceImpl{
@@ -29,7 +29,7 @@ func ProvideService(
 
 type ServiceImpl struct {
 	log        *zap.SugaredLogger
-	cfg        *cfg.Imap
+	cfg        *infraImap.Cfg
 	idleClient *imapclient.Client
 }
 

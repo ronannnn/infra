@@ -1,6 +1,6 @@
-package cfg
+package oss
 
-type Dfs struct {
+type Cfg struct {
 	Endpoint        string `mapstructure:"endpoint"`
 	AccessKeyId     string `mapstructure:"access-key-id"`
 	AccessKeySecret string `mapstructure:"access-key-secret"`

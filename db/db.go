@@ -3,23 +3,22 @@ package db
 import (
 	"fmt"
 
-	"github.com/ronannnn/infra/cfg"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
 func New(
-	dbCfg *cfg.Db,
+	dbCfg *Cfg,
 	dropTablesBeforeMigration bool,
 	tables []any,
 ) (db *gorm.DB, err error) {
 	var dbHandler typedDbHandler
 	switch dbCfg.DbType {
-	case cfg.DbTypeMssql:
+	case DbTypeMssql:
 		dbHandler = newMssqlHandler(dbCfg)
-	case cfg.DbTypeMysql:
+	case DbTypeMysql:
 		dbHandler = newMysqlHandler(dbCfg)
-	case cfg.DbTypePostgresql:
+	case DbTypePostgresql:
 		dbHandler = newPostgresqlHandler(dbCfg)
 	default:
 		return nil, fmt.Errorf("unsupported database type: %s", dbCfg.DbType)

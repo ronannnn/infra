@@ -50,7 +50,7 @@ type HttpHandlerImpl struct {
 func (h *HttpHandlerImpl) BindAndCheck(w http.ResponseWriter, r *http.Request, data any) bool {
 	var err error
 	lang := GetLang(r)
-	r = r.WithContext(context.WithValue(r.Context(), constant.AcceptLanguage, lang))
+	r = r.WithContext(context.WithValue(r.Context(), constant.CtxKeyAcceptLanguage, lang))
 	if err = render.DefaultDecoder(r, &data); err != nil {
 		h.Fail(w, r, msg.NewError(reason.RequestFormatError), nil)
 		return true

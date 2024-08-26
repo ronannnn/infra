@@ -1,6 +1,6 @@
-package cfg
+package rabbitmq
 
-type Rabbitmq struct {
+type Cfg struct {
 	Addr      string `mapstructure:"addr"`
 	QueueName string `mapstructure:"queue-name"`
 	EnableSsl bool   `mapstructure:"enable-ssl"`

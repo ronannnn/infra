@@ -1,6 +1,6 @@
-package cfg
+package imap
 
-type Imap struct {
+type Cfg struct {
 	Host         string `mapstructure:"host"`
 	Port         int    `mapstructure:"port"`
 	EmailAddress string `mapstructure:"email-address"`

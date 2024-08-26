@@ -5,14 +5,13 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/ronannnn/infra/cfg"
 	"github.com/ronannnn/infra/utils"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-func New(cfg *cfg.Log) (log *zap.SugaredLogger, err error) {
+func New(cfg *Cfg) (log *zap.SugaredLogger, err error) {
 	getOrDefault(cfg)
 	var level zapcore.Level
 	if level, err = zapcore.ParseLevel(cfg.Level); err != nil {
@@ -48,7 +47,7 @@ func New(cfg *cfg.Log) (log *zap.SugaredLogger, err error) {
 // newWriteSyncer get multiple write syncers
 // 1. stdout if LogInConsole is enabled
 // 2. RotateLogs if LogInRotateFile is enabled
-func newWriteSyncer(cfg *cfg.Log) (syncer zapcore.WriteSyncer, err error) {
+func newWriteSyncer(cfg *Cfg) (syncer zapcore.WriteSyncer, err error) {
 	var multiWriter []zapcore.WriteSyncer
 	if cfg.LogInConsole {
 		multiWriter = append(multiWriter, zapcore.AddSync(os.Stdout))
@@ -85,7 +84,7 @@ func newWriteSyncer(cfg *cfg.Log) (syncer zapcore.WriteSyncer, err error) {
 	return zapcore.NewMultiWriteSyncer(multiWriter...), nil
 }
 
-func getOrDefault(cfg *cfg.Log) {
+func getOrDefault(cfg *Cfg) {
 	if cfg.Level == "" {
 		cfg.Level = "info"
 	}

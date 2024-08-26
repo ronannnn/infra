@@ -15,7 +15,7 @@ func GetLang(r *http.Request) i18n.Language {
 
 // GetLangByCtx get language from header
 func GetLangByCtx(ctx context.Context) i18n.Language {
-	acceptLanguage, ok := ctx.Value(constant.AcceptLanguage).(i18n.Language)
+	acceptLanguage, ok := ctx.Value(string(constant.CtxKeyAcceptLanguage)).(i18n.Language)
 	if ok {
 		return acceptLanguage
 	}

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ronannnn/infra/cfg"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -21,10 +20,10 @@ type typedDbHandler interface {
 // --- mssql ---
 
 type mssqlHandler struct {
-	cfg *cfg.Db
+	cfg *Cfg
 }
 
-func newMssqlHandler(cfg *cfg.Db) *mssqlHandler {
+func newMssqlHandler(cfg *Cfg) *mssqlHandler {
 	return &mssqlHandler{cfg: cfg}
 }
 
@@ -41,10 +40,10 @@ func (h *mssqlHandler) establishDb() (*gorm.DB, error) {
 // --- mysql ---
 
 type mysqlHandler struct {
-	cfg *cfg.Db
+	cfg *Cfg
 }
 
-func newMysqlHandler(cfg *cfg.Db) *mysqlHandler {
+func newMysqlHandler(cfg *Cfg) *mysqlHandler {
 	return &mysqlHandler{cfg: cfg}
 }
 
@@ -106,10 +105,10 @@ func (h *mysqlHandler) establishDb() (db *gorm.DB, err error) {
 // --- postgresql ---
 
 type postgresqlHandler struct {
-	cfg *cfg.Db
+	cfg *Cfg
 }
 
-func newPostgresqlHandler(cfg *cfg.Db) *postgresqlHandler {
+func newPostgresqlHandler(cfg *Cfg) *postgresqlHandler {
 	return &postgresqlHandler{cfg: cfg}
 }
 

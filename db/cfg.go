@@ -1,4 +1,4 @@
-package cfg
+package db
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ const (
 	DbTypePostgresql = "postgresql"
 )
 
-type Db struct {
+type Cfg struct {
 	DbType          string `mapstructure:"db-type"`
 	Username        string `mapstructure:"username"`
 	Password        string `mapstructure:"password"`
@@ -24,7 +24,7 @@ type Db struct {
 	EnableLog       bool   `mapstructure:"enable-log"`
 }
 
-func (dbCfg *Db) Dsn() (dsn string, err error) {
+func (dbCfg *Cfg) Dsn() (dsn string, err error) {
 	switch dbCfg.DbType {
 	case DbTypeMssql:
 		dsn = fmt.Sprintf("sqlserver://%s:%s@%s:%d?database=%s&encrypt=disable",
@@ -41,7 +41,7 @@ func (dbCfg *Db) Dsn() (dsn string, err error) {
 	return
 }
 
-func (dbCfg *Db) DsnWithoutSchema() (dsn string, err error) {
+func (dbCfg *Cfg) DsnWithoutSchema() (dsn string, err error) {
 	switch dbCfg.DbType {
 	case DbTypeMssql:
 		dsn = fmt.Sprintf("sqlserver://%s:%s@%s:%d?encrypt=disable",

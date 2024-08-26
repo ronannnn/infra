@@ -1,4 +1,4 @@
-package infra
+package rabbitmq
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
-	"github.com/ronannnn/infra/cfg"
 	"go.uber.org/zap"
 )
 
@@ -51,7 +50,7 @@ var (
 // attempts to connect to the server.
 func NewRabbitMq(
 	log *zap.SugaredLogger,
-	rmqCfg *cfg.Rabbitmq,
+	rmqCfg *Cfg,
 ) *RabbitmqClient {
 	client := RabbitmqClient{
 		m:         &sync.Mutex{},
