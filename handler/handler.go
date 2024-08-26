@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/ronannnn/infra/constant"
 	"github.com/ronannnn/infra/i18n"
@@ -17,6 +19,8 @@ import (
 type HttpHandler interface {
 	// handle request binding and checking
 	BindAndCheck(w http.ResponseWriter, r *http.Request, data any) bool
+	BindUint64Param(w http.ResponseWriter, r *http.Request, key string) (uint64, bool)
+	BindParam(w http.ResponseWriter, r *http.Request, key string) (string, bool)
 
 	// handle response
 	Success(w http.ResponseWriter, r *http.Request, message *msg.Message, data any)
@@ -61,6 +65,29 @@ func (h *HttpHandlerImpl) BindAndCheck(w http.ResponseWriter, r *http.Request, d
 		return true
 	}
 	return false
+}
+
+func (h *HttpHandlerImpl) BindUint64Param(w http.ResponseWriter, r *http.Request, key string) (result uint64, success bool) {
+	param := chi.URLParam(r, key)
+	if param == "" {
+		h.Fail(w, r, msg.NewError(reason.MissingRequiredParam), nil)
+		return
+	}
+	id, err := strconv.ParseUint(param, 10, 64)
+	if err != nil {
+		h.Fail(w, r, msg.NewError(reason.InvalidUintParam), nil)
+		return
+	}
+	return id, true
+}
+
+func (h *HttpHandlerImpl) BindParam(w http.ResponseWriter, r *http.Request, key string) (result string, success bool) {
+	param := chi.URLParam(r, key)
+	if param == "" {
+		h.Fail(w, r, msg.NewError(reason.MissingRequiredParam), nil)
+		return
+	}
+	return param, true
 }
 
 func (h *HttpHandlerImpl) Success(
@@ -142,6 +169,9 @@ func (h *HttpHandlerImpl) FailWithCodeAndShowType(
 }
 
 func getRespMsg(r *http.Request, i18n i18n.I18n, message *msg.Message) string {
+	if message == nil {
+		return ""
+	}
 	lang := GetLang(r)
 	if message.Msg != "" {
 		return message.Msg

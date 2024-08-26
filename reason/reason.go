@@ -6,15 +6,15 @@ const (
 	// UnknownError unknown error
 	UnknownError = "base.unknown"
 	// RequestFormatError request format error
-	RequestFormatError = "base.request_format_error"
+	RequestFormatError = "base.requestFormatError"
 	// UnauthorizedError unauthorized error
-	UnauthorizedError = "base.unauthorized_error"
+	UnauthorizedError = "base.unauthorizedError"
 	// DatabaseError database error
-	DatabaseError = "base.database_error"
+	DatabaseError = "base.databaseError"
 	// ForbiddenError forbidden error
-	ForbiddenError = "base.forbidden_error"
+	ForbiddenError = "base.forbiddenError"
 	// DuplicateRequestError duplicate request error
-	DuplicateRequestError = "base.duplicate_request_error"
+	DuplicateRequestError = "base.duplicateRequestError"
 )
 
 // internal error
@@ -28,4 +28,10 @@ const (
 	SuccessToRead   = "crud.successToRead"
 	SuccessToUpdate = "crud.successToUpdate"
 	SuccessToDelete = "crud.successToDelete"
+)
+
+// bind
+const (
+	MissingRequiredParam = "bing.url.missingRequiredParam"
+	InvalidUintParam     = "bing.url.invalidUintParam"
 )
