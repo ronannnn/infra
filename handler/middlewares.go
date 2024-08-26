@@ -1,4 +1,4 @@
-package infra
+package handler
 
 import (
 	"bytes"
@@ -13,7 +13,6 @@ import (
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 	"github.com/ronannnn/infra/cfg"
-	"github.com/ronannnn/infra/handler"
 	"github.com/ronannnn/infra/i18n"
 	"github.com/ronannnn/infra/models"
 	"github.com/ronannnn/infra/msg"
@@ -42,17 +41,17 @@ type Middleware interface {
 func ProvideMiddleware(
 	log *zap.SugaredLogger,
 	casbinEnforcer *casbin.SyncedCachedEnforcer,
-	apirecordService apirecord.Service,
+	apiRecordService apirecord.Service,
 	// auth
 	authCfg *cfg.Auth,
 	accessTokenService accesstoken.Service,
 	// handler
-	httpHandler handler.HttpHandler,
+	httpHandler HttpHandler,
 ) Middleware {
 	return &MiddlewareImpl{
 		log:                log,
 		casbinEnforcer:     casbinEnforcer,
-		apirecordService:   apirecordService,
+		apirecordService:   apiRecordService,
 		authCfg:            authCfg,
 		accessTokenService: accessTokenService,
 		httpHandler:        httpHandler,
@@ -65,7 +64,7 @@ type MiddlewareImpl struct {
 	apirecordService   apirecord.Service
 	authCfg            *cfg.Auth
 	accessTokenService accesstoken.Service
-	httpHandler        handler.HttpHandler
+	httpHandler        HttpHandler
 }
 
 func (m *MiddlewareImpl) Lang(next http.Handler) http.Handler {
@@ -186,12 +185,12 @@ func (m *MiddlewareImpl) Authenticator(next http.Handler) http.Handler {
 		token, _, err := jwtauth.FromContext(r.Context())
 
 		if err != nil {
-			m.httpHandler.FailWithCode(w, r, msg.NewError(reason.UnauthorizedError).WithError(err), nil, handler.AccessTokenErrorCode)
+			m.httpHandler.FailWithCode(w, r, msg.NewError(reason.UnauthorizedError).WithError(err), nil, AccessTokenErrorCode)
 			return
 		}
 
 		if token == nil || jwt.Validate(token) != nil {
-			m.httpHandler.FailWithCode(w, r, msg.NewError(reason.UnauthorizedError).WithError(err), nil, handler.AccessTokenErrorCode)
+			m.httpHandler.FailWithCode(w, r, msg.NewError(reason.UnauthorizedError).WithError(err), nil, AccessTokenErrorCode)
 			return
 		}
 

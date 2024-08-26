@@ -1,4 +1,4 @@
-package infra
+package db
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-func NewDb(
+func New(
 	dbCfg *cfg.Db,
 	dropTablesBeforeMigration bool,
 	tables []any,
@@ -24,10 +24,10 @@ func NewDb(
 	default:
 		return nil, fmt.Errorf("unsupported database type: %s", dbCfg.DbType)
 	}
-	if err = dbHandler.EnsureDb(); err != nil {
+	if err = dbHandler.ensureDb(); err != nil {
 		return
 	}
-	if db, err = dbHandler.EstablishDb(); err != nil {
+	if db, err = dbHandler.establishDb(); err != nil {
 		return
 	}
 	if dropTablesBeforeMigration {

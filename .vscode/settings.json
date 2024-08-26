@@ -1,11 +1,13 @@
 {
   "cSpell.words": [
     "aarch",
+    "accesstoken",
     "alioss",
     "aliosstest",
     "aliyun",
     "amqp",
     "amqps",
+    "apirecord",
     "Applebot",
     "armv",
     "Bingbot",
@@ -30,12 +32,14 @@
     "Infof",
     "iscolor",
     "jsapi",
+    "jwtauth",
     "KHTML",
     "lestrrat",
     "loginrecord",
     "logtest",
     "mapstructure",
     "Mediapartners",
+    "minio",
     "Minioss",
     "miui",
     "msgid",
@@ -64,6 +68,7 @@
     "useropenid",
     "varchar",
     "veken",
+    "Warnf",
     "wechattask",
     "wechattest"
   ]

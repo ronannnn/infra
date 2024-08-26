@@ -1,4 +1,4 @@
-package infra
+package imap
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"github.com/ronannnn/infra/cfg"
 )
 
-func NewImapServer(cfg *cfg.Imap) (client *imapclient.Client, err error) {
+func New(cfg *cfg.Imap) (client *imapclient.Client, err error) {
 	if client, err = imapclient.DialTLS(fmt.Sprintf("%s:%d", cfg.Host, cfg.Port), nil); err != nil {
 		return
 	}

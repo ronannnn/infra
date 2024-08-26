@@ -1,4 +1,4 @@
-package infra
+package log
 
 import (
 	"os"
@@ -12,7 +12,7 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-func NewLog(cfg *cfg.Log) (log *zap.SugaredLogger, err error) {
+func New(cfg *cfg.Log) (log *zap.SugaredLogger, err error) {
 	getOrDefault(cfg)
 	var level zapcore.Level
 	if level, err = zapcore.ParseLevel(cfg.Level); err != nil {

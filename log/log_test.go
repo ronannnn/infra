@@ -1,10 +1,10 @@
-package infra_test
+package log_test
 
 import (
 	"testing"
 
-	"github.com/ronannnn/infra"
 	"github.com/ronannnn/infra/cfg"
+	"github.com/ronannnn/infra/log"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 )
@@ -19,8 +19,8 @@ func TestLogRotatedFiles(t *testing.T) {
 	err = cfg.ReadFromFile("configs/config.logtest.toml", &testCfg)
 	require.NoError(t, err)
 	// init log
-	var log *zap.SugaredLogger
-	log, err = infra.NewLog(&testCfg.Log)
+	var logger *zap.SugaredLogger
+	logger, err = log.New(&testCfg.Log)
 	require.NoError(t, err)
-	log.Info("test log")
+	logger.Info("test log")
 }

@@ -1,4 +1,4 @@
-package infra_test
+package oss_test
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ronannnn/infra"
 	"github.com/ronannnn/infra/cfg"
+	"github.com/ronannnn/infra/oss"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,8 +17,8 @@ func TestAliOss(t *testing.T) {
 	err = cfg.ReadFromFile("configs/config.aliosstest.toml", &testCfg)
 	require.NoError(t, err)
 	// init service
-	var aliOss infra.AliOss
-	aliOss, err = infra.NewAliOss(&testCfg.Dfs)
+	var aliOss oss.AliOss
+	aliOss, err = oss.NewAliOss(&testCfg.Dfs)
 	require.NoError(t, err)
 	ctx := context.Background()
 	testFilename := "test.txt"

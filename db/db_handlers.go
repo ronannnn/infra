@@ -1,4 +1,4 @@
-package infra
+package db
 
 import (
 	"database/sql"
@@ -12,10 +12,10 @@ import (
 )
 
 type typedDbHandler interface {
-	// EnsureDb ensure that database exists, create if not exists
-	EnsureDb() error
-	// EstablishDb connect db and create gorm.DB instance
-	EstablishDb() (*gorm.DB, error)
+	// ensureDb ensure that database exists, create if not exists
+	ensureDb() error
+	// establishDb connect db and create gorm.DB instance
+	establishDb() (*gorm.DB, error)
 }
 
 // --- mssql ---
@@ -28,12 +28,12 @@ func newMssqlHandler(cfg *cfg.Db) *mssqlHandler {
 	return &mssqlHandler{cfg: cfg}
 }
 
-func (h *mssqlHandler) EnsureDb() error {
+func (h *mssqlHandler) ensureDb() error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (h *mssqlHandler) EstablishDb() (*gorm.DB, error) {
+func (h *mssqlHandler) establishDb() (*gorm.DB, error) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -48,7 +48,7 @@ func newMysqlHandler(cfg *cfg.Db) *mysqlHandler {
 	return &mysqlHandler{cfg: cfg}
 }
 
-func (h *mysqlHandler) EnsureDb() (err error) {
+func (h *mysqlHandler) ensureDb() (err error) {
 	// connect without database
 	var dsn string
 	if dsn, err = h.cfg.DsnWithoutSchema(); err != nil {
@@ -76,7 +76,7 @@ func (h *mysqlHandler) EnsureDb() (err error) {
 	return
 }
 
-func (h *mysqlHandler) EstablishDb() (db *gorm.DB, err error) {
+func (h *mysqlHandler) establishDb() (db *gorm.DB, err error) {
 	var dsn string
 	if dsn, err = h.cfg.Dsn(); err != nil {
 		return
@@ -113,7 +113,7 @@ func newPostgresqlHandler(cfg *cfg.Db) *postgresqlHandler {
 	return &postgresqlHandler{cfg: cfg}
 }
 
-func (h *postgresqlHandler) EnsureDb() (err error) {
+func (h *postgresqlHandler) ensureDb() (err error) {
 	// connect without database
 	var dsn string
 	if dsn, err = h.cfg.DsnWithoutSchema(); err != nil {
@@ -140,7 +140,7 @@ func (h *postgresqlHandler) EnsureDb() (err error) {
 	return
 }
 
-func (h *postgresqlHandler) EstablishDb() (db *gorm.DB, err error) {
+func (h *postgresqlHandler) establishDb() (db *gorm.DB, err error) {
 	var dsn string
 	if dsn, err = h.cfg.Dsn(); err != nil {
 		return

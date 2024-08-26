@@ -1,19 +1,19 @@
-package infra
+package casbin
 
 import (
 	"time"
 
 	"github.com/casbin/casbin/v2"
-	casbinmodel "github.com/casbin/casbin/v2/model"
-	gormadapter "github.com/casbin/gorm-adapter/v3"
+	casbinModel "github.com/casbin/casbin/v2/model"
+	gormAdapter "github.com/casbin/gorm-adapter/v3"
 	"gorm.io/gorm"
 )
 
-func ProvideCasbinEnforcer(
+func NewCasbinEnforcer(
 	db *gorm.DB,
 ) (enforcer *casbin.SyncedCachedEnforcer, err error) {
-	var adapter *gormadapter.Adapter
-	if adapter, err = gormadapter.NewAdapterByDB(db); err != nil {
+	var adapter *gormAdapter.Adapter
+	if adapter, err = gormAdapter.NewAdapterByDB(db); err != nil {
 		return
 	}
 	rbac_rule := `
@@ -32,11 +32,11 @@ func ProvideCasbinEnforcer(
 	[matchers]
 	m = r.sub == p.sub && keyMatch2(r.obj,p.obj) && r.act == p.act
 	`
-	var casbinModel casbinmodel.Model
-	if casbinModel, err = casbinmodel.NewModelFromString(rbac_rule); err != nil {
+	var cModel casbinModel.Model
+	if cModel, err = casbinModel.NewModelFromString(rbac_rule); err != nil {
 		return
 	}
-	if enforcer, err = casbin.NewSyncedCachedEnforcer(casbinModel, adapter); err != nil {
+	if enforcer, err = casbin.NewSyncedCachedEnforcer(cModel, adapter); err != nil {
 		return
 	}
 	enforcer.SetExpireTime(60 * 60 * time.Second)
