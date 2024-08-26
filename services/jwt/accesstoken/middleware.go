@@ -1,4 +1,4 @@
-package auth
+package accesstoken
 
 import (
 	"context"
@@ -6,12 +6,10 @@ import (
 
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/lestrrat-go/jwx/v2/jwt"
-	"github.com/ronannnn/infra/cfg"
 	"github.com/ronannnn/infra/handler"
 	"github.com/ronannnn/infra/models"
 	"github.com/ronannnn/infra/msg"
 	"github.com/ronannnn/infra/reason"
-	"github.com/ronannnn/infra/services/jwt/accesstoken"
 )
 
 type Middleware interface {
@@ -23,8 +21,8 @@ type Middleware interface {
 
 func ProvideMiddleware(
 	// auth
-	authCfg *cfg.Auth,
-	accessTokenService accesstoken.Service,
+	authCfg *Cfg,
+	accessTokenService Service,
 	// handler
 	httpHandler handler.HttpHandler,
 ) Middleware {
@@ -36,8 +34,8 @@ func ProvideMiddleware(
 }
 
 type MiddlewareImpl struct {
-	authCfg            *cfg.Auth
-	accessTokenService accesstoken.Service
+	authCfg            *Cfg
+	accessTokenService Service
 	httpHandler        handler.HttpHandler
 }
 

@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/ronannnn/infra/cfg"
-	infraImap "github.com/ronannnn/infra/imap"
 	"github.com/ronannnn/infra/log"
 	"github.com/ronannnn/infra/services/imap"
 	"github.com/stretchr/testify/require"
@@ -13,8 +12,8 @@ import (
 )
 
 type ImapTestCfg struct {
-	Imap infraImap.Cfg `mapstructure:"imap"`
-	Log  log.Cfg       `mapstructure:"log"`
+	Imap imap.Cfg `mapstructure:"imap"`
+	Log  log.Cfg  `mapstructure:"log"`
 }
 
 func TestImapFetchService(t *testing.T) {

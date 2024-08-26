@@ -2,7 +2,6 @@ package accesstoken
 
 import (
 	"github.com/go-chi/jwtauth/v5"
-	"github.com/ronannnn/infra/cfg"
 )
 
 type Service interface {
@@ -10,7 +9,7 @@ type Service interface {
 }
 
 func ProvideService(
-	cfg *cfg.Auth,
+	cfg *Cfg,
 ) Service {
 	return &ServiceImpl{
 		jwtAuth: jwtauth.New("HS256", []byte(cfg.AccessTokenSecret), nil),

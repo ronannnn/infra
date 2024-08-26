@@ -8,7 +8,6 @@ import (
 )
 
 type TestConfig struct {
-	Auth     Auth   `mapstructure:"auth"`
 	Username string `mapstructure:"username"`
 }
 
@@ -18,5 +17,4 @@ func TestConfigReader(t *testing.T) {
 	require.NoError(t, err)
 	fmt.Printf("%+v\n", cfg)
 	require.Equal(t, "ronan", cfg.Username)
-	require.Equal(t, "abc123", cfg.Auth.AccessTokenSecret)
 }

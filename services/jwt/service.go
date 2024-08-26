@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/lestrrat-go/jwx/v2/jwt"
-	"github.com/ronannnn/infra/cfg"
 	"github.com/ronannnn/infra/services/jwt/accesstoken"
 	"github.com/ronannnn/infra/services/jwt/refreshtoken"
 	"github.com/ronannnn/infra/utils/useragent"
@@ -28,14 +27,16 @@ type Service interface {
 }
 
 func ProvideService(
-	cfg *cfg.Auth,
+	accessTokenCfg *accesstoken.Cfg,
+	refreshtokenCfg *refreshtoken.Cfg,
 	db *gorm.DB,
 	refreshtokenService refreshtoken.Service,
 	refreshtokenStore refreshtoken.Store,
 	accesstokenService accesstoken.Service,
 ) Service {
 	return &ServiceImpl{
-		cfg:                 cfg,
+		accessTokenCfg:      accessTokenCfg,
+		refreshtokenCfg:     refreshtokenCfg,
 		db:                  db,
 		refreshtokenService: refreshtokenService,
 		refreshtokenStore:   refreshtokenStore,
@@ -44,7 +45,8 @@ func ProvideService(
 }
 
 type ServiceImpl struct {
-	cfg                 *cfg.Auth
+	accessTokenCfg      *accesstoken.Cfg
+	refreshtokenCfg     *refreshtoken.Cfg
 	db                  *gorm.DB
 	refreshtokenService refreshtoken.Service
 	refreshtokenStore   refreshtoken.Store
@@ -55,7 +57,7 @@ func (srv *ServiceImpl) GenerateTokens(ctx context.Context, claims refreshtoken.
 	err = srv.db.Transaction(func(tx *gorm.DB) (err error) {
 		// get refresh token
 		refreshTokenClaims := claims.ToMap()
-		jwtauth.SetExpiryIn(refreshTokenClaims, time.Duration(srv.cfg.RefreshTokenMinuteDuration)*time.Minute)
+		jwtauth.SetExpiryIn(refreshTokenClaims, time.Duration(srv.refreshtokenCfg.RefreshTokenMinuteDuration)*time.Minute)
 		if _, refreshToken, err = srv.refreshtokenService.GetJwtAuth().Encode(refreshTokenClaims); err != nil {
 			return
 		}
@@ -70,7 +72,7 @@ func (srv *ServiceImpl) GenerateTokens(ctx context.Context, claims refreshtoken.
 			return
 		}
 		accessTokenClaims := claims.ToMap()
-		jwtauth.SetExpiryIn(accessTokenClaims, time.Duration(srv.cfg.AccessTokenMinuteDuration)*time.Minute)
+		jwtauth.SetExpiryIn(accessTokenClaims, time.Duration(srv.accessTokenCfg.AccessTokenMinuteDuration)*time.Minute)
 		_, accessToken, err = srv.accesstokenService.GetJwtAuth().Encode(accessTokenClaims)
 		return
 	})
