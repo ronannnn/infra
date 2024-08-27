@@ -18,7 +18,7 @@ type User struct {
 }
 
 func TestValidatorCheck(t *testing.T) {
-	translator, err := i18n.New(i18n.Cfg{BundleDir: "./testdata/"})
+	translator, err := i18n.New(&i18n.Cfg{BundleDir: "./testdata/"})
 	require.NoError(t, err)
 	srv := validator.New(translator)
 
