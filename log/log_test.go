@@ -16,7 +16,7 @@ type LogTestCfg struct {
 func TestLogRotatedFiles(t *testing.T) {
 	var err error
 	testCfg := LogTestCfg{}
-	err = cfg.ReadFromFile("configs/config.logtest.toml", &testCfg)
+	err = cfg.ReadFromFile("../configs/config.logtest.toml", &testCfg)
 	require.NoError(t, err)
 	// init log
 	var logger *zap.SugaredLogger
