@@ -24,6 +24,7 @@ type HttpHandler interface {
 
 	// handle response
 	Success(w http.ResponseWriter, r *http.Request, message *msg.Message, data any)
+	SuccessSilently(w http.ResponseWriter, r *http.Request, message *msg.Message, data any)
 	SuccessWithShowType(w http.ResponseWriter, r *http.Request, message *msg.Message, data any, showType ShowType)
 	// err may be msg.Error, which has *msg.Message
 	Fail(w http.ResponseWriter, r *http.Request, err error, data any)
@@ -99,6 +100,15 @@ func (h *HttpHandlerImpl) Success(
 	data any,
 ) {
 	h.SuccessWithShowType(w, r, message, data, SuccessMessage)
+}
+
+func (h *HttpHandlerImpl) SuccessSilently(
+	w http.ResponseWriter,
+	r *http.Request,
+	message *msg.Message,
+	data any,
+) {
+	h.SuccessWithShowType(w, r, message, data, Silent)
 }
 
 func (h *HttpHandlerImpl) SuccessWithShowType(
