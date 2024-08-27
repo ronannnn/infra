@@ -48,7 +48,7 @@ var (
 
 // New creates a new consumer state instance, and automatically
 // attempts to connect to the server.
-func NewRabbitMq(
+func New(
 	log *zap.SugaredLogger,
 	rmqCfg *Cfg,
 ) *Client {
