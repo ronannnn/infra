@@ -25,7 +25,7 @@ const (
 // CRUD
 const (
 	// api
-	SuccessToCreate   = "base.success.api.create."
+	SuccessToCreate   = "base.success.api.create"
 	SuccessToRead     = "base.success.api.read"
 	SuccessToUpdate   = "base.success.api.update"
 	SuccessToDelete   = "base.success.api.delete"
