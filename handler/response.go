@@ -30,6 +30,6 @@ type Response struct {
 	Success  bool     `json:"success"`
 	Data     any      `json:"data,omitempty"`
 	Message  string   `json:"message,omitempty"`
-	Code     RespCode `json:"code,omitempty"`
-	ShowType ShowType `json:"showType,omitempty"`
+	Code     RespCode `json:"code"`
+	ShowType ShowType `json:"showType"`
 }
