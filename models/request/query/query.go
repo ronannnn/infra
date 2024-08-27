@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ronannnn/infra/msg"
-	"github.com/ronannnn/infra/reason"
 	"github.com/ronannnn/infra/utils"
 	"gorm.io/gorm/schema"
 )
@@ -96,7 +94,7 @@ func ResolveSelectQuery(items []SelectQueryItem, tblName string, fieldColMapper 
 				condition.SetSelect(fmt.Sprintf("`%s`.`%s`", tblName, col))
 			}
 		} else {
-			return msg.NewError(reason.DbModelReadFieldNotFound).WithReasonTemplateData(item.Field).WithStack()
+			return fmt.Errorf("field %s not found", item.Field)
 		}
 	}
 	return
@@ -146,10 +144,10 @@ func ResolveWhereQuery(items []WhereQueryItem, tblName string, fieldColMapper ma
 			case TypeIsNot:
 				condition.SetWhere(fmt.Sprintf("%s is not ?", fullColName), []any{item.Value})
 			default:
-				return msg.NewError(reason.DbModelReadOprNotFound).WithReasonTemplateData(item.Opr).WithStack()
+				return fmt.Errorf("opr %s not found", item.Opr)
 			}
 		} else {
-			return msg.NewError(reason.DbModelReadFieldNotFound).WithReasonTemplateData(item.Field).WithStack()
+			return fmt.Errorf("field %s not found", item.Field)
 		}
 	}
 	return
@@ -199,10 +197,10 @@ func ResolveOrQuery(items []WhereQueryItem, tblName string, fieldColMapper map[s
 			case TypeIsNot:
 				condition.SetOr(fmt.Sprintf("%s is not ?", fullColName), []any{item.Value})
 			default:
-				return msg.NewError(reason.DbModelReadOprNotFound).WithReasonTemplateData(item.Opr).WithStack()
+				return fmt.Errorf("opr %s not found", item.Opr)
 			}
 		} else {
-			return msg.NewError(reason.DbModelReadFieldNotFound).WithReasonTemplateData(item.Field).WithStack()
+			return fmt.Errorf("field %s not found", item.Field)
 		}
 	}
 	return
@@ -215,10 +213,10 @@ func ResolveOrderQuery(items []OrderQueryItem, tblName string, fieldColMapper ma
 			case "desc", "asc":
 				condition.SetOrder(fmt.Sprintf("`%s`.`%s` %s", tblName, col, item.Order))
 			default:
-				return msg.NewError(reason.DbModelReadOprNotFound).WithReasonTemplateData(item.Order).WithStack()
+				return fmt.Errorf("opr %s not found", item.Order)
 			}
 		} else {
-			return msg.NewError(reason.DbModelReadFieldNotFound).WithReasonTemplateData(item.Field).WithStack()
+			return fmt.Errorf("field %s not found", item.Field)
 		}
 	}
 	return
