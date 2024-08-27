@@ -13,7 +13,7 @@ type I18nWithData struct {
 }
 
 func TestI18n(t *testing.T) {
-	translator, err := i18n.New(i18n.Cfg{BundleDir: "./testdata/"})
+	translator, err := i18n.New(&i18n.Cfg{BundleDir: "./testdata/"})
 	require.NoError(t, err)
 	require.Equal(t, translator.Tr(i18n.LanguageChinese, "base.test"), "测试")
 	require.Equal(t, translator.Tr(i18n.LanguageEnglish, "base.test"), "en_test")

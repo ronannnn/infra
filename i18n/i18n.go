@@ -26,7 +26,7 @@ type I18n interface {
 }
 
 // New new i18n from Bundle/resource directory
-func New(cfg Cfg) (i18n I18n, err error) {
+func New(cfg *Cfg) (i18n I18n, err error) {
 	impl := &Impl{
 		localizes: make(map[Language]*goI18n.Localizer),
 	}
