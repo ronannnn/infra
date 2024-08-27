@@ -79,7 +79,7 @@ func (h *HttpHandlerImpl) BindUint64Param(w http.ResponseWriter, r *http.Request
 		h.Fail(w, r, msg.NewError(reason.InvalidUintParam).WithReasonTemplateData(reason.ParamTd{Param: key}).WithStack(), nil)
 		return true
 	}
-	data = &id
+	*data = id
 	return false
 }
 
@@ -89,7 +89,7 @@ func (h *HttpHandlerImpl) BindParam(w http.ResponseWriter, r *http.Request, key 
 		h.Fail(w, r, msg.NewError(reason.MissingRequiredParam).WithReasonTemplateData(reason.ParamTd{Param: key}).WithStack(), nil)
 		return true
 	}
-	data = &param
+	*data = param
 	return false
 }
 
