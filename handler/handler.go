@@ -71,12 +71,12 @@ func (h *HttpHandlerImpl) BindAndCheck(w http.ResponseWriter, r *http.Request, d
 func (h *HttpHandlerImpl) BindUint64Param(w http.ResponseWriter, r *http.Request, key string, data *uint64) bool {
 	param := chi.URLParam(r, key)
 	if param == "" {
-		h.Fail(w, r, msg.NewError(reason.MissingRequiredParam), nil)
+		h.Fail(w, r, msg.NewError(reason.MissingRequiredParam).WithReasonTemplateData(key), nil)
 		return true
 	}
 	id, err := strconv.ParseUint(param, 10, 64)
 	if err != nil {
-		h.Fail(w, r, msg.NewError(reason.InvalidUintParam), nil)
+		h.Fail(w, r, msg.NewError(reason.InvalidUintParam).WithReasonTemplateData(key), nil)
 		return true
 	}
 	data = &id
@@ -86,7 +86,7 @@ func (h *HttpHandlerImpl) BindUint64Param(w http.ResponseWriter, r *http.Request
 func (h *HttpHandlerImpl) BindParam(w http.ResponseWriter, r *http.Request, key string, data *string) bool {
 	param := chi.URLParam(r, key)
 	if param == "" {
-		h.Fail(w, r, msg.NewError(reason.MissingRequiredParam), nil)
+		h.Fail(w, r, msg.NewError(reason.MissingRequiredParam).WithReasonTemplateData(key), nil)
 		return true
 	}
 	data = &param
