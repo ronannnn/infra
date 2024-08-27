@@ -25,15 +25,19 @@ const (
 // CRUD
 const (
 	// api
-	SuccessToCreate = "crud.successToCreate"
-	SuccessToRead   = "crud.successToRead"
-	SuccessToUpdate = "crud.successToUpdate"
-	SuccessToDelete = "crud.successToDelete"
+	SuccessToCreate   = "base.success.api.create."
+	SuccessToRead     = "base.success.api.read"
+	SuccessToUpdate   = "base.success.api.update"
+	SuccessToDelete   = "base.success.api.delete"
+	SuccessToSave     = "base.success.api.save"
+	SuccessToSend     = "base.success.api.send"
+	SuccessToRegister = "base.success.api.register"
+	SuccessToLogin    = "base.success.api.login"
 	// db
-	DbModelCreatedError = "error.db.model.create"
-	DbModelReadError    = "error.db.model.read"
-	DbModelUpdatedError = "error.db.model.update"
-	DbModelDeletedError = "error.db.model.delete"
+	DbModelCreatedError = "error.db.model.create.common"
+	DbModelReadError    = "error.db.model.read.common"
+	DbModelUpdatedError = "error.db.model.update.common"
+	DbModelDeletedError = "error.db.model.delete.common"
 	// update related
 	DbModelUpdatedIdCannotBeZero  = "error.db.model.update.idCannotBeZero"
 	DbModelAlreadyUpdatedByOthers = "error.db.model.update.alreadyUpdatedByOthers"
@@ -45,6 +49,6 @@ const (
 
 // bind
 const (
-	MissingRequiredParam = "bing.url.missingRequiredParam"
-	InvalidUintParam     = "bing.url.invalidUintParam"
+	MissingRequiredParam = "error.bind.url.missingRequiredParam" // {{.Param}}
+	InvalidUintParam     = "error.bind.url.invalidUintParam"     // {{.Param}}
 )
