@@ -5,5 +5,5 @@ type ParamTd struct {
 }
 
 type IdTd struct {
-	Id uint64
+	Id uint
 }
