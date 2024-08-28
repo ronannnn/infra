@@ -45,7 +45,7 @@ const (
 	DbModelAlreadyUpdatedByOthers = "error.db.model.update.alreadyUpdatedByOthers"
 	// read related
 	DbModelReadIdNotExists       = "error.db.model.read.idNotExists"       // {{.Id}}
-	DbModelReadStrFieldNotExists = "error.db.model.read.strFieldNotExists" // {{.StrField}}
+	DbModelReadStrFieldNotExists = "error.db.model.read.strFieldNotExists" // {{.Key}} {{.Value}}
 )
 
 // bind
