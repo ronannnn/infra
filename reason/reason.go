@@ -42,7 +42,8 @@ const (
 	DbModelUpdatedIdCannotBeZero  = "error.db.model.update.idCannotBeZero"
 	DbModelAlreadyUpdatedByOthers = "error.db.model.update.alreadyUpdatedByOthers"
 	// read related
-	DbModelReadNotExists = "error.db.model.read.notExists" // {{.Id}}
+	DbModelReadIdNotExists       = "error.db.model.read.idNotExists"       // {{.Id}}
+	DbModelReadStrFieldNotExists = "error.db.model.read.strFieldNotExists" // {{.StrField}}
 )
 
 // bind
