@@ -166,9 +166,9 @@ func (h *HttpHandlerImpl) FailWithCodeAndShowType(
 ) {
 	// 有错误，返回错误信息
 	var msgErr *msg.Error
+	h.log.Error(err, "\n", msg.LogStack(2, 0))
 	// unknown error
 	if !errors.As(err, &msgErr) {
-		h.log.Error(err, "\n", msg.LogStack(2, 5))
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, Response{Message: err.Error(), Code: NormalErrorCode, ShowType: ErrorMessage})
 		return
