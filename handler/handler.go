@@ -164,20 +164,21 @@ func (h *HttpHandlerImpl) FailWithCodeAndShowType(
 	code RespCode,
 	showType ShowType,
 ) {
-	if err != nil {
-		h.log.Error(err, "\n", msg.LogStack(2, 5))
-	}
 
 	// 有错误，返回错误信息
 	var msgErr *msg.Error
 	// unknown error
 	if !errors.As(err, &msgErr) {
+		h.log.Error(err, "\n", msg.LogStack(2, 5))
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, Response{Message: err.Error(), Code: NormalErrorCode, ShowType: ErrorMessage})
 		return
 	}
 
 	// known error
+	if msgErr.Err != nil {
+		h.log.Error(msgErr.Err, "\n", msg.LogStack(2, 3))
+	}
 	respMsg := getRespMsg(r, h.i18n, &msgErr.Message)
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, Response{Message: respMsg, Code: code, ShowType: showType})
