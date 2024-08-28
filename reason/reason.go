@@ -39,7 +39,7 @@ const (
 	DbModelUpdatedError = "error.db.model.update.common"
 	DbModelDeletedError = "error.db.model.delete.common"
 	// create related
-	DbModelCreateDupKey = "error.db.model.create.dupKey" // {{.Key}} uniqueIndex的列有重复值
+	DbModelCreateDupKey = "error.db.model.create.dupKey" // {{.Key}} {{.Value}} uniqueIndex的列有重复值
 	// update related
 	DbModelUpdatedIdCannotBeZero  = "error.db.model.update.idCannotBeZero"
 	DbModelAlreadyUpdatedByOthers = "error.db.model.update.alreadyUpdatedByOthers"

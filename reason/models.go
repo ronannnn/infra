@@ -11,3 +11,8 @@ type IdTd struct {
 type StrFieldTd struct {
 	StrField string
 }
+
+type DupKeyTd struct {
+	Key   string
+	Value string
+}
