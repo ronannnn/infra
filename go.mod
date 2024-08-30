@@ -100,6 +100,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/rabbitmq/amqp091-go v1.10.0
+	github.com/shopspring/decimal v1.4.0
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/multierr v1.11.0 // indirect
