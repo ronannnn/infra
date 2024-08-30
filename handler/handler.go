@@ -57,7 +57,7 @@ func (h *HttpHandlerImpl) BindAndCheck(w http.ResponseWriter, r *http.Request, d
 	lang := GetLang(r)
 	r = r.WithContext(context.WithValue(r.Context(), constant.CtxKeyAcceptLanguage, lang))
 	if err = render.DefaultDecoder(r, &data); err != nil {
-		h.Fail(w, r, msg.NewError(reason.RequestFormatError), nil)
+		h.Fail(w, r, msg.NewError(reason.RequestFormatError), err)
 		return true
 	}
 	var errFields []*validator.FormErrorField
