@@ -141,7 +141,7 @@ func (h *HttpHandlerImpl) FailWithCode(
 	data any,
 	code RespCode,
 ) {
-	h.FailWithCodeAndShowType(w, r, err, data, code, ErrorMessage)
+	h.FailWithCodeAndShowType(w, r, err, data, code, ErrorNotification)
 }
 
 // Fail handle response
@@ -170,8 +170,8 @@ func (h *HttpHandlerImpl) FailWithCodeAndShowType(
 	// unknown error
 	if !errors.As(err, &msgErr) {
 		h.log.Error(err, "\n", msg.LogStack(2, 5))
-		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, Response{Message: err.Error(), Code: NormalErrorCode, ShowType: ErrorMessage})
+		render.Status(r, http.StatusOK)
+		render.JSON(w, r, Response{Message: err.Error(), Code: code, ShowType: showType})
 		return
 	}
 
