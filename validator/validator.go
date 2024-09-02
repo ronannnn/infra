@@ -1,8 +1,10 @@
 package validator
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/go-playground/locales"
 	english "github.com/go-playground/locales/en"
@@ -44,7 +46,7 @@ type FormErrorField struct {
 }
 
 type Validator interface {
-	Check(lang i18n.Language, value interface{}) (errFields []*FormErrorField, err error)
+	Check(ctx context.Context, lang i18n.Language, value interface{}) (errFields []*FormErrorField, err error)
 }
 
 func New(wiredI18n i18n.I18n) Validator {
@@ -57,7 +59,7 @@ func New(wiredI18n i18n.I18n) Validator {
 		if !ok {
 			panic(fmt.Sprintf("not found translator %s", t.Lo.Locale()))
 		}
-		val := createValidateWithCustomValidations(t.La, wiredI18n)
+		val := createValidateWithCustomValidations()
 		if t.RegisterFunc != nil {
 			if err := t.RegisterFunc(val, tran); err != nil {
 				panic(err)
@@ -73,7 +75,7 @@ type Impl struct {
 	validatorItems map[i18n.Language]*ValidatorEle
 }
 
-func (m *Impl) Check(lang i18n.Language, value interface{}) (errFields []*FormErrorField, err error) {
+func (m *Impl) Check(ctx context.Context, lang i18n.Language, value interface{}) (errFields []*FormErrorField, err error) {
 	v, ok := m.validatorItems[lang]
 	if !ok {
 		err = msg.NewError(reason.ValidatorLangNotFound)
@@ -88,10 +90,14 @@ func (m *Impl) Check(lang i18n.Language, value interface{}) (errFields []*FormEr
 		}
 
 		for _, fieldError := range valErrors {
+			field := utils.LowercaseFirstLetter(fieldError.StructField())
+			fieldWithNamespace := utils.LowercaseFirstLetterAndJoin(fieldError.StructNamespace(), ".")
+			msgWithRawField := fieldError.Translate(v.Tran)
+			msg := strings.ReplaceAll(msgWithRawField, fieldError.StructField(), m.i18n.Tr(lang, "entity."+fieldWithNamespace))
 			errFields = append(errFields, &FormErrorField{
-				ErrorField:         utils.LowercaseFirstLetter(fieldError.StructField()),
-				ErrorWithNamespace: utils.LowercaseFirstLetterAndJoin(fieldError.StructNamespace(), "."),
-				ErrorMsg:           fieldError.Translate(v.Tran),
+				ErrorField:         field,
+				ErrorWithNamespace: fieldWithNamespace,
+				ErrorMsg:           msg,
 			})
 		}
 		err = msg.NewError("fields validation failed").WithMsg("fields validation failed")

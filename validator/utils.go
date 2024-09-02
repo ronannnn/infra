@@ -7,12 +7,11 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/microcosm-cc/bluemonday"
-	"github.com/ronannnn/infra/i18n"
 	"github.com/ronannnn/infra/models"
 	"github.com/shopspring/decimal"
 )
 
-func createValidateWithCustomValidations(la i18n.Language, wiredI18n i18n.I18n) *validator.Validate {
+func createValidateWithCustomValidations() *validator.Validate {
 	validate := validator.New()
 	// 注册自定义类型
 	validate.RegisterCustomTypeFunc(func(field reflect.Value) interface{} {
@@ -32,10 +31,6 @@ func createValidateWithCustomValidations(la i18n.Language, wiredI18n i18n.I18n) 
 	_ = validate.RegisterValidation("d-gt", decimalGreaterThan)
 	_ = validate.RegisterValidation("d-lt", decimalLessThan)
 	_ = validate.RegisterValidation("d-decimal-len-lte", decimalDecimalPartsLenLessThanOrEqual)
-	validate.RegisterTagNameFunc(func(fld reflect.StructField) (res string) {
-		// TODO: 提issue，加入namespace信息
-		return wiredI18n.Tr(la, fld.Name)
-	})
 	return validate
 }
 

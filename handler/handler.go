@@ -61,7 +61,7 @@ func (h *HttpHandlerImpl) BindAndCheck(w http.ResponseWriter, r *http.Request, d
 		return true
 	}
 	var errFields []*validator.FormErrorField
-	if errFields, err = h.validator.Check(lang, data); err != nil {
+	if errFields, err = h.validator.Check(r.Context(), lang, data); err != nil {
 		h.Fail(w, r, err, errFields)
 		return true
 	}

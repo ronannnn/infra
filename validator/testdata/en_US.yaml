@@ -1,2 +1,7 @@
 base:
   test: "en_test"
+entity:
+  user:
+    age: "age"
+    name: "name"
+    favoriteColor: "favorite color"
