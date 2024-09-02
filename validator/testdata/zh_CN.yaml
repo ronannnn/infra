@@ -5,3 +5,6 @@ entity:
     age: "年龄"
     name: "姓名"
     favoriteColor: "最喜欢的颜色"
+    cards:
+      number: "卡号"
+      size: "大小"

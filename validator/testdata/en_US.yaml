@@ -5,3 +5,6 @@ entity:
     age: "age"
     name: "name"
     favoriteColor: "favorite color"
+    cards:
+      number: "card number"
+      size: "size"

@@ -68,6 +68,23 @@ func (h *HttpHandlerImpl) BindAndCheck(w http.ResponseWriter, r *http.Request, d
 	return false
 }
 
+// BindAndCheck bind request and check
+func (h *HttpHandlerImpl) BindAndCheckPartial(w http.ResponseWriter, r *http.Request, data any) bool {
+	var err error
+	lang := GetLang(r)
+	r = r.WithContext(context.WithValue(r.Context(), constant.CtxKeyAcceptLanguage, lang))
+	if err = render.DefaultDecoder(r, &data); err != nil {
+		h.Fail(w, r, msg.NewError(reason.RequestFormatError), err)
+		return true
+	}
+	var errFields []*validator.FormErrorField
+	if errFields, err = h.validator.CheckPartial(r.Context(), lang, data); err != nil {
+		h.Fail(w, r, err, errFields)
+		return true
+	}
+	return false
+}
+
 func (h *HttpHandlerImpl) BindUint64Param(w http.ResponseWriter, r *http.Request, key string, data *uint64) bool {
 	param := chi.URLParam(r, key)
 	if param == "" {

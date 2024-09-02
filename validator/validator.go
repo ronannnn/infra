@@ -14,6 +14,7 @@ import (
 	"github.com/go-playground/validator/v10/translations/en"
 	"github.com/go-playground/validator/v10/translations/zh"
 	"github.com/ronannnn/infra/i18n"
+	"github.com/ronannnn/infra/models"
 	"github.com/ronannnn/infra/msg"
 	"github.com/ronannnn/infra/reason"
 	"github.com/ronannnn/infra/utils"
@@ -46,7 +47,8 @@ type FormErrorField struct {
 }
 
 type Validator interface {
-	Check(ctx context.Context, lang i18n.Language, value interface{}) (errFields []*FormErrorField, err error)
+	Check(ctx context.Context, lang i18n.Language, value any) (errFields []*FormErrorField, err error)
+	CheckPartial(ctx context.Context, lang i18n.Language, value any) (errFields []*FormErrorField, err error)
 }
 
 func New(wiredI18n i18n.I18n) Validator {
@@ -75,13 +77,13 @@ type Impl struct {
 	validatorItems map[i18n.Language]*ValidatorEle
 }
 
-func (m *Impl) Check(ctx context.Context, lang i18n.Language, value interface{}) (errFields []*FormErrorField, err error) {
+func (m *Impl) Check(ctx context.Context, lang i18n.Language, value any) (errFields []*FormErrorField, err error) {
 	v, ok := m.validatorItems[lang]
 	if !ok {
 		err = msg.NewError(reason.ValidatorLangNotFound)
 		return
 	}
-	err = v.Validate.Struct(value)
+	err = v.Validate.StructCtx(ctx, value)
 	if err != nil {
 		var valErrors validator.ValidationErrors
 		if !errors.As(err, &valErrors) {
@@ -91,7 +93,37 @@ func (m *Impl) Check(ctx context.Context, lang i18n.Language, value interface{})
 
 		for _, fieldError := range valErrors {
 			field := utils.LowercaseFirstLetter(fieldError.StructField())
-			fieldWithNamespace := utils.LowercaseFirstLetterAndJoin(fieldError.StructNamespace(), ".")
+			fieldWithNamespace := utils.LowercaseFirstLetterAndJoin(utils.RemoveIndexLikeStrings(fieldError.StructNamespace()), ".")
+			msgWithRawField := fieldError.Translate(v.Tran)
+			msg := strings.ReplaceAll(msgWithRawField, fieldError.StructField(), m.i18n.Tr(lang, "entity."+fieldWithNamespace))
+			errFields = append(errFields, &FormErrorField{
+				ErrorField:         field,
+				ErrorWithNamespace: fieldWithNamespace,
+				ErrorMsg:           msg,
+			})
+		}
+		err = msg.NewError("fields validation failed").WithMsg("fields validation failed")
+	}
+	return
+}
+
+func (m *Impl) CheckPartial(ctx context.Context, lang i18n.Language, value any) (errFields []*FormErrorField, err error) {
+	v, ok := m.validatorItems[lang]
+	if !ok {
+		err = msg.NewError(reason.ValidatorLangNotFound)
+		return
+	}
+	err = v.Validate.StructPartialCtx(ctx, value, models.GetNonZeroFields(value)...)
+	if err != nil {
+		var valErrors validator.ValidationErrors
+		if !errors.As(err, &valErrors) {
+			err = fmt.Errorf("validate check exception, %v", err)
+			return
+		}
+
+		for _, fieldError := range valErrors {
+			field := utils.LowercaseFirstLetter(fieldError.StructField())
+			fieldWithNamespace := utils.LowercaseFirstLetterAndJoin(utils.RemoveIndexLikeStrings(fieldError.StructNamespace()), ".")
 			msgWithRawField := fieldError.Translate(v.Tran)
 			msg := strings.ReplaceAll(msgWithRawField, fieldError.StructField(), m.i18n.Tr(lang, "entity."+fieldWithNamespace))
 			errFields = append(errFields, &FormErrorField{
