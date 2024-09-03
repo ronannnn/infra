@@ -61,7 +61,7 @@ func New(wiredI18n i18n.I18n) Validator {
 		if !ok {
 			panic(fmt.Sprintf("not found translator %s", t.Lo.Locale()))
 		}
-		val := createValidateWithCustomValidations()
+		val := createValidateWithCustomValidations(t.La, tran)
 		if t.RegisterFunc != nil {
 			if err := t.RegisterFunc(val, tran); err != nil {
 				panic(err)

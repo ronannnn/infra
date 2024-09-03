@@ -10,7 +10,7 @@ import (
 )
 
 type User struct {
-	FirstName     *string `json:"firstName" validate:"required"`
+	FirstName     *string `json:"firstName" validate:"required,not_blank"`
 	LastName      *string `json:"lastName" validate:"required"`
 	Age           *uint8  `json:"age" validate:"gte=0,lte=130"`
 	Email         *string `json:"email" validate:"required,email"`
@@ -29,7 +29,7 @@ func TestValidatorCheck(t *testing.T) {
 	require.NoError(t, err)
 	srv := validator.New(translator)
 
-	firstName := "Badger"
+	firstName := ""
 	lastName := "Smith"
 	age := uint8(135)
 	email := "Badger.Smith@gmail.com"
@@ -52,16 +52,20 @@ func TestValidatorCheck(t *testing.T) {
 	}
 
 	errFields, _ := srv.Check(context.Background(), i18n.LanguageChinese, user)
-	require.Equal(t, 3, len(errFields))
-	ageErrField := errFields[0]
+	require.Equal(t, 4, len(errFields))
+	firstNameErrField := errFields[0]
+	require.Equal(t, "user.firstName", firstNameErrField.ErrorWithNamespace)
+	require.Equal(t, "firstName", firstNameErrField.ErrorField)
+	require.Equal(t, "名不能为空", firstNameErrField.ErrorMsg)
+	ageErrField := errFields[1]
 	require.Equal(t, "user.age", ageErrField.ErrorWithNamespace)
 	require.Equal(t, "age", ageErrField.ErrorField)
 	require.Equal(t, "年龄必须小于或等于130", ageErrField.ErrorMsg)
-	colorErrField := errFields[1]
+	colorErrField := errFields[2]
 	require.Equal(t, "user.favoriteColor", colorErrField.ErrorWithNamespace)
 	require.Equal(t, "favoriteColor", colorErrField.ErrorField)
 	require.Equal(t, "最喜欢的颜色必须是一个有效的颜色", colorErrField.ErrorMsg)
-	cardSizeField := errFields[2]
+	cardSizeField := errFields[3]
 	require.Equal(t, "user.cards.size", cardSizeField.ErrorWithNamespace)
 	require.Equal(t, "size", cardSizeField.ErrorField)
 	require.Equal(t, "大小必须大于或等于1", cardSizeField.ErrorMsg)

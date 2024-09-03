@@ -2,6 +2,7 @@ base:
   test: "en_test"
 entity:
   user:
+    firstName: "first name"
     age: "age"
     name: "name"
     favoriteColor: "favorite color"

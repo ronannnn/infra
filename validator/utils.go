@@ -5,13 +5,15 @@ import (
 	"strconv"
 	"strings"
 
+	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/microcosm-cc/bluemonday"
+	"github.com/ronannnn/infra/i18n"
 	"github.com/ronannnn/infra/models"
 	"github.com/shopspring/decimal"
 )
 
-func createValidateWithCustomValidations() *validator.Validate {
+func createValidateWithCustomValidations(lang i18n.Language, trans ut.Translator) *validator.Validate {
 	validate := validator.New()
 	// 注册自定义类型
 	validate.RegisterCustomTypeFunc(func(field reflect.Value) interface{} {
@@ -26,11 +28,24 @@ func createValidateWithCustomValidations() *validator.Validate {
 		}
 		return nil
 	}, decimal.Decimal{})
-	_ = validate.RegisterValidation("not-blank", notBlank)
+	_ = validate.RegisterValidation("not_blank", notBlank)
+	validate.RegisterTranslation("not_blank", trans, func(ut ut.Translator) error {
+		switch lang {
+		case i18n.LanguageChinese:
+			return ut.Add("not_blank", "{0}不能为空", true)
+		case i18n.LanguageEnglish:
+			return ut.Add("not_blank", "{0} must not be empty", true)
+		default:
+			return ut.Add("not_blank", "{0} must not be empty", true)
+		}
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("not_blank", fe.Field())
+		return t
+	})
 	_ = validate.RegisterValidation("sanitizer", sanitizer)
-	_ = validate.RegisterValidation("d-gt", decimalGreaterThan)
-	_ = validate.RegisterValidation("d-lt", decimalLessThan)
-	_ = validate.RegisterValidation("d-decimal-len-lte", decimalDecimalPartsLenLessThanOrEqual)
+	_ = validate.RegisterValidation("d_gt", decimalGreaterThan)
+	_ = validate.RegisterValidation("d_lt", decimalLessThan)
+	_ = validate.RegisterValidation("d_decimal_len_lte", decimalDecimalPartsLenLessThanOrEqual)
 	return validate
 }
 
@@ -39,11 +54,11 @@ func notBlank(fl validator.FieldLevel) (res bool) {
 	switch field.Kind() {
 	case reflect.String:
 		trimSpace := strings.TrimSpace(field.String())
-		res := len(trimSpace) > 0
-		if !res {
+		if len(trimSpace) > 0 {
 			field.SetString(trimSpace)
+			return true
 		}
-		return true
+		return false
 	case reflect.Chan, reflect.Map, reflect.Slice, reflect.Array:
 		return field.Len() > 0
 	case reflect.Ptr, reflect.Interface, reflect.Func:
