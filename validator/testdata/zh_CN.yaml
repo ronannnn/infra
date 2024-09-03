@@ -6,6 +6,9 @@ entity:
     age: "年龄"
     name: "姓名"
     favoriteColor: "最喜欢的颜色"
+    grossWt: "毛重"
+    netWt: "净重"
+    totalWt: "总重"
     cards:
       number: "卡号"
       size: "大小"

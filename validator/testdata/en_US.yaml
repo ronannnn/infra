@@ -6,6 +6,9 @@ entity:
     age: "age"
     name: "name"
     favoriteColor: "favorite color"
+    grossWt: "gross weight"
+    netWt: "net weight"
+    totalWt: "total weight"
     cards:
       number: "card number"
       size: "size"

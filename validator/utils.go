@@ -2,12 +2,14 @@ package validator
 
 import (
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/microcosm-cc/bluemonday"
+	"github.com/ronannnn/infra/constant"
 	"github.com/ronannnn/infra/i18n"
 	"github.com/ronannnn/infra/models"
 	"github.com/shopspring/decimal"
@@ -44,8 +46,61 @@ func createValidateWithCustomValidations(lang i18n.Language, trans ut.Translator
 	})
 	_ = validate.RegisterValidation("sanitizer", sanitizer)
 	_ = validate.RegisterValidation("d_gt", decimalGreaterThan)
+	validate.RegisterTranslation("d_gt", trans, func(ut ut.Translator) error {
+		switch lang {
+		case i18n.LanguageChinese:
+			return ut.Add("d_gt", "{0}必须大于{1}", true)
+		case i18n.LanguageEnglish:
+			return ut.Add("d_gt", "{0} must be greater than {1}", true)
+		default:
+			return ut.Add("d_gt", "{0} must be greater than {1}", true)
+		}
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("d_gt", fe.Field(), fe.Param())
+		return t
+	})
 	_ = validate.RegisterValidation("d_lt", decimalLessThan)
+	validate.RegisterTranslation("d_lt", trans, func(ut ut.Translator) error {
+		switch lang {
+		case i18n.LanguageChinese:
+			return ut.Add("d_lt", "{0}必须小于{1}", true)
+		case i18n.LanguageEnglish:
+			return ut.Add("d_lt", "{0} must be less than {1}", true)
+		default:
+			return ut.Add("d_lt", "{0} must be less than {1}", true)
+		}
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("d_lt", fe.Field(), fe.Param())
+		return t
+	})
 	_ = validate.RegisterValidation("d_decimal_len_lte", decimalDecimalPartsLenLessThanOrEqual)
+	validate.RegisterTranslation("d_decimal_len_lte", trans, func(ut ut.Translator) error {
+		switch lang {
+		case i18n.LanguageChinese:
+			return ut.Add("d_decimal_len_lte", "{0}小数点位数必须小于或等于{1}", true)
+		case i18n.LanguageEnglish:
+			return ut.Add("d_decimal_len_lte", "{0} decimals length must be less than or equal to {1}", true)
+		default:
+			return ut.Add("d_decimal_len_lte", "{0} decimals length must be less than or equal to {1}", true)
+		}
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("d_decimal_len_lte", fe.Field(), fe.Param())
+		return t
+	})
+	_ = validate.RegisterValidation("cn_car", chineseCarNo)
+	validate.RegisterTranslation("cn_car", trans, func(ut ut.Translator) error {
+		switch lang {
+		case i18n.LanguageChinese:
+			return ut.Add("cn_car", "{0}不是有效的中国车牌号", true)
+		case i18n.LanguageEnglish:
+			return ut.Add("cn_car", "{0} is not a qualified chinese car number", true)
+		default:
+			return ut.Add("cn_car", "{0} is not a qualified chinese car number", true)
+		}
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("cn_car", fe.Value().(string), fe.Param())
+		return t
+	})
 	return validate
 }
 
@@ -140,4 +195,12 @@ func decimalDecimalPartsLenLessThanOrEqual(fl validator.FieldLevel) bool {
 		return false
 	}
 	return actualLen <= expectedLen
+}
+
+func chineseCarNo(fl validator.FieldLevel) bool {
+	data, ok := fl.Field().Interface().(string)
+	if !ok {
+		return false
+	}
+	return regexp.MustCompile(constant.CnCarRegexp).MatchString(data)
 }
