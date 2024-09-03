@@ -19,6 +19,7 @@ import (
 type HttpHandler interface {
 	// handle request binding and checking
 	BindAndCheck(w http.ResponseWriter, r *http.Request, data any) bool
+	BindAndCheckPartial(w http.ResponseWriter, r *http.Request, data any) bool
 	BindUint64Param(w http.ResponseWriter, r *http.Request, key string, data *uint64) bool
 	BindParam(w http.ResponseWriter, r *http.Request, key string, data *string) bool
 
