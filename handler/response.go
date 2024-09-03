@@ -3,10 +3,11 @@ package handler
 type RespCode int
 
 const (
-	NoErrorCode           RespCode = 0
-	NormalErrorCode       RespCode = 1
-	AccessTokenErrorCode  RespCode = 10
-	RefreshTokenErrorCode RespCode = 11
+	NoErrorCode              RespCode = 0
+	NormalErrorCode          RespCode = 1
+	FieldValidationErrorCode RespCode = 2
+	AccessTokenErrorCode     RespCode = 10
+	RefreshTokenErrorCode    RespCode = 11
 )
 
 type ShowType int

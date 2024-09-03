@@ -196,6 +196,12 @@ func (h *HttpHandlerImpl) FailWithCodeAndShowType(
 	if msgErr.Err != nil {
 		h.log.Error(msgErr.Err, "\n", msg.LogStack(2, 3))
 	}
+	if errors.Is(msgErr.Err, constant.ErrFieldsValidation) {
+		// validation error
+		render.Status(r, http.StatusOK)
+		render.JSON(w, r, Response{Code: FieldValidationErrorCode, Data: data})
+		return
+	}
 	respMsg := getRespMsg(r, h.i18n, &msgErr.Message)
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, Response{Message: respMsg, Code: code, ShowType: showType})

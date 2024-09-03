@@ -13,6 +13,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/go-playground/validator/v10/translations/en"
 	"github.com/go-playground/validator/v10/translations/zh"
+	"github.com/ronannnn/infra/constant"
 	"github.com/ronannnn/infra/i18n"
 	"github.com/ronannnn/infra/models"
 	"github.com/ronannnn/infra/msg"
@@ -102,7 +103,7 @@ func (m *Impl) Check(ctx context.Context, lang i18n.Language, value any) (errFie
 				ErrorMsg:           msg,
 			})
 		}
-		err = msg.NewError("fields validation failed").WithMsg("fields validation failed")
+		err = msg.NewError("").WithError(constant.ErrFieldsValidation)
 	}
 	return
 }
