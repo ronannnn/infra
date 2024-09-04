@@ -8,6 +8,7 @@ import (
 	"github.com/ronannnn/infra/models"
 	"github.com/ronannnn/infra/utils"
 	"gorm.io/gorm"
+	"gorm.io/plugin/optimisticlock"
 )
 
 func GetNonZeroFields(data interface{}) (fields []string) {
@@ -60,7 +61,7 @@ func getNonZeroFieldsRecursively(data interface{}, prefix string, nonZeroFields 
 				if !field.Interface().(models.DecimalSafe).Decimal.IsZero() {
 					nonZeroFields[subPrefix] = nil
 				}
-			case reflect.TypeOf(gorm.DeletedAt{}), reflect.TypeOf(models.BaseModel{}):
+			case reflect.TypeOf(models.BaseModel{}), reflect.TypeOf(gorm.DeletedAt{}), reflect.TypeOf(optimisticlock.Version{}):
 				// do nothing
 			default:
 				getNonZeroFieldsRecursively(field.Interface(), subPrefix, nonZeroFields)
