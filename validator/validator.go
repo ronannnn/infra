@@ -15,7 +15,6 @@ import (
 	"github.com/go-playground/validator/v10/translations/zh"
 	"github.com/ronannnn/infra/constant"
 	"github.com/ronannnn/infra/i18n"
-	"github.com/ronannnn/infra/models"
 	"github.com/ronannnn/infra/msg"
 	"github.com/ronannnn/infra/reason"
 	"github.com/ronannnn/infra/utils"
@@ -114,7 +113,7 @@ func (m *Impl) CheckPartial(ctx context.Context, lang i18n.Language, value any) 
 		err = msg.NewError(reason.ValidatorLangNotFound)
 		return
 	}
-	err = v.Validate.StructPartialCtx(ctx, value, models.GetNonZeroFields(value)...)
+	err = v.Validate.StructPartialCtx(ctx, value, GetNonZeroFields(value)...)
 	if err != nil {
 		var valErrors validator.ValidationErrors
 		if !errors.As(err, &valErrors) {

@@ -1,0 +1,29 @@
+{
+    "id": 1,
+    "version": 2,
+    "name": "John Doe",
+    "houses": [
+        {
+            "price": 100,
+            "address": "123 Main St",
+            "rooms": [
+                {
+                    "floor": "2002"
+                },
+                {
+                    "area": 122
+                }
+            ]
+        },
+        {
+            "price": 200,
+            "address": "456 Elm St",
+            "rooms": [
+                {
+                    "area": 133,
+                    "floor": "2006"
+                }
+            ]
+        }
+    ]
+}
