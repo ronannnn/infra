@@ -3,8 +3,11 @@ package validator
 import (
 	"fmt"
 	"reflect"
+	"time"
 
+	"github.com/ronannnn/infra/models"
 	"github.com/ronannnn/infra/utils"
+	"gorm.io/gorm"
 )
 
 func GetNonZeroFields(data interface{}) (fields []string) {
@@ -27,11 +30,6 @@ func getNonZeroFieldsRecursively(data interface{}, prefix string, nonZeroFields 
 
 	for i := 0; i < val.NumField(); i++ {
 		rawField := val.Field(i)
-		// 跳过非validate字段
-		tag := typ.Field(i).Tag.Get("validate")
-		if tag == "" {
-			continue
-		}
 		fieldName := typ.Field(i).Name
 
 		var field reflect.Value
@@ -53,7 +51,20 @@ func getNonZeroFieldsRecursively(data interface{}, prefix string, nonZeroFields 
 				getNonZeroFieldsRecursively(field.Index(j).Interface(), utils.JoinNonEmptyStrings(".", prefix, fmt.Sprintf("%s[%d]", fieldName, j)), nonZeroFields)
 			}
 		case reflect.Struct:
-			getNonZeroFieldsRecursively(field.Interface(), subPrefix, nonZeroFields)
+			switch field.Type() {
+			case reflect.TypeOf(time.Time{}):
+				if !field.Interface().(time.Time).IsZero() {
+					nonZeroFields[subPrefix] = nil
+				}
+			case reflect.TypeOf(models.DecimalSafe{}):
+				if !field.Interface().(models.DecimalSafe).Decimal.IsZero() {
+					nonZeroFields[subPrefix] = nil
+				}
+			case reflect.TypeOf(gorm.DeletedAt{}), reflect.TypeOf(models.BaseModel{}):
+				// do nothing
+			default:
+				getNonZeroFieldsRecursively(field.Interface(), subPrefix, nonZeroFields)
+			}
 		default:
 			if rawField.Kind() == reflect.Ptr || !reflect.DeepEqual(field.Interface(), reflect.Zero(field.Type()).Interface()) {
 				nonZeroFields[subPrefix] = nil
