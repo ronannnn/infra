@@ -48,10 +48,6 @@ func getNonZeroFieldsRecursively(data interface{}, prefix string, nonZeroFields 
 
 		subPrefix := utils.JoinNonEmptyStrings(".", prefix, fieldName)
 		switch field.Kind() {
-		case reflect.Ptr:
-			if !field.IsNil() {
-				nonZeroFields[subPrefix] = nil
-			}
 		case reflect.Slice, reflect.Array:
 			for j := 0; j < field.Len(); j++ {
 				getNonZeroFieldsRecursively(field.Index(j).Interface(), utils.JoinNonEmptyStrings(".", prefix, fmt.Sprintf("%s[%d]", fieldName, j)), nonZeroFields)
@@ -59,7 +55,7 @@ func getNonZeroFieldsRecursively(data interface{}, prefix string, nonZeroFields 
 		case reflect.Struct:
 			getNonZeroFieldsRecursively(field.Interface(), subPrefix, nonZeroFields)
 		default:
-			if !reflect.DeepEqual(field.Interface(), reflect.Zero(field.Type()).Interface()) {
+			if rawField.Kind() == reflect.Ptr || !reflect.DeepEqual(field.Interface(), reflect.Zero(field.Type()).Interface()) {
 				nonZeroFields[subPrefix] = nil
 			}
 		}
