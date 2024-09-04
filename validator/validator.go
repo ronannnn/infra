@@ -132,7 +132,7 @@ func (m *Impl) CheckPartial(ctx context.Context, lang i18n.Language, value any) 
 				ErrorMsg:           msg,
 			})
 		}
-		err = msg.NewError("fields validation failed").WithMsg("fields validation failed")
+		err = msg.NewError("").WithError(constant.ErrFieldsValidation)
 	}
 	return
 }
