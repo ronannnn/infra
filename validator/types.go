@@ -29,6 +29,7 @@ func getNonZeroFieldsRecursively(data interface{}, prefix string, nonZeroFields 
 		typ = typ.Elem()
 	}
 
+	// 遍历结构体的字段
 	for i := 0; i < val.NumField(); i++ {
 		rawField := val.Field(i)
 		fieldName := typ.Field(i).Name
@@ -54,11 +55,11 @@ func getNonZeroFieldsRecursively(data interface{}, prefix string, nonZeroFields 
 		case reflect.Struct:
 			switch field.Type() {
 			case reflect.TypeOf(time.Time{}):
-				if !field.Interface().(time.Time).IsZero() {
+				if rawField.Kind() == reflect.Ptr || !field.Interface().(time.Time).IsZero() {
 					nonZeroFields[subPrefix] = nil
 				}
 			case reflect.TypeOf(models.DecimalSafe{}):
-				if !field.Interface().(models.DecimalSafe).Decimal.IsZero() {
+				if rawField.Kind() == reflect.Ptr || !field.Interface().(models.DecimalSafe).Decimal.IsZero() {
 					nonZeroFields[subPrefix] = nil
 				}
 			case reflect.TypeOf(models.BaseModel{}), reflect.TypeOf(gorm.DeletedAt{}), reflect.TypeOf(optimisticlock.Version{}):

@@ -1,0 +1,23 @@
+{
+    "id": 1,
+    "version": 2,
+    "firstName": "",
+    "lastName":  "Smith",
+    "age": 135,
+    "email": "Badger.Smith@gmail.com",
+    "gender": "female",
+    "favoriteColor" : "#000-",
+    "grossWt": "0",
+    "netWt": "2",
+    "totalWt": "123.456",
+    "carNo": "浙B55ZW12",
+    "cards": [
+        {
+            "username": "123",
+            "password": "password",
+            "number": "1",
+            "size": 0,
+            "wt": 1
+        }
+    ]
+}

@@ -12,3 +12,5 @@ entity:
     cards:
       number: "card number"
       size: "size"
+      sign:
+        wt: "weight"

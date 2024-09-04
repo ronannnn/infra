@@ -12,3 +12,5 @@ entity:
     cards:
       number: "卡号"
       size: "大小"
+      sign:
+        wt: "重量"

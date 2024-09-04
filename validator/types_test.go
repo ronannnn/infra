@@ -31,7 +31,7 @@ type TestRoom struct {
 
 func TestGetNonZeroFields(t *testing.T) {
 	var user1 TestUser
-	jsonData1, err := os.ReadFile("./testdata/user1.json")
+	jsonData1, err := os.ReadFile("./testdata/types/user1.json")
 	require.NoError(t, err)
 	err = json.Unmarshal(jsonData1, &user1)
 	require.NoError(t, err)
@@ -52,7 +52,7 @@ func TestGetNonZeroFields(t *testing.T) {
 	require.Equal(t, expectedA, actualA)
 
 	var user2 TestUser
-	jsonData2, err := os.ReadFile("./testdata/user2.json")
+	jsonData2, err := os.ReadFile("./testdata/types/user2.json")
 	require.NoError(t, err)
 	err = json.Unmarshal(jsonData2, &user2)
 	require.NoError(t, err)

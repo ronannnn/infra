@@ -2,16 +2,18 @@ package validator_test
 
 import (
 	"context"
+	"encoding/json"
+	"os"
 	"testing"
 
 	"github.com/ronannnn/infra/i18n"
 	"github.com/ronannnn/infra/models"
 	"github.com/ronannnn/infra/validator"
-	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/require"
 )
 
 type User struct {
+	models.Base
 	FirstName     *string             `json:"firstName" validate:"required,not_blank"`
 	LastName      *string             `json:"lastName" validate:"required"`
 	Age           *uint8              `json:"age" validate:"gte=0,lte=130"`
@@ -26,8 +28,15 @@ type User struct {
 }
 
 type Card struct {
+	Sign
 	Number *string `json:"number" validate:"required"`
 	Size   *uint8  `json:"size" validate:"gte=1,lte=10"`
+}
+
+type Sign struct {
+	Username *string             `json:"username" validate:"required,min=1"`
+	Password *string             `json:"password" validate:"required"`
+	Wt       *models.DecimalSafe `json:"wt" validate:"required,d_gt=0"`
 }
 
 func TestValidatorCheck(t *testing.T) {
@@ -35,35 +44,11 @@ func TestValidatorCheck(t *testing.T) {
 	require.NoError(t, err)
 	srv := validator.New(translator)
 
-	firstName := ""
-	lastName := "Smith"
-	age := uint8(135)
-	email := "Badger.Smith@gmail.com"
-	gender := "female"
-	favoriteColor := "#000-"
-	grossWt, _ := decimal.NewFromString("0")
-	netWt, _ := decimal.NewFromString("2")
-	totalWt, _ := decimal.NewFromString("123.456")
-	carNo := "浙B55ZW12"
-
-	cardNumber := "1234567890"
-	cardSize := uint8(0)
-
-	user := &User{
-		FirstName:     &firstName,
-		LastName:      &lastName,
-		Age:           &age,
-		Email:         &email,
-		Gender:        &gender,
-		FavoriteColor: &favoriteColor,
-		GrossWt:       &models.DecimalSafe{Decimal: grossWt},
-		NetWt:         &models.DecimalSafe{Decimal: netWt},
-		TotalWt:       &models.DecimalSafe{Decimal: totalWt},
-		CarNo:         &carNo,
-		Cards: []*Card{
-			{Number: &cardNumber, Size: &cardSize},
-		},
-	}
+	var user User
+	jsonData, err := os.ReadFile("./testdata/validator/user1.json")
+	require.NoError(t, err)
+	err = json.Unmarshal(jsonData, &user)
+	require.NoError(t, err)
 
 	errFields, _ := srv.Check(context.Background(), i18n.LanguageChinese, user)
 	require.Equal(t, 7, len(errFields))
@@ -102,27 +87,23 @@ func TestValidatorCheckPartial(t *testing.T) {
 	require.NoError(t, err)
 	srv := validator.New(translator)
 
-	age := uint8(135)
-	email := "Badger.Smith@gmail.com"
-
-	cardNumber := "1234567890"
-	cardSize := uint8(0)
-
-	user := &User{
-		Age:   &age,
-		Email: &email,
-		Cards: []*Card{
-			{Number: &cardNumber, Size: &cardSize},
-		},
-	}
+	var user User
+	jsonData, err := os.ReadFile("./testdata/validator/user2.json")
+	require.NoError(t, err)
+	err = json.Unmarshal(jsonData, &user)
+	require.NoError(t, err)
 
 	errFields, _ := srv.CheckPartial(context.Background(), i18n.LanguageChinese, user)
-	require.Equal(t, 2, len(errFields))
+	require.Equal(t, 3, len(errFields))
 	ageErrField := errFields[0]
 	require.Equal(t, "user.age", ageErrField.ErrorWithNamespace)
 	require.Equal(t, "age", ageErrField.ErrorField)
 	require.Equal(t, "年龄必须小于或等于130", ageErrField.ErrorMsg)
-	cardSizeField := errFields[1]
+	wtErrField := errFields[1]
+	require.Equal(t, "user.cards.sign.wt", wtErrField.ErrorWithNamespace)
+	require.Equal(t, "wt", wtErrField.ErrorField)
+	require.Equal(t, "重量必须大于0", wtErrField.ErrorMsg)
+	cardSizeField := errFields[2]
 	require.Equal(t, "user.cards.size", cardSizeField.ErrorWithNamespace)
 	require.Equal(t, "size", cardSizeField.ErrorField)
 	require.Equal(t, "大小必须大于或等于1", cardSizeField.ErrorMsg)
