@@ -6,8 +6,8 @@ import (
 
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/lestrrat-go/jwx/v2/jwt"
+	"github.com/ronannnn/infra/constant"
 	"github.com/ronannnn/infra/handler"
-	"github.com/ronannnn/infra/models"
 	"github.com/ronannnn/infra/msg"
 	"github.com/ronannnn/infra/reason"
 )
@@ -87,8 +87,8 @@ func (m *MiddlewareImpl) AuthInfoSetter(next http.Handler) http.Handler {
 		token, _, _ := jwtauth.FromContext(r.Context())
 		username, _ := token.Get("username")
 		userId, _ := token.Get("userId")
-		ctx := context.WithValue(r.Context(), models.CtxKeyUserId, uint(userId.(float64)))
-		ctx = context.WithValue(ctx, models.CtxKeyUsername, username.(string))
+		ctx := context.WithValue(r.Context(), constant.CtxKeyUserId, uint(userId.(float64)))
+		ctx = context.WithValue(ctx, constant.CtxKeyUsername, username.(string))
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

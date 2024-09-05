@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/ronannnn/infra/constant"
 	"github.com/ronannnn/infra/utils"
 	"gorm.io/gorm"
 	"gorm.io/plugin/optimisticlock"
@@ -44,7 +45,7 @@ type OprBy struct {
 }
 
 func (o *OprBy) GetOprFromReq(r *http.Request) {
-	oprId := r.Context().Value(CtxKeyUserId)
+	oprId := r.Context().Value(constant.CtxKeyUserId)
 	if oprId != nil {
 		if convertedOprId, ok := oprId.(uint); ok {
 			o.CreatedBy = convertedOprId
@@ -54,7 +55,7 @@ func (o *OprBy) GetOprFromReq(r *http.Request) {
 }
 
 func (o *OprBy) GetUpdaterFromReq(r *http.Request) {
-	oprId := r.Context().Value(CtxKeyUserId)
+	oprId := r.Context().Value(constant.CtxKeyUserId)
 	if oprId != nil {
 		if convertedOprId, ok := oprId.(uint); ok {
 			o.UpdatedBy = convertedOprId

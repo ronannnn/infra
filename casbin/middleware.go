@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/casbin/casbin/v2"
+	"github.com/ronannnn/infra/constant"
 	"github.com/ronannnn/infra/handler"
-	"github.com/ronannnn/infra/models"
 	"github.com/ronannnn/infra/msg"
 	"github.com/ronannnn/infra/reason"
 )
@@ -32,9 +32,9 @@ type MiddlewareImpl struct {
 
 func (m *MiddlewareImpl) CasbinInterceptor(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		userId := r.Context().Value(models.CtxKeyUserId).(uint) // sub
-		path := r.URL.Path                                      // obj
-		act := r.Method                                         // act
+		userId := r.Context().Value(constant.CtxKeyUserId).(uint) // sub
+		path := r.URL.Path                                        // obj
+		act := r.Method                                           // act
 		_, err := m.casbinEnforcer.Enforce(userId, path, act)
 		if err != nil {
 			m.httpHandler.Fail(w, r, msg.NewError(reason.ForbiddenError), nil)

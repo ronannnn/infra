@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/ronannnn/infra/constant"
 	"github.com/ronannnn/infra/models"
 	"go.uber.org/zap"
 )
@@ -56,7 +57,7 @@ func (m *MiddlewareImpl) ReqRecorder(next http.Handler) http.Handler {
 				path = path + "?" + raw
 			}
 			userId := uint(0)
-			ctxUserId := r.Context().Value(models.CtxKeyUserId)
+			ctxUserId := r.Context().Value(constant.CtxKeyUserId)
 			if ctxUserId != nil {
 				userId = ctxUserId.(uint)
 			}
