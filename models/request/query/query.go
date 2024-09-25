@@ -42,21 +42,27 @@ type Range struct {
 }
 
 const (
-	TypeCustom    = "custom" // 用户自定义gorm scope，不做任何处理
-	TypeEq        = "eq"
-	TypeNe        = "ne"
-	TypeGt        = "gt"
-	TypeGte       = "gte"
-	TypeLt        = "lt"
-	TypeLte       = "lte"
-	TypeLike      = "like"
-	TypeStartLike = "start_like"
-	TypeEndLike   = "end_like"
-	TypeIn        = "in"
-	TypeNotIn     = "not_in"
-	TypeRange     = "range"
-	TypeIs        = "is"
-	TypeIsNot     = "is_not"
+	TypeCustom       = "custom" // 用户自定义gorm scope，不做任何处理
+	TypeEq           = "eq"
+	TypeNe           = "ne"
+	TypeGt           = "gt"
+	TypeGte          = "gte"
+	TypeLt           = "lt"
+	TypeLte          = "lte"
+	TypeLike         = "like"
+	TypeStartLike    = "start_like"
+	TypeEndLike      = "end_like"
+	TypeIn           = "in"
+	TypeNotIn        = "not_in"
+	TypeRange        = "range"
+	TypeIs           = "is"
+	TypeIsNot        = "is_not"
+	TypeStringLenEq  = "string_len_eq"
+	TypeStringLenNe  = "string_len_ne"
+	TypeStringLenGt  = "string_len_gt"
+	TypeStringLenGte = "string_len_gte"
+	TypeStringLenLt  = "string_len_lt"
+	TypeStringLenLte = "string_len_lte"
 )
 
 type QuerySetter interface {
@@ -143,6 +149,18 @@ func ResolveWhereQuery(items []WhereQueryItem, tblName string, fieldColMapper ma
 				condition.SetWhere(fmt.Sprintf("%s is ?", fullColName), []any{item.Value})
 			case TypeIsNot:
 				condition.SetWhere(fmt.Sprintf("%s is not ?", fullColName), []any{item.Value})
+			case TypeStringLenEq:
+				condition.SetWhere(fmt.Sprintf("length(%s) = ?", fullColName), []any{item.Value})
+			case TypeStringLenNe:
+				condition.SetWhere(fmt.Sprintf("length(%s) != ?", fullColName), []any{item.Value})
+			case TypeStringLenGt:
+				condition.SetWhere(fmt.Sprintf("length(%s) > ?", fullColName), []any{item.Value})
+			case TypeStringLenGte:
+				condition.SetWhere(fmt.Sprintf("length(%s) >= ?", fullColName), []any{item.Value})
+			case TypeStringLenLt:
+				condition.SetWhere(fmt.Sprintf("length(%s) < ?", fullColName), []any{item.Value})
+			case TypeStringLenLte:
+				condition.SetWhere(fmt.Sprintf("length(%s) <= ?", fullColName), []any{item.Value})
 			default:
 				return fmt.Errorf("opr %s not found", item.Opr)
 			}
@@ -196,6 +214,18 @@ func ResolveOrQuery(items []WhereQueryItem, tblName string, fieldColMapper map[s
 				condition.SetOr(fmt.Sprintf("%s is ?", fullColName), []any{item.Value})
 			case TypeIsNot:
 				condition.SetOr(fmt.Sprintf("%s is not ?", fullColName), []any{item.Value})
+			case TypeStringLenEq:
+				condition.SetOr(fmt.Sprintf("length(%s) = ?", fullColName), []any{item.Value})
+			case TypeStringLenNe:
+				condition.SetOr(fmt.Sprintf("length(%s) != ?", fullColName), []any{item.Value})
+			case TypeStringLenGt:
+				condition.SetOr(fmt.Sprintf("length(%s) > ?", fullColName), []any{item.Value})
+			case TypeStringLenGte:
+				condition.SetOr(fmt.Sprintf("length(%s) >= ?", fullColName), []any{item.Value})
+			case TypeStringLenLt:
+				condition.SetOr(fmt.Sprintf("length(%s) < ?", fullColName), []any{item.Value})
+			case TypeStringLenLte:
+				condition.SetOr(fmt.Sprintf("length(%s) <= ?", fullColName), []any{item.Value})
 			default:
 				return fmt.Errorf("opr %s not found", item.Opr)
 			}
