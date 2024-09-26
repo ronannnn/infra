@@ -57,12 +57,12 @@ const (
 	TypeRange        = "range"
 	TypeIs           = "is"
 	TypeIsNot        = "is_not"
-	TypeStringLenEq  = "string_len_eq"
-	TypeStringLenNe  = "string_len_ne"
-	TypeStringLenGt  = "string_len_gt"
-	TypeStringLenGte = "string_len_gte"
-	TypeStringLenLt  = "string_len_lt"
-	TypeStringLenLte = "string_len_lte"
+	TypeStringLenEq  = "str_len_eq"
+	TypeStringLenNe  = "str_len_ne"
+	TypeStringLenGt  = "str_len_gt"
+	TypeStringLenGte = "str_len_gte"
+	TypeStringLenLt  = "str_len_lt"
+	TypeStringLenLte = "str_len_lte"
 )
 
 type QuerySetter interface {
