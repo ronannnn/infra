@@ -7,9 +7,9 @@ type StatsItem struct {
 }
 
 type PageResult struct {
-	List     any         `json:"list"`
-	Total    int64       `json:"total"` // total rows
-	PageNum  int         `json:"pageNum"`
-	PageSize int         `json:"pageSize"`
-	Stats    []StatsItem `json:"stats"` // totals of other fields, like container count, weight, volume, etc.
+	List     any           `json:"list"`
+	Total    int64         `json:"total"` // total rows
+	PageNum  int           `json:"pageNum"`
+	PageSize int           `json:"pageSize"`
+	Stats    [][]StatsItem `json:"stats"` // totals of other fields, like container count, weight, volume, etc.
 }
