@@ -32,19 +32,25 @@ func MakeConditionFromQuery(query Query, setter QuerySetter) (fn func(db *gorm.D
 func MakeCondition(condition *DbConditionImpl) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		for k, vs := range condition.Where {
+			subDb := db
 			for _, v := range vs {
-				db = db.Where(k, v...)
+				subDb = subDb.Where(k, v...)
 			}
+			db.Where(subDb)
 		}
 		for k, vs := range condition.Or {
+			subDb := db
 			for _, v := range vs {
-				db = db.Or(k, v...)
+				subDb = subDb.Or(k, v...)
 			}
+			db.Where(subDb)
 		}
 		for k, vs := range condition.Not {
+			subDb := db
 			for _, v := range vs {
-				db = db.Not(k, v...)
+				subDb = subDb.Not(k, v...)
 			}
+			db.Where(subDb)
 		}
 		for _, o := range condition.Order {
 			db = db.Order(o)
