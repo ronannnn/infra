@@ -32,31 +32,37 @@ func MakeConditionFromQuery(query Query, setter QuerySetter) (fn func(db *gorm.D
 func MakeCondition(condition *DbConditionImpl) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		// where
-		whereSubDb := db.Session(&gorm.Session{NewDB: true})
-		for k, vs := range condition.Where {
-			for _, v := range vs {
-				whereSubDb = whereSubDb.Where(k, v...)
+		if len(condition.Where) > 0 {
+			whereSubDb := db.Session(&gorm.Session{NewDB: true})
+			for k, vs := range condition.Where {
+				for _, v := range vs {
+					whereSubDb = whereSubDb.Where(k, v...)
+				}
 			}
+			db = db.Where(whereSubDb)
 		}
-		db = db.Where(whereSubDb)
 
 		// or
-		orSubDb := db.Session(&gorm.Session{NewDB: true})
-		for k, vs := range condition.Or {
-			for _, v := range vs {
-				orSubDb = orSubDb.Or(k, v...)
+		if len(condition.Or) > 0 {
+			orSubDb := db.Session(&gorm.Session{NewDB: true})
+			for k, vs := range condition.Or {
+				for _, v := range vs {
+					orSubDb = orSubDb.Or(k, v...)
+				}
 			}
+			db = db.Where(orSubDb)
 		}
-		db = db.Where(orSubDb)
 
 		// not
-		notSubDb := db.Session(&gorm.Session{NewDB: true})
-		for k, vs := range condition.Not {
-			for _, v := range vs {
-				notSubDb = notSubDb.Not(k, v...)
+		if len(condition.Not) > 0 {
+			notSubDb := db.Session(&gorm.Session{NewDB: true})
+			for k, vs := range condition.Not {
+				for _, v := range vs {
+					notSubDb = notSubDb.Not(k, v...)
+				}
 			}
+			db = db.Where(notSubDb)
 		}
-		db = db.Where(notSubDb)
 
 		for _, o := range condition.Order {
 			db = db.Order(o)
