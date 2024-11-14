@@ -26,7 +26,7 @@ type Client struct {
 	EmailPasswd  string
 }
 
-type EmailPayload struct {
+type Payload struct {
 	Subject  string
 	To       []string
 	Cc       []string
@@ -35,7 +35,7 @@ type EmailPayload struct {
 	HtmlType bool
 }
 
-func (c *Client) Send(payload EmailPayload) (err error) {
+func (c *Client) Send(payload Payload) (err error) {
 	// 发件人和收件人信息
 	from := mail.Address{Name: "", Address: c.EmailAccount}
 	fromStr := from.String()

@@ -15,7 +15,7 @@ func TestSend(t *testing.T) {
 		EmailPasswd:  "",
 	}
 	client := email.NewClient(cfg)
-	payload := email.EmailPayload{
+	payload := email.Payload{
 		Subject:  "test1",
 		To:       []string{"853879506@qq.com", "crnoogle@gmail.com"},
 		Body:     "<div>123</div>",
