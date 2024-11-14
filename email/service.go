@@ -9,9 +9,9 @@ import (
 )
 
 func NewClient(
-	cfg Cfg,
-) *EmailClient {
-	return &EmailClient{
+	cfg *Cfg,
+) *Client {
+	return &Client{
 		SmtpHost:     cfg.SmtpAddr,
 		SmtpPort:     cfg.SmtpPort,
 		EmailAccount: cfg.EmailAccount,
@@ -19,7 +19,7 @@ func NewClient(
 	}
 }
 
-type EmailClient struct {
+type Client struct {
 	SmtpHost     string
 	SmtpPort     uint16
 	EmailAccount string
@@ -35,7 +35,7 @@ type EmailPayload struct {
 	HtmlType bool
 }
 
-func (c *EmailClient) SendEmail(payload EmailPayload) (err error) {
+func (c *Client) Send(payload EmailPayload) (err error) {
 	// 发件人和收件人信息
 	from := mail.Address{Name: "", Address: c.EmailAccount}
 	fromStr := from.String()

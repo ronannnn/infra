@@ -8,7 +8,7 @@ import (
 )
 
 func TestSend(t *testing.T) {
-	cfg := email.Cfg{
+	cfg := &email.Cfg{
 		SmtpAddr:     "smtp.qq.com",
 		SmtpPort:     465,
 		EmailAccount: "",
@@ -21,6 +21,6 @@ func TestSend(t *testing.T) {
 		Body:     "<div>123</div>",
 		HtmlType: true,
 	}
-	err := client.SendEmail(payload)
+	err := client.Send(payload)
 	require.NoError(t, err)
 }
