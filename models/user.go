@@ -2,8 +2,10 @@ package models
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
+	"github.com/ronannnn/infra/constant"
 	"gorm.io/gorm"
 	"gorm.io/plugin/optimisticlock"
 )
@@ -35,10 +37,29 @@ type User struct {
 	WechatUnionId *string `json:"wechatUnionId"`
 }
 
-func (u User) TableName() string {
+func (u *User) TableName() string {
 	return "users"
 }
 
-func (u User) FieldColMapper() map[string]string {
+func (u *User) FieldColMapper() map[string]string {
 	return CamelToSnakeFromStruct(u)
+}
+
+func (u *User) GetOprFromReq(r *http.Request) {
+	oprId := r.Context().Value(constant.CtxKeyUserId)
+	if oprId != nil {
+		if convertedOprId, ok := oprId.(uint); ok {
+			u.CreatedBy = convertedOprId
+			u.UpdatedBy = convertedOprId
+		}
+	}
+}
+
+func (u *User) GetUpdaterFromReq(r *http.Request) {
+	oprId := r.Context().Value(constant.CtxKeyUserId)
+	if oprId != nil {
+		if convertedOprId, ok := oprId.(uint); ok {
+			u.UpdatedBy = convertedOprId
+		}
+	}
 }
