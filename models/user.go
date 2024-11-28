@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/ronannnn/infra/constant"
@@ -27,11 +28,13 @@ type User struct {
 	// user info
 	Nickname *string `json:"nickname"`
 	// login info
-	Username  *string `json:"username"`
-	Email     *string `json:"email"`
-	TelNo     *string `json:"telNo"`
-	Password  *string `json:"-"`
-	LoginType *string `json:"loginType"` // 登陆方式：可自定义，比如2代WMS登录，账户密码登录，手机验证码登录等
+	Username *string `json:"username"`
+	Email    *string `json:"email"`
+	TelNo    *string `json:"telNo"`
+	Password *string `json:"-"`
+	// 登陆方式：可自定义，比如2代WMS登录，账户密码登录，手机验证码登录等
+	// 由逗号分隔
+	LoginType *string `json:"loginType"`
 	// wechat info
 	WechatOpenId  *string `json:"wechatOpenId"`
 	WechatUnionId *string `json:"wechatUnionId"`
@@ -62,4 +65,17 @@ func (u *User) GetUpdaterFromReq(r *http.Request) {
 			u.UpdatedBy = convertedOprId
 		}
 	}
+}
+
+func (u *User) HasLoginType(loginType string) error {
+	if u.LoginType == nil {
+		return fmt.Errorf("user login type is not defined")
+	}
+	allowedLoginTypes := strings.Split(*u.LoginType, ",")
+	for _, allowedLoginType := range allowedLoginTypes {
+		if allowedLoginType == loginType {
+			return nil
+		}
+	}
+	return fmt.Errorf("user login type %s is not allowed", loginType)
 }
