@@ -37,11 +37,11 @@ type User struct {
 	WechatUnionId *string `json:"wechatUnionId"`
 }
 
-func (u *User) TableName() string {
+func (u User) TableName() string {
 	return "users"
 }
 
-func (u *User) FieldColMapper() map[string]string {
+func (u User) FieldColMapper() map[string]string {
 	return CamelToSnakeFromStruct(u)
 }
 

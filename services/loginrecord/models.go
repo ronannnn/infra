@@ -26,4 +26,5 @@ type LoginRecord struct {
 	Ip              string                `json:"ip"`
 	UserAgent       string                `json:"userAgent"`
 	Status          Status                `json:"status"`
+	LoginType       string                `json:"loginType"` // 对应User.LoginType
 }
