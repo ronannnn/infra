@@ -15,16 +15,21 @@ var (
 type User struct {
 	Id        uint                   `json:"id" gorm:"primaryKey;autoIncrement:true"`
 	CreatedAt time.Time              `json:"createdAt"`
+	CreatedBy uint                   `json:"createdBy"`
+	Creator   *User                  `json:"creator" gorm:"foreignKey:CreatedBy;references:Id"`
 	UpdatedAt time.Time              `json:"updatedAt"`
+	UpdatedBy uint                   `json:"updatedBy"`
+	Updater   *User                  `json:"updater" gorm:"foreignKey:UpdatedBy;references:Id"`
 	DeletedAt gorm.DeletedAt         `gorm:"index" json:"-"`
 	Version   optimisticlock.Version `json:"version"`
 	// user info
 	Nickname *string `json:"nickname"`
 	// login info
-	Username *string `json:"username"`
-	Email    *string `json:"email"`
-	TelNo    *string `json:"telNo"`
-	Password *string `json:"-"`
+	Username  *string `json:"username"`
+	Email     *string `json:"email"`
+	TelNo     *string `json:"telNo"`
+	Password  *string `json:"-"`
+	LoginType *string `json:"loginType"` // 登陆方式：可自定义，比如2代WMS登录，账户密码登录，手机验证码登录等
 	// wechat info
 	WechatOpenId  *string `json:"wechatOpenId"`
 	WechatUnionId *string `json:"wechatUnionId"`
