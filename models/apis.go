@@ -1,9 +1,7 @@
-package api
-
-import "github.com/ronannnn/infra/models"
+package models
 
 type Api struct {
-	models.Base
+	Base
 	Name        *string `json:"name"`
 	Method      *string `json:"method"`
 	Path        *string `json:"path"`
@@ -15,5 +13,5 @@ func (Api) TableName() string {
 }
 
 func (a Api) FieldColMapper() map[string]string {
-	return models.CamelToSnakeFromStruct(a)
+	return CamelToSnakeFromStruct(a)
 }

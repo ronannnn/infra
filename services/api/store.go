@@ -8,12 +8,12 @@ import (
 )
 
 type Store interface {
-	create(*gorm.DB, *Api) error
-	update(*gorm.DB, *Api) (Api, error)
+	create(*gorm.DB, *models.Api) error
+	update(*gorm.DB, *models.Api) (models.Api, error)
 	deleteById(*gorm.DB, uint) error
 	deleteByIds(*gorm.DB, []uint) error
 	list(*gorm.DB, query.Query) (response.PageResult, error)
-	getById(*gorm.DB, uint) (Api, error)
+	getById(*gorm.DB, uint) (models.Api, error)
 }
 
 func ProvideStore() Store {
@@ -23,11 +23,11 @@ func ProvideStore() Store {
 type StoreImpl struct {
 }
 
-func (s StoreImpl) create(tx *gorm.DB, model *Api) error {
+func (s StoreImpl) create(tx *gorm.DB, model *models.Api) error {
 	return tx.Create(model).Error
 }
 
-func (s StoreImpl) update(tx *gorm.DB, partialUpdatedModel *Api) (updatedModel Api, err error) {
+func (s StoreImpl) update(tx *gorm.DB, partialUpdatedModel *models.Api) (updatedModel models.Api, err error) {
 	if partialUpdatedModel.Id == 0 {
 		return updatedModel, models.ErrUpdatedId
 	}
@@ -36,26 +36,26 @@ func (s StoreImpl) update(tx *gorm.DB, partialUpdatedModel *Api) (updatedModel A
 		return updatedModel, result.Error
 	}
 	if result.RowsAffected == 0 {
-		return updatedModel, models.ErrModified("Api")
+		return updatedModel, models.ErrModified("models.Api")
 	}
 	return s.getById(tx, partialUpdatedModel.Id)
 }
 
 func (s StoreImpl) deleteById(tx *gorm.DB, id uint) error {
-	return tx.Delete(&Api{}, "id = ?", id).Error
+	return tx.Delete(&models.Api{}, "id = ?", id).Error
 }
 
 func (s StoreImpl) deleteByIds(tx *gorm.DB, ids []uint) error {
-	return tx.Delete(&Api{}, "id IN ?", ids).Error
+	return tx.Delete(&models.Api{}, "id IN ?", ids).Error
 }
 
 func (s StoreImpl) list(tx *gorm.DB, apiQuery query.Query) (result response.PageResult, err error) {
 	var total int64
-	var list []Api
-	if err = tx.Model(&Api{}).Count(&total).Error; err != nil {
+	var list []models.Api
+	if err = tx.Model(&models.Api{}).Count(&total).Error; err != nil {
 		return
 	}
-	queryScope, err := query.MakeConditionFromQuery(apiQuery, Api{})
+	queryScope, err := query.MakeConditionFromQuery(apiQuery, models.Api{})
 	if err != nil {
 		return
 	}
@@ -74,7 +74,7 @@ func (s StoreImpl) list(tx *gorm.DB, apiQuery query.Query) (result response.Page
 	return
 }
 
-func (s StoreImpl) getById(tx *gorm.DB, id uint) (model Api, err error) {
+func (s StoreImpl) getById(tx *gorm.DB, id uint) (model models.Api, err error) {
 	err = tx.First(&model, "id = ?", id).Error
 	return
 }

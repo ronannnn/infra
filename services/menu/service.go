@@ -1,18 +1,19 @@
 package menu
 
 import (
+	"github.com/ronannnn/infra/models"
 	"github.com/ronannnn/infra/models/request/query"
 	"github.com/ronannnn/infra/models/response"
 	"gorm.io/gorm"
 )
 
 type Service interface {
-	Create(model *Menu) error
-	Update(partialUpdatedModel *Menu) (Menu, error)
+	Create(model *models.Menu) error
+	Update(partialUpdatedModel *models.Menu) (models.Menu, error)
 	DeleteById(id uint) error
 	DeleteByIds(ids []uint) error
 	List(query query.Query) (response.PageResult, error)
-	GetById(id uint) (Menu, error)
+	GetById(id uint) (models.Menu, error)
 }
 
 func ProvideService(
@@ -30,11 +31,11 @@ type ServiceImpl struct {
 	store Store
 }
 
-func (srv *ServiceImpl) Create(model *Menu) (err error) {
+func (srv *ServiceImpl) Create(model *models.Menu) (err error) {
 	return srv.store.Create(srv.db, model)
 }
 
-func (srv *ServiceImpl) Update(partialUpdatedModel *Menu) (Menu, error) {
+func (srv *ServiceImpl) Update(partialUpdatedModel *models.Menu) (models.Menu, error) {
 	return srv.store.Update(srv.db, partialUpdatedModel)
 }
 
@@ -50,6 +51,6 @@ func (srv *ServiceImpl) List(query query.Query) (response.PageResult, error) {
 	return srv.store.List(srv.db, query)
 }
 
-func (srv *ServiceImpl) GetById(id uint) (Menu, error) {
+func (srv *ServiceImpl) GetById(id uint) (models.Menu, error) {
 	return srv.store.GetById(srv.db, id)
 }

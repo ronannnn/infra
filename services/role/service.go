@@ -1,18 +1,19 @@
 package role
 
 import (
+	"github.com/ronannnn/infra/models"
 	"github.com/ronannnn/infra/models/request/query"
 	"github.com/ronannnn/infra/models/response"
 	"gorm.io/gorm"
 )
 
 type Service interface {
-	Create(model *Role) error
-	Update(partialUpdatedModel *Role) (Role, error)
+	Create(model *models.Role) error
+	Update(partialUpdatedModel *models.Role) (models.Role, error)
 	DeleteById(id uint) error
 	DeleteByIds(ids []uint) error
 	List(query query.Query) (response.PageResult, error)
-	GetById(id uint) (Role, error)
+	GetById(id uint) (models.Role, error)
 }
 
 func ProvideService(
@@ -30,11 +31,11 @@ type ServiceImpl struct {
 	store Store
 }
 
-func (srv *ServiceImpl) Create(model *Role) (err error) {
+func (srv *ServiceImpl) Create(model *models.Role) (err error) {
 	return srv.store.Create(srv.db, model)
 }
 
-func (srv *ServiceImpl) Update(partialUpdatedModel *Role) (Role, error) {
+func (srv *ServiceImpl) Update(partialUpdatedModel *models.Role) (models.Role, error) {
 	return srv.store.Update(srv.db, partialUpdatedModel)
 }
 
@@ -50,6 +51,6 @@ func (srv *ServiceImpl) List(query query.Query) (response.PageResult, error) {
 	return srv.store.List(srv.db, query)
 }
 
-func (srv *ServiceImpl) GetById(id uint) (Role, error) {
+func (srv *ServiceImpl) GetById(id uint) (models.Role, error) {
 	return srv.store.GetById(srv.db, id)
 }

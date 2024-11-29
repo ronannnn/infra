@@ -8,12 +8,12 @@ import (
 )
 
 type Store interface {
-	Create(tx *gorm.DB, model *Menu) error
-	Update(tx *gorm.DB, partialUpdatedModel *Menu) (Menu, error)
+	Create(tx *gorm.DB, model *models.Menu) error
+	Update(tx *gorm.DB, partialUpdatedModel *models.Menu) (models.Menu, error)
 	DeleteById(tx *gorm.DB, id uint) error
 	DeleteByIds(tx *gorm.DB, ids []uint) error
 	List(tx *gorm.DB, query query.Query) (response.PageResult, error)
-	GetById(tx *gorm.DB, id uint) (Menu, error)
+	GetById(tx *gorm.DB, id uint) (models.Menu, error)
 }
 
 func ProvideStore() Store {
@@ -23,11 +23,11 @@ func ProvideStore() Store {
 type StoreImpl struct {
 }
 
-func (s StoreImpl) Create(tx *gorm.DB, model *Menu) error {
+func (s StoreImpl) Create(tx *gorm.DB, model *models.Menu) error {
 	return tx.Create(model).Error
 }
 
-func (s StoreImpl) Update(tx *gorm.DB, partialUpdatedModel *Menu) (updatedModel Menu, err error) {
+func (s StoreImpl) Update(tx *gorm.DB, partialUpdatedModel *models.Menu) (updatedModel models.Menu, err error) {
 	if partialUpdatedModel.Id == 0 {
 		return updatedModel, models.ErrUpdatedId
 	}
@@ -47,7 +47,7 @@ func (s StoreImpl) Update(tx *gorm.DB, partialUpdatedModel *Menu) (updatedModel 
 			return result.Error
 		}
 		if result.RowsAffected == 0 {
-			return models.ErrModified("Menu")
+			return models.ErrModified("models.Menu")
 		}
 		return
 	}); err != nil {
@@ -57,20 +57,20 @@ func (s StoreImpl) Update(tx *gorm.DB, partialUpdatedModel *Menu) (updatedModel 
 }
 
 func (s StoreImpl) DeleteById(tx *gorm.DB, id uint) error {
-	return tx.Delete(&Menu{}, "id = ?", id).Error
+	return tx.Delete(&models.Menu{}, "id = ?", id).Error
 }
 
 func (s StoreImpl) DeleteByIds(tx *gorm.DB, ids []uint) error {
-	return tx.Delete(&Menu{}, "id IN ?", ids).Error
+	return tx.Delete(&models.Menu{}, "id IN ?", ids).Error
 }
 
 func (s StoreImpl) List(tx *gorm.DB, menuQuery query.Query) (result response.PageResult, err error) {
 	var total int64
-	var list []Menu
-	if err = tx.Model(&Menu{}).Count(&total).Error; err != nil {
+	var list []models.Menu
+	if err = tx.Model(&models.Menu{}).Count(&total).Error; err != nil {
 		return
 	}
-	queryScope, err := query.MakeConditionFromQuery(menuQuery, Menu{})
+	queryScope, err := query.MakeConditionFromQuery(menuQuery, models.Menu{})
 	if err != nil {
 		return
 	}
@@ -89,7 +89,7 @@ func (s StoreImpl) List(tx *gorm.DB, menuQuery query.Query) (result response.Pag
 	return
 }
 
-func (s StoreImpl) GetById(tx *gorm.DB, id uint) (model Menu, err error) {
+func (s StoreImpl) GetById(tx *gorm.DB, id uint) (model models.Menu, err error) {
 	err = tx.Preload("Apis").First(&model, "id = ?", id).Error
 	return
 }

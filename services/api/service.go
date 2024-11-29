@@ -1,18 +1,19 @@
 package api
 
 import (
+	"github.com/ronannnn/infra/models"
 	"github.com/ronannnn/infra/models/request/query"
 	"github.com/ronannnn/infra/models/response"
 	"gorm.io/gorm"
 )
 
 type Service interface {
-	Create(model *Api) error
-	Update(partialUpdatedModel *Api) (Api, error)
+	Create(model *models.Api) error
+	Update(partialUpdatedModel *models.Api) (models.Api, error)
 	DeleteById(id uint) error
 	DeleteByIds(ids []uint) error
 	List(query query.Query) (response.PageResult, error)
-	GetById(id uint) (Api, error)
+	GetById(id uint) (models.Api, error)
 }
 
 func ProvideService(
@@ -30,11 +31,11 @@ type ServiceImpl struct {
 	db    *gorm.DB
 }
 
-func (srv *ServiceImpl) Create(model *Api) (err error) {
+func (srv *ServiceImpl) Create(model *models.Api) (err error) {
 	return srv.store.create(srv.db, model)
 }
 
-func (srv *ServiceImpl) Update(partialUpdatedModel *Api) (Api, error) {
+func (srv *ServiceImpl) Update(partialUpdatedModel *models.Api) (models.Api, error) {
 	return srv.store.update(srv.db, partialUpdatedModel)
 }
 
@@ -50,6 +51,6 @@ func (srv *ServiceImpl) List(query query.Query) (response.PageResult, error) {
 	return srv.store.list(srv.db, query)
 }
 
-func (srv *ServiceImpl) GetById(id uint) (Api, error) {
+func (srv *ServiceImpl) GetById(id uint) (models.Api, error) {
 	return srv.store.getById(srv.db, id)
 }
