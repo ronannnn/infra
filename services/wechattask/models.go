@@ -11,7 +11,7 @@ type WechatTask struct {
 }
 
 func (WechatTask) TableName() string {
-	return "departments"
+	return "wechat_tasks"
 }
 
 func (wt WechatTask) FieldColMapper() map[string]string {
