@@ -1,6 +1,8 @@
 package api
 
 import (
+	"context"
+
 	"github.com/ronannnn/infra/models"
 	"github.com/ronannnn/infra/models/request/query"
 	"github.com/ronannnn/infra/models/response"
@@ -8,12 +10,12 @@ import (
 )
 
 type Service interface {
-	Create(model *models.Api) error
-	Update(partialUpdatedModel *models.Api) (models.Api, error)
-	DeleteById(id uint) error
-	DeleteByIds(ids []uint) error
-	List(query query.Query) (response.PageResult, error)
-	GetById(id uint) (models.Api, error)
+	Create(context.Context, *models.Api) error
+	Update(context.Context, *models.Api) (models.Api, error)
+	DeleteById(context.Context, uint) error
+	DeleteByIds(context.Context, []uint) error
+	List(context.Context, query.Query) (response.PageResult, error)
+	GetById(context.Context, uint) (models.Api, error)
 }
 
 func ProvideService(
@@ -31,26 +33,26 @@ type ServiceImpl struct {
 	db    *gorm.DB
 }
 
-func (srv *ServiceImpl) Create(model *models.Api) (err error) {
+func (srv *ServiceImpl) Create(ctx context.Context, model *models.Api) (err error) {
 	return srv.store.create(srv.db, model)
 }
 
-func (srv *ServiceImpl) Update(partialUpdatedModel *models.Api) (models.Api, error) {
+func (srv *ServiceImpl) Update(ctx context.Context, partialUpdatedModel *models.Api) (models.Api, error) {
 	return srv.store.update(srv.db, partialUpdatedModel)
 }
 
-func (srv *ServiceImpl) DeleteById(id uint) error {
+func (srv *ServiceImpl) DeleteById(ctx context.Context, id uint) error {
 	return srv.store.deleteById(srv.db, id)
 }
 
-func (srv *ServiceImpl) DeleteByIds(ids []uint) error {
+func (srv *ServiceImpl) DeleteByIds(ctx context.Context, ids []uint) error {
 	return srv.store.deleteByIds(srv.db, ids)
 }
 
-func (srv *ServiceImpl) List(query query.Query) (response.PageResult, error) {
+func (srv *ServiceImpl) List(ctx context.Context, query query.Query) (response.PageResult, error) {
 	return srv.store.list(srv.db, query)
 }
 
-func (srv *ServiceImpl) GetById(id uint) (models.Api, error) {
+func (srv *ServiceImpl) GetById(ctx context.Context, id uint) (models.Api, error) {
 	return srv.store.getById(srv.db, id)
 }
