@@ -1,5 +1,7 @@
 package login
 
+import "github.com/ronannnn/infra/models"
+
 // request commands and response results
 // login with username and password
 type UsernameCmd struct {
@@ -10,9 +12,10 @@ type UsernameCmd struct {
 }
 
 type Result struct {
-	RefreshToken string `json:"refreshToken"`
-	AccessToken  string `json:"accessToken"`
-	DupLogin     bool   `json:"dupLogin"`
+	RefreshToken string       `json:"refreshToken"`
+	AccessToken  string       `json:"accessToken"`
+	DupLogin     bool         `json:"dupLogin"`
+	User         *models.User `json:"user"`
 }
 
 // refresh refresh token and access token
