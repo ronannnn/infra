@@ -9,6 +9,7 @@ type Menu struct {
 	StaticRouteKey *string   `json:"staticRouteKey" gorm:"type:text"` // 静态路由的Key
 	Permission     *string   `json:"permission" gorm:"type:text"`
 	Order          *string   `json:"order"`
+	Disabled       *bool     `json:"disabled"` // 前段会显示出这个菜单，但是不可点击
 	Apis           *[]Api    `json:"apis" gorm:"many2many:menu_apis"`
 }
 
