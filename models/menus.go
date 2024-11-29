@@ -12,16 +12,16 @@ type Menu struct {
 	Apis           *[]Api    `json:"apis" gorm:"many2many:menu_apis"`
 }
 
-type MenuType int
+type MenuType string
 
 const (
-	MenuTypeCatalog MenuType = iota
-	MenuTypeMenu
-	MenuTypeBtn
+	MenuTypeCatalog MenuType = "catalog"
+	MenuTypeMenu    MenuType = "menu"
+	MenuTypeBtn     MenuType = "btn"
 )
 
 func (Menu) TableName() string {
-	return "departments"
+	return "menus"
 }
 
 func (m Menu) FieldColMapper() map[string]string {

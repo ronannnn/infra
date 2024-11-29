@@ -10,7 +10,7 @@ type Role struct {
 }
 
 func (Role) TableName() string {
-	return "departments"
+	return "roles"
 }
 
 func (r Role) FieldColMapper() map[string]string {
