@@ -8,7 +8,7 @@ type Menu struct {
 	I18nKey        *string   `json:"i18nKey"`
 	StaticRouteKey *string   `json:"staticRouteKey" gorm:"type:text"` // 静态路由的Key
 	Permission     *string   `json:"permission" gorm:"type:text"`
-	Order          *int      `json:"order"`
+	Order          *string   `json:"order"`
 	Apis           *[]Api    `json:"apis" gorm:"many2many:menu_apis"`
 }
 
