@@ -2,7 +2,7 @@ package models
 
 type Menu struct {
 	Base
-	Type           *MenuType `json:"type" gorm:"size:1"`
+	Type           *MenuType `json:"type"`
 	ParentId       *uint     `json:"parentId"`
 	Name           *string   `json:"name"`
 	I18nKey        *string   `json:"i18nKey"`
