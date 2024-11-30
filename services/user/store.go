@@ -76,17 +76,17 @@ func (s StoreImpl) List(tx *gorm.DB, userQuery query.Query) (result response.Pag
 }
 
 func (s StoreImpl) GetById(tx *gorm.DB, id uint) (model models.User, err error) {
-	err = tx.Preload("Roles").Preload("Roles.Menus").Preload("Menus").First(&model, "id = ?", id).Error
+	err = tx.Scopes(userPreload()).First(&model, "id = ?", id).Error
 	return
 }
 
 func (s StoreImpl) GetByUsername(tx *gorm.DB, username string) (user models.User, err error) {
-	err = tx.First(&user, &models.User{Username: &username}).Error
+	err = tx.Scopes(userPreload()).First(&user, &models.User{Username: &username}).Error
 	return
 }
 
 func (s StoreImpl) GetByNickname(tx *gorm.DB, nickname string) (user models.User, err error) {
-	err = tx.First(&user, &models.User{Nickname: &nickname}).Error
+	err = tx.Scopes(userPreload()).First(&user, &models.User{Nickname: &nickname}).Error
 	return
 }
 
