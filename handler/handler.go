@@ -18,6 +18,7 @@ import (
 
 type HttpHandler interface {
 	// handle request binding and checking
+	Bind(w http.ResponseWriter, r *http.Request, data any) bool
 	BindAndCheck(w http.ResponseWriter, r *http.Request, data any) bool
 	BindAndCheckPartial(w http.ResponseWriter, r *http.Request, data any) bool
 	BindUint64Param(w http.ResponseWriter, r *http.Request, key string, data *uint64) bool
@@ -50,6 +51,18 @@ type HttpHandlerImpl struct {
 	log       *zap.SugaredLogger
 	i18n      i18n.I18n
 	validator validator.Validator
+}
+
+// Bind bind request
+func (h *HttpHandlerImpl) Bind(w http.ResponseWriter, r *http.Request, data any) bool {
+	var err error
+	lang := GetLang(r)
+	r = r.WithContext(context.WithValue(r.Context(), constant.CtxKeyAcceptLanguage, lang))
+	if err = render.DefaultDecoder(r, &data); err != nil {
+		h.Fail(w, r, msg.NewError(reason.RequestFormatError), err)
+		return true
+	}
+	return false
 }
 
 // BindAndCheck bind request and check
