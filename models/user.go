@@ -19,10 +19,10 @@ type User struct {
 	Id            uint                   `json:"id" gorm:"primaryKey;autoIncrement:true"`
 	CreatedAt     time.Time              `json:"createdAt"`
 	UserCreatedBy uint                   `json:"userCreatedBy"`
-	UserCreator   *User                  `json:"userCreator" gorm:"foreignKey:userCreatedBy;references:Id"`
+	UserCreator   *User                  `json:"userCreator" gorm:"foreignKey:Id;references:UserCreatedBy"`
 	UpdatedAt     time.Time              `json:"updatedAt"`
 	UserUpdatedBy uint                   `json:"userUpdatedBy"`
-	UserUpdater   *User                  `json:"userUpdater" gorm:"foreignKey:userUpdatedBy;references:Id"`
+	UserUpdater   *User                  `json:"userUpdater" gorm:"foreignKey:Id;references:UserUpdatedBy"`
 	DeletedAt     gorm.DeletedAt         `gorm:"index" json:"-"`
 	Version       optimisticlock.Version `json:"version"`
 	// user info
