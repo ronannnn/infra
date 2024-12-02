@@ -16,15 +16,15 @@ var (
 )
 
 type User struct {
-	Id        uint                   `json:"id" gorm:"primaryKey;autoIncrement:true"`
-	CreatedAt time.Time              `json:"createdAt"`
-	CreatedBy uint                   `json:"createdBy"`
-	Creator   *User                  `json:"creator" gorm:"foreignKey:CreatedBy;references:Id"`
-	UpdatedAt time.Time              `json:"updatedAt"`
-	UpdatedBy uint                   `json:"updatedBy"`
-	Updater   *User                  `json:"updater" gorm:"foreignKey:UpdatedBy;references:Id"`
-	DeletedAt gorm.DeletedAt         `gorm:"index" json:"-"`
-	Version   optimisticlock.Version `json:"version"`
+	Id            uint                   `json:"id" gorm:"primaryKey;autoIncrement:true"`
+	CreatedAt     time.Time              `json:"createdAt"`
+	UserCreatedBy uint                   `json:"userCreatedBy"`
+	UserCreator   *User                  `json:"userCreator" gorm:"foreignKey:userCreatedBy;references:Id"`
+	UpdatedAt     time.Time              `json:"updatedAt"`
+	UserUpdatedBy uint                   `json:"userUpdatedBy"`
+	UserUpdater   *User                  `json:"userUpdater" gorm:"foreignKey:userUpdatedBy;references:Id"`
+	DeletedAt     gorm.DeletedAt         `gorm:"index" json:"-"`
+	Version       optimisticlock.Version `json:"version"`
 	// user info
 	Nickname *string `json:"nickname"`
 	// login info
@@ -55,8 +55,8 @@ func (u *User) GetOprFromReq(r *http.Request) {
 	oprId := r.Context().Value(constant.CtxKeyUserId)
 	if oprId != nil {
 		if convertedOprId, ok := oprId.(uint); ok {
-			u.CreatedBy = convertedOprId
-			u.UpdatedBy = convertedOprId
+			u.UserCreatedBy = convertedOprId
+			u.UserUpdatedBy = convertedOprId
 		}
 	}
 }
@@ -65,7 +65,7 @@ func (u *User) GetUpdaterFromReq(r *http.Request) {
 	oprId := r.Context().Value(constant.CtxKeyUserId)
 	if oprId != nil {
 		if convertedOprId, ok := oprId.(uint); ok {
-			u.UpdatedBy = convertedOprId
+			u.UserUpdatedBy = convertedOprId
 		}
 	}
 }
