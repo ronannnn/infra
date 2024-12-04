@@ -11,17 +11,18 @@ const (
 )
 
 type Cfg struct {
-	DbType          string `mapstructure:"db-type"`
-	Username        string `mapstructure:"username"`
-	Password        string `mapstructure:"password"`
-	Addr            string `mapstructure:"addr"`
-	Port            int    `mapstructure:"port"`
-	Schema          string `mapstructure:"schema"`  // i.e. database name
-	Configs         string `mapstructure:"configs"` // some extra configs appended after dsn
-	MaxIdleConns    int    `mapstructure:"max-idle-conns"`
-	MaxOpenConns    int    `mapstructure:"max-open-conns"`
-	ConnMaxLifetime int    `mapstructure:"conn-max-lifetime"` // time unit: seconds
-	EnableLog       bool   `mapstructure:"enable-log"`
+	DbType            string `mapstructure:"db-type"`
+	Username          string `mapstructure:"username"`
+	Password          string `mapstructure:"password"`
+	Addr              string `mapstructure:"addr"`
+	Port              int    `mapstructure:"port"`
+	Schema            string `mapstructure:"schema"`  // i.e. database name
+	Configs           string `mapstructure:"configs"` // some extra configs appended after dsn
+	MaxIdleConns      int    `mapstructure:"max-idle-conns"`
+	MaxOpenConns      int    `mapstructure:"max-open-conns"`
+	ConnMaxLifetime   int    `mapstructure:"conn-max-lifetime"` // time unit: seconds
+	EnableLog         bool   `mapstructure:"enable-log"`
+	EnableAutoMigrate bool   `mapstructure:"enable-auto-migrate"`
 }
 
 func (dbCfg *Cfg) Dsn() (dsn string, err error) {

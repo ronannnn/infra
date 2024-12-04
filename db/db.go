@@ -34,7 +34,9 @@ func New(
 			return
 		}
 	}
-	err = db.AutoMigrate(tables...)
+	if dbCfg.EnableAutoMigrate {
+		err = db.AutoMigrate(tables...)
+	}
 	return
 }
 
