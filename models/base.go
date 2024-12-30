@@ -63,6 +63,31 @@ func (o *OprBy) GetUpdaterFromReq(r *http.Request) {
 	}
 }
 
+func GetOprFromReq(r *http.Request) OprBy {
+	oprId := r.Context().Value(constant.CtxKeyUserId)
+	if oprId != nil {
+		if convertedOprId, ok := oprId.(uint); ok {
+			return OprBy{
+				CreatedBy: convertedOprId,
+				UpdatedBy: convertedOprId,
+			}
+		}
+	}
+	return OprBy{}
+}
+
+func GetUpdaterFromReq(r *http.Request) OprBy {
+	oprId := r.Context().Value(constant.CtxKeyUserId)
+	if oprId != nil {
+		if convertedOprId, ok := oprId.(uint); ok {
+			return OprBy{
+				UpdatedBy: convertedOprId,
+			}
+		}
+	}
+	return OprBy{}
+}
+
 // utils
 
 func CamelToSnakeWithBaseFromStrings(fields []string) map[string]string {
