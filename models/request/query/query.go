@@ -42,6 +42,7 @@ type Range struct {
 }
 
 const (
+	// query
 	TypeCustom       = "custom" // 用户自定义gorm scope，不做任何处理
 	TypeEq           = "eq"
 	TypeNe           = "ne"
@@ -63,6 +64,12 @@ const (
 	TypeStringLenGte = "str_len_gte"
 	TypeStringLenLt  = "str_len_lt"
 	TypeStringLenLte = "str_len_lte"
+
+	// order
+	TypeAsc           = "asc"
+	TypeDesc          = "desc"
+	TypeStringLenAsc  = "str_len_asc"
+	TypeStringLenDesc = "str_len_desc"
 )
 
 type QuerySetter interface {
@@ -240,8 +247,14 @@ func ResolveOrderQuery(items []OrderQueryItem, tblName string, fieldColMapper ma
 	for _, item := range items {
 		if col, ok := fieldColMapper[item.Field]; ok {
 			switch strings.ToLower(item.Order) {
-			case "desc", "asc":
-				condition.SetOrder(fmt.Sprintf("`%s`.`%s` %s", tblName, col, item.Order))
+			case TypeAsc:
+				condition.SetOrder(fmt.Sprintf("`%s`.`%s` asc", tblName, col))
+			case TypeDesc:
+				condition.SetOrder(fmt.Sprintf("`%s`.`%s` desc", tblName, col))
+			case TypeStringLenAsc:
+				condition.SetOrder(fmt.Sprintf("length(`%s`.`%s`) asc", tblName, col))
+			case TypeStringLenDesc:
+				condition.SetOrder(fmt.Sprintf("length(`%s`.`%s`) desc", tblName, col))
 			default:
 				return fmt.Errorf("opr %s not found", item.Order)
 			}
