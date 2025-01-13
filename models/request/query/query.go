@@ -140,6 +140,13 @@ func ResolveWhereQuery(items []WhereQueryItem, tblName string, fieldColMapper ma
 			case TypeEndLike:
 				condition.SetWhere(fmt.Sprintf("%s like ?", fullColName), []any{"%" + item.Value.(string)})
 			case TypeIn:
+				// 如果item.Value是否是空数组就跳过
+				var convertedValue []any
+				if convertedValue, ok = item.Value.([]any); ok {
+					if len(convertedValue) == 0 {
+						continue
+					}
+				}
 				condition.SetWhere(fmt.Sprintf("%s in (?)", fullColName), []any{item.Value})
 			case TypeNotIn:
 				condition.SetWhere(fmt.Sprintf("%s not in (?)", fullColName), []any{item.Value})
