@@ -101,6 +101,20 @@ func createValidateWithCustomValidations(lang i18n.Language, trans ut.Translator
 		t, _ := ut.T("cn_car", fe.Value().(string), fe.Param())
 		return t
 	})
+	_ = validate.RegisterValidation("d_end_with_zero", decimalEndWithZero)
+	validate.RegisterTranslation("d_end_with_zero", trans, func(ut ut.Translator) error {
+		switch lang {
+		case i18n.LanguageChinese:
+			return ut.Add("d_end_with_zero", "{0}末尾必须是0", true)
+		case i18n.LanguageEnglish:
+			return ut.Add("d_end_with_zero", "{0} must end with 0", true)
+		default:
+			return ut.Add("d_end_with_zero", "{0} must end with 0", true)
+		}
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("d_end_with_zero", fe.Value().(string), fe.Param())
+		return t
+	})
 	return validate
 }
 
@@ -203,4 +217,17 @@ func chineseCarNo(fl validator.FieldLevel) bool {
 		return false
 	}
 	return regexp.MustCompile(constant.CnCarRegexp).MatchString(data)
+}
+
+func decimalEndWithZero(fl validator.FieldLevel) bool {
+	data, ok := fl.Field().Interface().(string)
+	if !ok {
+		return false
+	}
+	value, err := decimal.NewFromString(data)
+	if err != nil {
+		return false
+	}
+	str := value.String()
+	return strings.HasSuffix(str, "0")
 }
