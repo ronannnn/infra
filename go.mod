@@ -10,7 +10,6 @@ require (
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-chi/jwtauth/v5 v5.3.1
 	github.com/go-playground/universal-translator v0.18.1
-	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
 	github.com/k3a/html2text v1.2.1
 	github.com/lestrrat-go/jwx/v2 v2.0.20
 	github.com/minio/minio-go/v7 v7.0.67
@@ -76,7 +75,6 @@ require (
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	github.com/wneessen/go-mail v0.5.2 // indirect
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225 // indirect
 	golang.org/x/net v0.26.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
