@@ -42,6 +42,8 @@ func IsZeroValue(v any) bool {
 		return rv.Len() == 0
 	case reflect.Bool:
 		return false
+	case reflect.Int8, reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Float32, reflect.Float64:
+		return false
 	default:
 		return v == reflect.Zero(reflect.TypeOf(v)).Interface()
 	}
