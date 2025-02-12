@@ -30,6 +30,7 @@ func createValidateWithCustomValidations(lang i18n.Language, trans ut.Translator
 		}
 		return nil
 	}, decimal.Decimal{})
+
 	_ = validate.RegisterValidation("not_blank", notBlank)
 	validate.RegisterTranslation("not_blank", trans, func(ut ut.Translator) error {
 		switch lang {
@@ -44,7 +45,9 @@ func createValidateWithCustomValidations(lang i18n.Language, trans ut.Translator
 		t, _ := ut.T("not_blank", fe.Field())
 		return t
 	})
+
 	_ = validate.RegisterValidation("sanitizer", sanitizer)
+
 	_ = validate.RegisterValidation("d_gt", decimalGreaterThan)
 	validate.RegisterTranslation("d_gt", trans, func(ut ut.Translator) error {
 		switch lang {
@@ -59,6 +62,7 @@ func createValidateWithCustomValidations(lang i18n.Language, trans ut.Translator
 		t, _ := ut.T("d_gt", fe.Field(), fe.Param())
 		return t
 	})
+
 	_ = validate.RegisterValidation("d_lt", decimalLessThan)
 	validate.RegisterTranslation("d_lt", trans, func(ut ut.Translator) error {
 		switch lang {
@@ -73,6 +77,7 @@ func createValidateWithCustomValidations(lang i18n.Language, trans ut.Translator
 		t, _ := ut.T("d_lt", fe.Field(), fe.Param())
 		return t
 	})
+
 	_ = validate.RegisterValidation("d_decimal_len_lte", decimalDecimalPartsLenLessThanOrEqual)
 	validate.RegisterTranslation("d_decimal_len_lte", trans, func(ut ut.Translator) error {
 		switch lang {
@@ -87,6 +92,7 @@ func createValidateWithCustomValidations(lang i18n.Language, trans ut.Translator
 		t, _ := ut.T("d_decimal_len_lte", fe.Field(), fe.Param())
 		return t
 	})
+
 	_ = validate.RegisterValidation("cn_car", chineseCarNo)
 	validate.RegisterTranslation("cn_car", trans, func(ut ut.Translator) error {
 		switch lang {
@@ -101,6 +107,7 @@ func createValidateWithCustomValidations(lang i18n.Language, trans ut.Translator
 		t, _ := ut.T("cn_car", fe.Value().(string), fe.Param())
 		return t
 	})
+
 	_ = validate.RegisterValidation("d_end_with_zero", decimalEndWithZero)
 	validate.RegisterTranslation("d_end_with_zero", trans, func(ut ut.Translator) error {
 		switch lang {
@@ -115,6 +122,22 @@ func createValidateWithCustomValidations(lang i18n.Language, trans ut.Translator
 		t, _ := ut.T("d_end_with_zero", fe.Value().(string), fe.Param())
 		return t
 	})
+
+	_ = validate.RegisterValidation("no_trimming_spaces", noTrimmingSpaces)
+	validate.RegisterTranslation("no_trimming_spaces", trans, func(ut ut.Translator) error {
+		switch lang {
+		case i18n.LanguageChinese:
+			return ut.Add("no_trimming_spaces", "{0}开头结尾不能有空格", true)
+		case i18n.LanguageEnglish:
+			return ut.Add("no_trimming_spaces", "{0} can not start with or end with spaces", true)
+		default:
+			return ut.Add("no_trimming_spaces", "{0} can not start with or end with spaces", true)
+		}
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("d_end_with_zero", fe.Value().(string), fe.Param())
+		return t
+	})
+
 	return validate
 }
 
@@ -230,4 +253,12 @@ func decimalEndWithZero(fl validator.FieldLevel) bool {
 	}
 	str := value.String()
 	return strings.HasSuffix(str, "0")
+}
+
+func noTrimmingSpaces(fl validator.FieldLevel) bool {
+	data, ok := fl.Field().Interface().(string)
+	if !ok {
+		return false
+	}
+	return !strings.HasSuffix(data, " ") && !strings.HasPrefix(data, " ")
 }
