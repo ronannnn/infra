@@ -8,6 +8,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"github.com/go-playground/mold/v4"
+	"github.com/go-playground/mold/v4/modifiers"
 	"github.com/ronannnn/infra/constant"
 	"github.com/ronannnn/infra/i18n"
 	"github.com/ronannnn/infra/msg"
@@ -44,6 +46,7 @@ func NewHttpHandler(
 		log:       log,
 		i18n:      i18n,
 		validator: validator,
+		conform:   modifiers.New(),
 	}
 }
 
@@ -51,14 +54,23 @@ type HttpHandlerImpl struct {
 	log       *zap.SugaredLogger
 	i18n      i18n.I18n
 	validator validator.Validator
+	conform   *mold.Transformer
 }
 
 // Bind bind request
+// return true if bind failed
+// error response is handled by Fail
 func (h *HttpHandlerImpl) Bind(w http.ResponseWriter, r *http.Request, data any) bool {
 	var err error
 	lang := GetLang(r)
 	r = r.WithContext(context.WithValue(r.Context(), constant.CtxKeyAcceptLanguage, lang))
-	if err = render.DefaultDecoder(r, &data); err != nil {
+	// bind
+	if err = render.DefaultDecoder(r, data); err != nil {
+		h.Fail(w, r, msg.NewError(reason.RequestFormatError), err)
+		return true
+	}
+	// conform
+	if err = h.conform.Struct(r.Context(), data); err != nil {
 		h.Fail(w, r, msg.NewError(reason.RequestFormatError), err)
 		return true
 	}
@@ -66,33 +78,27 @@ func (h *HttpHandlerImpl) Bind(w http.ResponseWriter, r *http.Request, data any)
 }
 
 // BindAndCheck bind request and check
+// return true if bind or check failed
+// error response is handled by Fail
 func (h *HttpHandlerImpl) BindAndCheck(w http.ResponseWriter, r *http.Request, data any) bool {
-	var err error
-	lang := GetLang(r)
-	r = r.WithContext(context.WithValue(r.Context(), constant.CtxKeyAcceptLanguage, lang))
-	if err = render.DefaultDecoder(r, &data); err != nil {
-		h.Fail(w, r, msg.NewError(reason.RequestFormatError), err)
+	if h.Bind(w, r, data) {
 		return true
 	}
-	var errFields []*validator.FormErrorField
-	if errFields, err = h.validator.Check(r.Context(), lang, data); err != nil {
+	if errFields, err := h.validator.Check(r.Context(), GetLang(r), data); err != nil {
 		h.Fail(w, r, err, errFields)
 		return true
 	}
 	return false
 }
 
-// BindAndCheck bind request and check
+// BindAndCheckPartial bind request and check
+// return true if bind or partial check failed
+// error response is handled by Fail
 func (h *HttpHandlerImpl) BindAndCheckPartial(w http.ResponseWriter, r *http.Request, data any) bool {
-	var err error
-	lang := GetLang(r)
-	r = r.WithContext(context.WithValue(r.Context(), constant.CtxKeyAcceptLanguage, lang))
-	if err = render.DefaultDecoder(r, &data); err != nil {
-		h.Fail(w, r, msg.NewError(reason.RequestFormatError), err)
+	if h.Bind(w, r, data) {
 		return true
 	}
-	var errFields []*validator.FormErrorField
-	if errFields, err = h.validator.CheckPartial(r.Context(), lang, data); err != nil {
+	if errFields, err := h.validator.CheckPartial(r.Context(), GetLang(r), data); err != nil {
 		h.Fail(w, r, err, errFields)
 		return true
 	}
