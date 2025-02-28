@@ -10,6 +10,7 @@ type DecimalSafe struct {
 
 func (d *DecimalSafe) UnmarshalJSON(decimalBytes []byte) error {
 	if string(decimalBytes) == `""` {
+		d = nil
 		return nil
 	}
 
