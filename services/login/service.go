@@ -36,7 +36,7 @@ type ServiceImpl struct {
 }
 
 func (srv *ServiceImpl) LoginByUsername(ctx context.Context, cmd UsernameCmd) (resp *Result, err error) {
-	var user models.User
+	var user *models.User
 	if user, err = srv.repo.GetByUsername(srv.db, cmd.Username); err == gorm.ErrRecordNotFound {
 		return nil, models.ErrWrongUsernameOrPassword
 	} else if err != nil {
@@ -65,7 +65,7 @@ func (srv *ServiceImpl) Logout(ctx context.Context, userId uint, userAgent strin
 }
 
 func (srv *ServiceImpl) ChangePwd(ctx context.Context, cmd ChangeUserPwdCmd) (err error) {
-	var user models.User
+	var user *models.User
 	if user, err = srv.repo.GetById(srv.db, cmd.UserId); err != nil {
 		return
 	}

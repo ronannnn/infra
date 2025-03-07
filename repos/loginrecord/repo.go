@@ -13,6 +13,6 @@ func New() srv.Repo {
 type repo struct {
 }
 
-func (s repo) Create(tx *gorm.DB, model *models.LoginRecord) error {
+func (r repo) Create(tx *gorm.DB, model *models.LoginRecord) error {
 	return tx.Create(model).Error
 }

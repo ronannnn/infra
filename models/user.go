@@ -39,8 +39,8 @@ type User struct {
 	WechatOpenId  *string `json:"wechatOpenId"`
 	WechatUnionId *string `json:"wechatUnionId"`
 	// permission
-	Roles *[]Role `json:"roles" gorm:"many2many:user_roles;comment:用户角色"`
-	Menus *[]Menu `json:"menus" gorm:"many2many:user_menus;"`
+	Roles []*Role `json:"roles" gorm:"many2many:user_roles;comment:用户角色"`
+	Menus []*Menu `json:"menus" gorm:"many2many:user_menus;"`
 }
 
 func (u User) TableName() string {

@@ -15,29 +15,29 @@ func New() srv.Repo {
 type repo struct {
 }
 
-func (s repo) Create(tx *gorm.DB, model *models.Company) error {
+func (r repo) Create(tx *gorm.DB, model *models.Company) error {
 	return tx.Create(model).Error
 }
 
-func (s repo) Update(tx *gorm.DB, partialUpdatedModel *models.Company) (updatedModel *models.Company, err error) {
+func (r repo) Update(tx *gorm.DB, partialUpdatedModel *models.Company) (updatedModel *models.Company, err error) {
 	if partialUpdatedModel.Id == 0 {
 		return updatedModel, models.ErrUpdatedId
 	}
 	if err = tx.Updates(partialUpdatedModel).Error; err != nil {
 		return
 	}
-	return s.GetById(tx, partialUpdatedModel.Id)
+	return r.GetById(tx, partialUpdatedModel.Id)
 }
 
-func (s repo) DeleteById(tx *gorm.DB, id uint) error {
+func (r repo) DeleteById(tx *gorm.DB, id uint) error {
 	return tx.Delete(&models.Company{}, "id = ?", id).Error
 }
 
-func (s repo) DeleteByIds(tx *gorm.DB, ids []uint) error {
+func (r repo) DeleteByIds(tx *gorm.DB, ids []uint) error {
 	return tx.Delete(&models.Company{}, "id IN ?", ids).Error
 }
 
-func (s repo) List(tx *gorm.DB, menuQuery query.Query) (result response.PageResult, err error) {
+func (r repo) List(tx *gorm.DB, menuQuery query.Query) (result response.PageResult, err error) {
 	var total int64
 	var list []models.Company
 	if err = tx.Model(&models.Company{}).Count(&total).Error; err != nil {
@@ -62,7 +62,7 @@ func (s repo) List(tx *gorm.DB, menuQuery query.Query) (result response.PageResu
 	return
 }
 
-func (s repo) GetById(tx *gorm.DB, id uint) (model *models.Company, err error) {
+func (r repo) GetById(tx *gorm.DB, id uint) (model *models.Company, err error) {
 	err = tx.Preload("Apis").First(&model, "id = ?", id).Error
 	return
 }

@@ -12,13 +12,13 @@ import (
 
 type Repo interface {
 	Create(*gorm.DB, *models.User) error
-	Update(*gorm.DB, *models.User) (models.User, error)
+	Update(*gorm.DB, *models.User) (*models.User, error)
 	DeleteById(*gorm.DB, uint) error
 	DeleteByIds(*gorm.DB, []uint) error
 	List(*gorm.DB, query.Query) (response.PageResult, error)
-	GetById(*gorm.DB, uint) (models.User, error)
-	GetByUsername(*gorm.DB, string) (models.User, error)
-	GetByNickname(*gorm.DB, string) (models.User, error)
+	GetById(*gorm.DB, uint) (*models.User, error)
+	GetByUsername(*gorm.DB, string) (*models.User, error)
+	GetByNickname(*gorm.DB, string) (*models.User, error)
 	ChangePwd(tx *gorm.DB, Id uint, newPwd string) error
 }
 
@@ -47,7 +47,7 @@ func (srv *Service) Create(ctx context.Context, model *models.User) (err error) 
 	return srv.repo.Create(srv.db.WithContext(ctx), model)
 }
 
-func (srv *Service) Update(ctx context.Context, partialUpdatedModel *models.User) (models.User, error) {
+func (srv *Service) Update(ctx context.Context, partialUpdatedModel *models.User) (*models.User, error) {
 	return srv.repo.Update(srv.db.WithContext(ctx), partialUpdatedModel)
 }
 
@@ -63,14 +63,14 @@ func (srv *Service) List(ctx context.Context, query query.Query) (response.PageR
 	return srv.repo.List(srv.db.WithContext(ctx), query)
 }
 
-func (srv *Service) GetById(ctx context.Context, id uint) (models.User, error) {
+func (srv *Service) GetById(ctx context.Context, id uint) (*models.User, error) {
 	return srv.repo.GetById(srv.db.WithContext(ctx), id)
 }
 
-func (srv *Service) GetByNickname(ctx context.Context, nickname string) (models.User, error) {
+func (srv *Service) GetByNickname(ctx context.Context, nickname string) (*models.User, error) {
 	return srv.repo.GetByNickname(srv.db.WithContext(ctx), nickname)
 }
 
-func (srv *Service) GetByUsername(ctx context.Context, username string) (models.User, error) {
+func (srv *Service) GetByUsername(ctx context.Context, username string) (*models.User, error) {
 	return srv.repo.GetByUsername(srv.db.WithContext(ctx), username)
 }
