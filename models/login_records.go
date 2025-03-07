@@ -1,9 +1,8 @@
-package loginrecord
+package models
 
 import (
 	"time"
 
-	"github.com/ronannnn/infra/models"
 	"github.com/ronannnn/infra/utils/useragent"
 )
 
@@ -18,7 +17,7 @@ const (
 )
 
 type LoginRecord struct {
-	models.Base
+	Base
 	UserId          uint                  `json:"userId"`
 	DeviceId        string                `json:"deviceId"` // 前端生成的UUID
 	LoginDeviceType *useragent.DeviceType `json:"loginDeviceType"`

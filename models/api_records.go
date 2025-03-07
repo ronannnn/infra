@@ -1,14 +1,12 @@
-package apirecord
+package models
 
 import (
 	"fmt"
 	"time"
-
-	"github.com/ronannnn/infra/models"
 )
 
 type ApiRecord struct {
-	models.Base
+	Base
 	Path       string
 	Method     string
 	Ip         string

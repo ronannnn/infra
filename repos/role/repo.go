@@ -4,30 +4,22 @@ import (
 	"github.com/ronannnn/infra/models"
 	"github.com/ronannnn/infra/models/request/query"
 	"github.com/ronannnn/infra/models/response"
+	srv "github.com/ronannnn/infra/services/role"
 	"gorm.io/gorm"
 )
 
-type Store interface {
-	Create(tx *gorm.DB, model *models.Role) error
-	Update(tx *gorm.DB, partialUpdatedModel *models.Role) (models.Role, error)
-	DeleteById(tx *gorm.DB, id uint) error
-	DeleteByIds(tx *gorm.DB, ids []uint) error
-	List(tx *gorm.DB, query query.Query) (response.PageResult, error)
-	GetById(tx *gorm.DB, id uint) (models.Role, error)
+func New() srv.Repo {
+	return &repo{}
 }
 
-func ProvideStore() Store {
-	return StoreImpl{}
+type repo struct {
 }
 
-type StoreImpl struct {
-}
-
-func (s StoreImpl) Create(tx *gorm.DB, model *models.Role) error {
+func (s repo) Create(tx *gorm.DB, model *models.Role) error {
 	return tx.Create(model).Error
 }
 
-func (s StoreImpl) Update(tx *gorm.DB, partialUpdatedModel *models.Role) (updatedModel models.Role, err error) {
+func (s repo) Update(tx *gorm.DB, partialUpdatedModel *models.Role) (updatedModel models.Role, err error) {
 	if partialUpdatedModel.Id == 0 {
 		return updatedModel, models.ErrUpdatedId
 	}
@@ -56,15 +48,15 @@ func (s StoreImpl) Update(tx *gorm.DB, partialUpdatedModel *models.Role) (update
 	return s.GetById(tx, partialUpdatedModel.Id)
 }
 
-func (s StoreImpl) DeleteById(tx *gorm.DB, id uint) error {
+func (s repo) DeleteById(tx *gorm.DB, id uint) error {
 	return tx.Delete(&models.Role{}, "id = ?", id).Error
 }
 
-func (s StoreImpl) DeleteByIds(tx *gorm.DB, ids []uint) error {
+func (s repo) DeleteByIds(tx *gorm.DB, ids []uint) error {
 	return tx.Delete(&models.Role{}, "id IN ?", ids).Error
 }
 
-func (s StoreImpl) List(tx *gorm.DB, roleQuery query.Query) (result response.PageResult, err error) {
+func (s repo) List(tx *gorm.DB, roleQuery query.Query) (result response.PageResult, err error) {
 	var total int64
 	var list []models.Role
 	if err = tx.Model(&models.Role{}).Count(&total).Error; err != nil {
@@ -90,7 +82,7 @@ func (s StoreImpl) List(tx *gorm.DB, roleQuery query.Query) (result response.Pag
 	return
 }
 
-func (s StoreImpl) GetById(tx *gorm.DB, id uint) (model models.Role, err error) {
+func (s repo) GetById(tx *gorm.DB, id uint) (model models.Role, err error) {
 	err = tx.Preload("Menus").First(&model, "id = ?", id).Error
 	return
 }

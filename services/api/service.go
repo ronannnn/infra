@@ -9,50 +9,50 @@ import (
 	"gorm.io/gorm"
 )
 
-type Service interface {
-	Create(context.Context, *models.Api) error
-	Update(context.Context, *models.Api) (models.Api, error)
-	DeleteById(context.Context, uint) error
-	DeleteByIds(context.Context, []uint) error
-	List(context.Context, query.Query) (response.PageResult, error)
-	GetById(context.Context, uint) (models.Api, error)
+type Repo interface {
+	Create(*gorm.DB, *models.Api) error
+	Update(*gorm.DB, *models.Api) (*models.Api, error)
+	DeleteById(*gorm.DB, uint) error
+	DeleteByIds(*gorm.DB, []uint) error
+	List(*gorm.DB, query.Query) (response.PageResult, error)
+	GetById(*gorm.DB, uint) (*models.Api, error)
 }
 
 func ProvideService(
-	store Store,
+	repo Repo,
 	db *gorm.DB,
-) Service {
-	return &ServiceImpl{
-		store: store,
-		db:    db,
+) *Service {
+	return &Service{
+		repo: repo,
+		db:   db,
 	}
 }
 
-type ServiceImpl struct {
-	store Store
-	db    *gorm.DB
+type Service struct {
+	repo Repo
+	db   *gorm.DB
 }
 
-func (srv *ServiceImpl) Create(ctx context.Context, model *models.Api) (err error) {
-	return srv.store.create(srv.db, model)
+func (srv *Service) Create(ctx context.Context, model *models.Api) (err error) {
+	return srv.repo.Create(srv.db.WithContext(ctx), model)
 }
 
-func (srv *ServiceImpl) Update(ctx context.Context, partialUpdatedModel *models.Api) (models.Api, error) {
-	return srv.store.update(srv.db, partialUpdatedModel)
+func (srv *Service) Update(ctx context.Context, partialUpdatedModel *models.Api) (*models.Api, error) {
+	return srv.repo.Update(srv.db.WithContext(ctx), partialUpdatedModel)
 }
 
-func (srv *ServiceImpl) DeleteById(ctx context.Context, id uint) error {
-	return srv.store.deleteById(srv.db, id)
+func (srv *Service) DeleteById(ctx context.Context, id uint) error {
+	return srv.repo.DeleteById(srv.db.WithContext(ctx), id)
 }
 
-func (srv *ServiceImpl) DeleteByIds(ctx context.Context, ids []uint) error {
-	return srv.store.deleteByIds(srv.db, ids)
+func (srv *Service) DeleteByIds(ctx context.Context, ids []uint) error {
+	return srv.repo.DeleteByIds(srv.db.WithContext(ctx), ids)
 }
 
-func (srv *ServiceImpl) List(ctx context.Context, query query.Query) (response.PageResult, error) {
-	return srv.store.list(srv.db, query)
+func (srv *Service) List(ctx context.Context, query query.Query) (response.PageResult, error) {
+	return srv.repo.List(srv.db.WithContext(ctx), query)
 }
 
-func (srv *ServiceImpl) GetById(ctx context.Context, id uint) (models.Api, error) {
-	return srv.store.getById(srv.db, id)
+func (srv *Service) GetById(ctx context.Context, id uint) (*models.Api, error) {
+	return srv.repo.GetById(srv.db.WithContext(ctx), id)
 }

@@ -1,41 +1,47 @@
 package apirecord
 
-import "gorm.io/gorm"
+import (
+	"context"
 
-type Service interface {
-	Create(model *ApiRecord) error
-	Update(partialUpdatedModel *ApiRecord) (ApiRecord, error)
-	DeleteById(id uint) error
-	DeleteByIds(ids []uint) error
+	"github.com/ronannnn/infra/models"
+	"gorm.io/gorm"
+)
+
+type Repo interface {
+	Create(*gorm.DB, *models.ApiRecord) error
+	Update(*gorm.DB, *models.ApiRecord) (*models.ApiRecord, error)
+	DeleteById(*gorm.DB, uint) error
+	DeleteByIds(*gorm.DB, []uint) error
+	GetById(*gorm.DB, uint) (*models.ApiRecord, error)
 }
 
 func ProvideService(
-	store Store,
+	repo Repo,
 	db *gorm.DB,
-) Service {
-	return &ServiceImpl{
-		store: store,
-		db:    db,
+) *Service {
+	return &Service{
+		repo: repo,
+		db:   db,
 	}
 }
 
-type ServiceImpl struct {
-	store Store
-	db    *gorm.DB
+type Service struct {
+	repo Repo
+	db   *gorm.DB
 }
 
-func (srv *ServiceImpl) Create(model *ApiRecord) error {
-	return srv.store.create(srv.db, model)
+func (srv *Service) Create(ctx context.Context, model *models.ApiRecord) error {
+	return srv.repo.Create(srv.db.WithContext(ctx), model)
 }
 
-func (srv *ServiceImpl) Update(partialUpdatedModel *ApiRecord) (updatedModel ApiRecord, err error) {
-	return srv.store.update(srv.db, partialUpdatedModel)
+func (srv *Service) Update(ctx context.Context, partialUpdatedModel *models.ApiRecord) (updatedModel *models.ApiRecord, err error) {
+	return srv.repo.Update(srv.db.WithContext(ctx), partialUpdatedModel)
 }
 
-func (srv *ServiceImpl) DeleteById(id uint) error {
-	return srv.store.deleteById(srv.db, id)
+func (srv *Service) DeleteById(ctx context.Context, id uint) error {
+	return srv.repo.DeleteById(srv.db.WithContext(ctx), id)
 }
 
-func (srv *ServiceImpl) DeleteByIds(ids []uint) error {
-	return srv.store.deleteByIds(srv.db, ids)
+func (srv *Service) DeleteByIds(ctx context.Context, ids []uint) error {
+	return srv.repo.DeleteByIds(srv.db.WithContext(ctx), ids)
 }

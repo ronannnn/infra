@@ -10,66 +10,67 @@ import (
 	"gorm.io/gorm"
 )
 
-type Service interface {
-	Create(context.Context, *models.User) error
-	Update(ctx context.Context, partialUpdatedModel *models.User) (models.User, error)
-	DeleteById(ctx context.Context, id uint) error
-	DeleteByIds(ctx context.Context, ids []uint) error
-	List(ctx context.Context, query query.Query) (response.PageResult, error)
-	GetById(ctx context.Context, id uint) (models.User, error)
-	GetByNickname(ctx context.Context, nickname string) (models.User, error)
-	GetByUsername(ctx context.Context, username string) (models.User, error)
+type Repo interface {
+	Create(*gorm.DB, *models.User) error
+	Update(*gorm.DB, *models.User) (models.User, error)
+	DeleteById(*gorm.DB, uint) error
+	DeleteByIds(*gorm.DB, []uint) error
+	List(*gorm.DB, query.Query) (response.PageResult, error)
+	GetById(*gorm.DB, uint) (models.User, error)
+	GetByUsername(*gorm.DB, string) (models.User, error)
+	GetByNickname(*gorm.DB, string) (models.User, error)
+	ChangePwd(tx *gorm.DB, Id uint, newPwd string) error
 }
 
 func ProvideService(
-	db *gorm.DB,
 	cfg *cfg.User,
-	store Store,
-) Service {
-	return &ServiceImpl{
-		db:    db,
-		cfg:   cfg,
-		store: store,
+	db *gorm.DB,
+	repo Repo,
+) *Service {
+	return &Service{
+		db:   db,
+		cfg:  cfg,
+		repo: repo,
 	}
 }
 
-type ServiceImpl struct {
-	db    *gorm.DB
-	cfg   *cfg.User
-	store Store
+type Service struct {
+	cfg  *cfg.User
+	db   *gorm.DB
+	repo Repo
 }
 
-func (srv *ServiceImpl) Create(ctx context.Context, model *models.User) (err error) {
+func (srv *Service) Create(ctx context.Context, model *models.User) (err error) {
 	if model.Password == nil {
 		model.Password = &srv.cfg.DefaultHashedPassword
 	}
-	return srv.store.Create(srv.db, model)
+	return srv.repo.Create(srv.db.WithContext(ctx), model)
 }
 
-func (srv *ServiceImpl) Update(ctx context.Context, partialUpdatedModel *models.User) (models.User, error) {
-	return srv.store.Update(srv.db, partialUpdatedModel)
+func (srv *Service) Update(ctx context.Context, partialUpdatedModel *models.User) (models.User, error) {
+	return srv.repo.Update(srv.db.WithContext(ctx), partialUpdatedModel)
 }
 
-func (srv *ServiceImpl) DeleteById(ctx context.Context, id uint) error {
-	return srv.store.DeleteById(srv.db, id)
+func (srv *Service) DeleteById(ctx context.Context, id uint) error {
+	return srv.repo.DeleteById(srv.db.WithContext(ctx), id)
 }
 
-func (srv *ServiceImpl) DeleteByIds(ctx context.Context, ids []uint) error {
-	return srv.store.DeleteByIds(srv.db, ids)
+func (srv *Service) DeleteByIds(ctx context.Context, ids []uint) error {
+	return srv.repo.DeleteByIds(srv.db.WithContext(ctx), ids)
 }
 
-func (srv *ServiceImpl) List(ctx context.Context, query query.Query) (response.PageResult, error) {
-	return srv.store.List(srv.db, query)
+func (srv *Service) List(ctx context.Context, query query.Query) (response.PageResult, error) {
+	return srv.repo.List(srv.db.WithContext(ctx), query)
 }
 
-func (srv *ServiceImpl) GetById(ctx context.Context, id uint) (models.User, error) {
-	return srv.store.GetById(srv.db, id)
+func (srv *Service) GetById(ctx context.Context, id uint) (models.User, error) {
+	return srv.repo.GetById(srv.db.WithContext(ctx), id)
 }
 
-func (srv *ServiceImpl) GetByNickname(ctx context.Context, nickname string) (models.User, error) {
-	return srv.store.GetByNickname(srv.db, nickname)
+func (srv *Service) GetByNickname(ctx context.Context, nickname string) (models.User, error) {
+	return srv.repo.GetByNickname(srv.db.WithContext(ctx), nickname)
 }
 
-func (srv *ServiceImpl) GetByUsername(ctx context.Context, username string) (models.User, error) {
-	return srv.store.GetByUsername(srv.db, username)
+func (srv *Service) GetByUsername(ctx context.Context, username string) (models.User, error) {
+	return srv.repo.GetByUsername(srv.db.WithContext(ctx), username)
 }

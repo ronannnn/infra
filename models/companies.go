@@ -1,9 +1,7 @@
-package company
-
-import "github.com/ronannnn/infra/models"
+package models
 
 type Company struct {
-	models.Base
+	Base
 	Name string `json:"name"`
 }
 
@@ -12,5 +10,5 @@ func (Company) TableName() string {
 }
 
 func (c Company) FieldColMapper() map[string]string {
-	return models.CamelToSnakeFromStruct(c)
+	return CamelToSnakeFromStruct(c)
 }

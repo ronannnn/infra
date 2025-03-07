@@ -19,25 +19,25 @@ type Service interface {
 
 func ProvideService(
 	db *gorm.DB,
-	store user.Store,
+	repo user.Repo,
 	jwtService jwt.Service,
 ) Service {
 	return &ServiceImpl{
 		db:         db,
-		store:      store,
+		repo:       repo,
 		jwtService: jwtService,
 	}
 }
 
 type ServiceImpl struct {
 	db         *gorm.DB
-	store      user.Store
+	repo       user.Repo
 	jwtService jwt.Service
 }
 
 func (srv *ServiceImpl) LoginByUsername(ctx context.Context, cmd UsernameCmd) (resp *Result, err error) {
 	var user models.User
-	if user, err = srv.store.GetByUsername(srv.db, cmd.Username); err == gorm.ErrRecordNotFound {
+	if user, err = srv.repo.GetByUsername(srv.db, cmd.Username); err == gorm.ErrRecordNotFound {
 		return nil, models.ErrWrongUsernameOrPassword
 	} else if err != nil {
 		return
@@ -66,7 +66,7 @@ func (srv *ServiceImpl) Logout(ctx context.Context, userId uint, userAgent strin
 
 func (srv *ServiceImpl) ChangePwd(ctx context.Context, cmd ChangeUserPwdCmd) (err error) {
 	var user models.User
-	if user, err = srv.store.GetById(srv.db, cmd.UserId); err != nil {
+	if user, err = srv.repo.GetById(srv.db, cmd.UserId); err != nil {
 		return
 	}
 	if !CheckPassword(*user.Password, cmd.OldPwd) {
@@ -76,5 +76,5 @@ func (srv *ServiceImpl) ChangePwd(ctx context.Context, cmd ChangeUserPwdCmd) (er
 	if hashedNewPwd, err = HashPassword(cmd.NewPwd); err != nil {
 		return
 	}
-	return srv.store.ChangePwd(srv.db, cmd.UserId, hashedNewPwd)
+	return srv.repo.ChangePwd(srv.db, cmd.UserId, hashedNewPwd)
 }

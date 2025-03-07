@@ -1,28 +1,29 @@
 package loginrecord
 
 import (
+	"github.com/ronannnn/infra/models"
 	"gorm.io/gorm"
 )
 
-type Service interface {
-	Create(model *LoginRecord) error
+type Repo interface {
+	Create(*gorm.DB, *models.LoginRecord) error
 }
 
 func ProvideService(
 	db *gorm.DB,
-	store Store,
-) Service {
-	return &ServiceImpl{
-		db:    db,
-		store: store,
+	repo Repo,
+) *Service {
+	return &Service{
+		db:   db,
+		repo: repo,
 	}
 }
 
-type ServiceImpl struct {
-	db    *gorm.DB
-	store Store
+type Service struct {
+	db   *gorm.DB
+	repo Repo
 }
 
-func (srv *ServiceImpl) Create(model *LoginRecord) (err error) {
-	return srv.store.Create(srv.db, model)
+func (srv *Service) Create(model *models.LoginRecord) (err error) {
+	return srv.repo.Create(srv.db, model)
 }
