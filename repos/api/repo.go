@@ -8,9 +8,7 @@ import (
 )
 
 func New() srv.Repo {
-	return &repo{
-		repos.NewDefaultCrudRepo[*models.Api](),
-	}
+	return &repo{}
 }
 
 type repo struct {

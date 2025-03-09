@@ -16,8 +16,7 @@ func New(
 	apiRepo api.Repo,
 ) srv.Repo {
 	return &repo{
-		DefaultCrudRepo: repos.NewDefaultCrudRepo[*models.Menu](),
-		apiRepo:         apiRepo,
+		apiRepo: apiRepo,
 	}
 }
 

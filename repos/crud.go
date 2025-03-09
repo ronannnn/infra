@@ -14,10 +14,6 @@ import (
 // DefaultCrudRepo is a default implementation of the Services.Crud interface
 type DefaultCrudRepo[T models.Crudable] struct{}
 
-func NewDefaultCrudRepo[T models.Crudable]() DefaultCrudRepo[T] {
-	return DefaultCrudRepo[T]{}
-}
-
 func (crud DefaultCrudRepo[T]) Create(ctx context.Context, tx *gorm.DB, model T) error {
 	return tx.WithContext(ctx).Create(model).Error
 }
