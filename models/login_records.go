@@ -6,14 +6,14 @@ import (
 	"github.com/ronannnn/infra/utils/useragent"
 )
 
-type Status int
+type LoginStatus int
 
 const (
-	StatusSuccess Status = iota + 1
-	StatusFailed
-	StatusDupLogin
-	StatusErrUsernameOrPassword
-	StatusErrUserNotExists
+	LoginStatusSuccess LoginStatus = iota + 1
+	LoginStatusFailed
+	LoginStatusDupLogin
+	LoginStatusErrUsernameOrPassword
+	LoginStatusErrUserNotExists
 )
 
 type LoginRecord struct {
@@ -24,7 +24,7 @@ type LoginRecord struct {
 	LoginTime       time.Time             `json:"loginTime"`
 	Ip              string                `json:"ip"`
 	UserAgent       string                `json:"userAgent"`
-	Status          Status                `json:"status"`
+	Status          LoginStatus           `json:"status"`
 	LoginType       string                `json:"loginType"` // 对应User.LoginType
 }
 

@@ -6,7 +6,7 @@ import (
 	srv "github.com/ronannnn/infra/services/apirecord"
 )
 
-func ProvideStore() srv.Repo {
+func New() srv.Repo {
 	return &repo{
 		repos.NewDefaultCrudRepo[*models.ApiRecord](),
 	}
