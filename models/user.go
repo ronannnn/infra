@@ -51,6 +51,10 @@ func (u User) FieldColMapper() map[string]string {
 	return CamelToSnakeFromStruct(u)
 }
 
+func (u User) GetId() uint {
+	return u.Id
+}
+
 func (u *User) GetOprFromReq(r *http.Request) {
 	oprId := r.Context().Value(constant.CtxKeyUserId)
 	if oprId != nil {

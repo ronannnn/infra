@@ -27,3 +27,7 @@ type LoginRecord struct {
 	Status          Status                `json:"status"`
 	LoginType       string                `json:"loginType"` // 对应User.LoginType
 }
+
+func (LoginRecord) TableName() string {
+	return "login_records"
+}

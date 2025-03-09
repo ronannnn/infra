@@ -2,38 +2,44 @@ package role
 
 import (
 	"github.com/ronannnn/infra/models"
-	"github.com/ronannnn/infra/models/request/query"
-	"github.com/ronannnn/infra/models/response"
+	"github.com/ronannnn/infra/msg"
+	"github.com/ronannnn/infra/reason"
+	"github.com/ronannnn/infra/repos"
+	"github.com/ronannnn/infra/services/menu"
 	srv "github.com/ronannnn/infra/services/role"
 	"gorm.io/gorm"
 )
 
-func New() srv.Repo {
-	return &repo{}
+func New(
+	menuRepo menu.Repo,
+) srv.Repo {
+	return &repo{
+		DefaultCrudRepo: repos.NewDefaultCrudRepo[models.Role](),
+		menuRepo:        menuRepo,
+	}
 }
 
 type repo struct {
+	repos.DefaultCrudRepo[models.Role]
+	menuRepo menu.Repo
 }
 
-func (r repo) Create(tx *gorm.DB, model *models.Role) error {
-	return tx.Create(model).Error
-}
-
-func (r repo) Update(tx *gorm.DB, partialUpdatedModel *models.Role) (updatedModel models.Role, err error) {
+func (r repo) Update(tx *gorm.DB, partialUpdatedModel *models.Role) (updatedModel *models.Role, err error) {
 	if partialUpdatedModel.Id == 0 {
 		return updatedModel, models.ErrUpdatedId
 	}
 	if err = tx.Transaction(func(tx *gorm.DB) (err error) {
-		// update associations with Associations()
 		if partialUpdatedModel.Menus != nil {
-			if err = tx.Model(partialUpdatedModel).Association("Menus").Replace(partialUpdatedModel.Menus); err != nil {
-				return err
+			if err = tx.Model(partialUpdatedModel).Association("Menus").Unscoped().Replace(partialUpdatedModel.Menus); err != nil {
+				return msg.NewError(reason.DatabaseError).WithError(err).WithStack()
 			}
-			// set associations to nil to avoid Updates() below,
+			for _, item := range partialUpdatedModel.Menus {
+				if _, err = r.menuRepo.Update(tx, item); err != nil {
+					return msg.NewError(reason.DatabaseError).WithError(err).WithStack()
+				}
+			}
 			partialUpdatedModel.Menus = nil
 		}
-		// update all other non-associations
-		// if no other fields are updated, it still update the version so no error will occur
 		result := tx.Updates(partialUpdatedModel)
 		if result.Error != nil {
 			return result.Error
@@ -48,41 +54,9 @@ func (r repo) Update(tx *gorm.DB, partialUpdatedModel *models.Role) (updatedMode
 	return r.GetById(tx, partialUpdatedModel.Id)
 }
 
-func (r repo) DeleteById(tx *gorm.DB, id uint) error {
-	return tx.Delete(&models.Role{}, "id = ?", id).Error
-}
-
-func (r repo) DeleteByIds(tx *gorm.DB, ids []uint) error {
-	return tx.Delete(&models.Role{}, "id IN ?", ids).Error
-}
-
-func (r repo) List(tx *gorm.DB, roleQuery query.Query) (result response.PageResult, err error) {
-	var total int64
-	var list []models.Role
-	if err = tx.Model(&models.Role{}).Count(&total).Error; err != nil {
-		return
+func (r repo) Preload() func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		db = db.Preload("Menus")
+		return db
 	}
-	queryScope, err := query.MakeConditionFromQuery(roleQuery, models.Role{})
-	if err != nil {
-		return
-	}
-	if err = tx.
-		Scopes(queryScope).
-		Scopes(query.Paginate(roleQuery.Pagination)).
-		Preload("Menus").
-		Find(&list).Error; err != nil {
-		return
-	}
-	result = response.PageResult{
-		List:     list,
-		Total:    total,
-		PageNum:  roleQuery.Pagination.PageNum,
-		PageSize: roleQuery.Pagination.PageSize,
-	}
-	return
-}
-
-func (r repo) GetById(tx *gorm.DB, id uint) (model models.Role, err error) {
-	err = tx.Preload("Menus").First(&model, "id = ?", id).Error
-	return
 }

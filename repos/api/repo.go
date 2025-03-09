@@ -1,73 +1,18 @@
 package api
 
 import (
+	"github.com/ronannnn/infra/repos"
 	srv "github.com/ronannnn/infra/services/api"
 
 	"github.com/ronannnn/infra/models"
-	"github.com/ronannnn/infra/models/request/query"
-	"github.com/ronannnn/infra/models/response"
-	"gorm.io/gorm"
 )
 
 func New() srv.Repo {
-	return &repo{}
+	return &repo{
+		repos.NewDefaultCrudRepo[models.Api](),
+	}
 }
 
 type repo struct {
-}
-
-func (r repo) Create(tx *gorm.DB, model *models.Api) error {
-	return tx.Create(model).Error
-}
-
-func (r repo) Update(tx *gorm.DB, partialUpdatedModel *models.Api) (updatedModel *models.Api, err error) {
-	if partialUpdatedModel.Id == 0 {
-		return updatedModel, models.ErrUpdatedId
-	}
-	result := tx.Updates(partialUpdatedModel)
-	if result.Error != nil {
-		return updatedModel, result.Error
-	}
-	if result.RowsAffected == 0 {
-		return updatedModel, models.ErrModified("models.Api")
-	}
-	return r.GetById(tx, partialUpdatedModel.Id)
-}
-
-func (r repo) DeleteById(tx *gorm.DB, id uint) error {
-	return tx.Delete(&models.Api{}, "id = ?", id).Error
-}
-
-func (r repo) DeleteByIds(tx *gorm.DB, ids []uint) error {
-	return tx.Delete(&models.Api{}, "id IN ?", ids).Error
-}
-
-func (r repo) List(tx *gorm.DB, apiQuery query.Query) (result response.PageResult, err error) {
-	var total int64
-	var list []models.Api
-	if err = tx.Model(&models.Api{}).Count(&total).Error; err != nil {
-		return
-	}
-	queryScope, err := query.MakeConditionFromQuery(apiQuery, models.Api{})
-	if err != nil {
-		return
-	}
-	if err = tx.
-		Scopes(queryScope).
-		Scopes(query.Paginate(apiQuery.Pagination)).
-		Find(&list).Error; err != nil {
-		return
-	}
-	result = response.PageResult{
-		List:     list,
-		Total:    total,
-		PageNum:  apiQuery.Pagination.PageNum,
-		PageSize: apiQuery.Pagination.PageSize,
-	}
-	return
-}
-
-func (r repo) GetById(tx *gorm.DB, id uint) (model *models.Api, err error) {
-	err = tx.First(model, "id = ?", id).Error
-	return
+	repos.DefaultCrudRepo[models.Api]
 }

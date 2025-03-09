@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ronannnn/infra/constant"
+	"github.com/ronannnn/infra/models/request/query"
 	"github.com/ronannnn/infra/utils"
 	"gorm.io/gorm"
 	"gorm.io/plugin/optimisticlock"
@@ -19,6 +20,23 @@ var (
 		return fmt.Errorf("[%s] data modified by others, please refresh the page", model)
 	}
 )
+
+type Base struct {
+	BaseModel          // 包含Id等基础字段
+	OprBy              // 包含创建和更新等有User Scopes的数据
+	DefaultQuerySetter // 包含默认的FieldColMapper，用于query
+}
+
+// 用于Services.Crud[T]接口
+type Crudable interface {
+	Identifiable
+	query.QuerySetter
+}
+
+// 主要用于Crud的Update方法中判断Id是否为0
+type Identifiable interface {
+	GetId() uint
+}
 
 type BaseModel struct {
 	Id        uint                   `json:"id" gorm:"primaryKey;autoIncrement:true"`
@@ -32,9 +50,8 @@ func (b *BaseModel) SetId(id uint) {
 	b.Id = id
 }
 
-type Base struct {
-	BaseModel
-	OprBy
+func (b BaseModel) GetId() uint {
+	return b.Id
 }
 
 type OprBy struct {
@@ -61,6 +78,12 @@ func (o *OprBy) GetUpdaterFromReq(r *http.Request) {
 			o.UpdatedBy = convertedOprId
 		}
 	}
+}
+
+type DefaultQuerySetter struct{}
+
+func (d DefaultQuerySetter) FieldColMapper() map[string]string {
+	return CamelToSnakeFromStruct(d)
 }
 
 func GetOprFromReq(r *http.Request) OprBy {
@@ -107,7 +130,7 @@ func CamelToSnakeFromStruct(obj any) map[string]string {
 func getJsonTagsFromStruct(obj any, fields *[]string) {
 	structType := reflect.TypeOf(obj)
 	structValue := reflect.ValueOf(obj)
-	for i := 0; i < structType.NumField(); i++ {
+	for i := range structType.NumField() {
 		jsonTag, jsonTagOk := structType.Field(i).Tag.Lookup("json")
 		if !jsonTagOk {
 			getJsonTagsFromStruct(structValue.Field(i).Interface(), fields)

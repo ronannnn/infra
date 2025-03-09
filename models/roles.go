@@ -6,7 +6,7 @@ type Role struct {
 	Permission *string `json:"permission"` // 角色权限标识符
 	Disabled   *bool   `json:"disabled"`   // 角色是否禁用
 	Remark     *string `json:"remark"`     // 备注
-	Menus      *[]Menu `json:"menus" gorm:"many2many:role_menus;"`
+	Menus      []*Menu `json:"menus" gorm:"many2many:role_menus;"`
 }
 
 func (Role) TableName() string {

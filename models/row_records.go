@@ -7,11 +7,15 @@ import (
 
 type RowRecord struct {
 	Base
-	TableName string `json:"-"`
-	RowId     uint   `json:"rowId"`
-	Key       string `json:"key"`
-	OldValue  string `json:"oldValue" gorm:"type:text"`
-	NewValue  string `json:"newValue" gorm:"type:text"`
+	Table    string `json:"-"`
+	RowId    uint   `json:"rowId"`
+	Key      string `json:"key"`
+	OldValue string `json:"oldValue" gorm:"type:text"`
+	NewValue string `json:"newValue" gorm:"type:text"`
+}
+
+func (RowRecord) TableName() string {
+	return "row_records"
 }
 
 type rowRecordHelper struct {
@@ -22,12 +26,12 @@ type rowRecordHelper struct {
 
 func (trh *rowRecordHelper) record(key string, oldValue any, newValue any, oprId uint) {
 	trh.Records = append(trh.Records, RowRecord{
-		Base:      Base{OprBy: OprBy{CreatedBy: oprId, UpdatedBy: oprId}},
-		TableName: trh.TableName,
-		RowId:     trh.RowId,
-		Key:       key,
-		OldValue:  fmt.Sprintf("%v", oldValue),
-		NewValue:  fmt.Sprintf("%v", newValue),
+		Base:     Base{OprBy: OprBy{CreatedBy: oprId, UpdatedBy: oprId}},
+		Table:    trh.TableName,
+		RowId:    trh.RowId,
+		Key:      key,
+		OldValue: fmt.Sprintf("%v", oldValue),
+		NewValue: fmt.Sprintf("%v", newValue),
 	})
 }
 

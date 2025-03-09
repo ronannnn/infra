@@ -15,6 +15,10 @@ type ApiRecord struct {
 	StatusCode int
 }
 
+func (ApiRecord) TableName() string {
+	return "api_records"
+}
+
 func (model *ApiRecord) String() string {
 	return fmt.Sprintf("[%s %s %3d] from %s by %d in %f sec %s",
 		model.Method,

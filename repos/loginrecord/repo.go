@@ -2,17 +2,16 @@ package loginrecord
 
 import (
 	"github.com/ronannnn/infra/models"
+	"github.com/ronannnn/infra/repos"
 	srv "github.com/ronannnn/infra/services/loginrecord"
-	"gorm.io/gorm"
 )
 
 func New() srv.Repo {
-	return &repo{}
+	return &repo{
+		repos.NewDefaultCrudRepo[models.LoginRecord](),
+	}
 }
 
 type repo struct {
-}
-
-func (r repo) Create(tx *gorm.DB, model *models.LoginRecord) error {
-	return tx.Create(model).Error
+	repos.DefaultCrudRepo[models.LoginRecord]
 }
