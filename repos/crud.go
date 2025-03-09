@@ -1,6 +1,8 @@
 package repos
 
 import (
+	"context"
+
 	"github.com/ronannnn/infra/models"
 	"github.com/ronannnn/infra/models/request/query"
 	"github.com/ronannnn/infra/models/response"
@@ -16,22 +18,22 @@ func NewDefaultCrudRepo[T models.Crudable]() DefaultCrudRepo[T] {
 	return DefaultCrudRepo[T]{}
 }
 
-func (crud DefaultCrudRepo[T]) Create(tx *gorm.DB, model *T) error {
-	return tx.Create(model).Error
+func (crud DefaultCrudRepo[T]) Create(ctx context.Context, tx *gorm.DB, model T) error {
+	return tx.WithContext(ctx).Create(model).Error
 }
 
-func (crud DefaultCrudRepo[T]) CreateWithScopes(tx *gorm.DB, model *T) (updatedModel *T, err error) {
-	if err = tx.Create(model).Error; err != nil {
+func (crud DefaultCrudRepo[T]) CreateWithScopes(ctx context.Context, tx *gorm.DB, model T) (updatedModel T, err error) {
+	if err = tx.WithContext(ctx).Create(model).Error; err != nil {
 		return
 	}
-	return crud.GetById(tx, (*model).GetId())
+	return crud.GetById(ctx, tx, model.GetId())
 }
 
-func (crud DefaultCrudRepo[T]) Update(tx *gorm.DB, partialUpdatedModel *T) (updatedModel *T, err error) {
-	if partialUpdatedModel == nil || (*partialUpdatedModel).GetId() == 0 {
+func (crud DefaultCrudRepo[T]) Update(ctx context.Context, tx *gorm.DB, partialUpdatedModel T) (updatedModel T, err error) {
+	if partialUpdatedModel.GetId() == 0 {
 		return updatedModel, msg.NewError(reason.DbModelUpdatedIdCannotBeZero).WithStack()
 	}
-	err = tx.Transaction(func(tx2 *gorm.DB) (err error) {
+	err = tx.WithContext(ctx).Transaction(func(tx2 *gorm.DB) (err error) {
 		// update associations with Associations()
 		// ...
 		// update all other non-associations
@@ -43,41 +45,50 @@ func (crud DefaultCrudRepo[T]) Update(tx *gorm.DB, partialUpdatedModel *T) (upda
 		if result.RowsAffected == 0 {
 			return msg.NewError(reason.DbModelAlreadyUpdatedByOthers).WithStack()
 		}
-		updatedModel, err = crud.GetById(tx2, (*partialUpdatedModel).GetId())
+		updatedModel, err = crud.GetById(ctx, tx2, partialUpdatedModel.GetId())
 		return
 	})
 	return
 }
 
-func (crud DefaultCrudRepo[T]) DeleteById(tx *gorm.DB, id uint) error {
-	var t T
-	return tx.Delete(&t, "id = ?", id).Error
+func (crud DefaultCrudRepo[T]) DeleteById(ctx context.Context, tx *gorm.DB, id uint) error {
+	return tx.WithContext(ctx).Transaction(func(tx2 *gorm.DB) (err error) {
+		var t T
+		if err = tx2.Delete(&t, "id = ?", id).Error; err != nil {
+			return msg.NewError(reason.DatabaseError).WithError(err).WithStack()
+		}
+		return
+	})
 }
 
-func (crud DefaultCrudRepo[T]) DeleteByIds(tx *gorm.DB, ids []uint) error {
+func (crud DefaultCrudRepo[T]) DeleteByIds(ctx context.Context, tx *gorm.DB, ids []uint) (err error) {
 	var t T
-	return tx.Delete(&t, "id IN ?", ids).Error
+	if err = tx.WithContext(ctx).WithContext(ctx).Delete(&t, "id IN ?", ids).Error; err != nil {
+		return msg.NewError(reason.DatabaseError).WithError(err).WithStack()
+	}
+	return
 }
 
-func (crud DefaultCrudRepo[T]) List(tx *gorm.DB, apiQuery query.Query) (result response.PageResult, err error) {
+func (crud DefaultCrudRepo[T]) List(ctx context.Context, tx *gorm.DB, apiQuery query.Query) (result *response.PageResult, err error) {
+	txWithCtx := tx.WithContext(ctx)
 	var t T
 	var total int64
 	var list []T
-	if err = tx.Model(&t).Count(&total).Error; err != nil {
+	if err = txWithCtx.Model(&t).Count(&total).Error; err != nil {
 		return
 	}
 	queryScope, err := query.MakeConditionFromQuery(apiQuery, t)
 	if err != nil {
-		return
+		return nil, msg.NewError(reason.DatabaseError).WithError(err).WithStack()
 	}
-	if err = tx.
+	if err = txWithCtx.
 		Scopes(crud.Preload()).
 		Scopes(queryScope).
 		Scopes(query.Paginate(apiQuery.Pagination)).
 		Find(&list).Error; err != nil {
-		return
+		return nil, msg.NewError(reason.DatabaseError).WithError(err).WithStack()
 	}
-	result = response.PageResult{
+	result = &response.PageResult{
 		List:     list,
 		Total:    total,
 		PageNum:  apiQuery.Pagination.PageNum,
@@ -86,8 +97,18 @@ func (crud DefaultCrudRepo[T]) List(tx *gorm.DB, apiQuery query.Query) (result r
 	return
 }
 
-func (crud DefaultCrudRepo[T]) GetById(tx *gorm.DB, id uint) (model *T, err error) {
-	err = tx.Scopes(crud.Preload()).First(model, "id = ?", id).Error
+func (crud DefaultCrudRepo[T]) GetById(ctx context.Context, tx *gorm.DB, id uint) (model T, err error) {
+	if err = tx.
+		WithContext(ctx).
+		Scopes(crud.Preload()).
+		First(&model, "id = ?", id).
+		Error; err == gorm.ErrRecordNotFound {
+		err = msg.NewError(reason.DbModelReadIdNotExists).WithReasonTemplateData(reason.IdTd{Id: id}).WithStack()
+		return
+	} else if err != nil {
+		err = msg.NewError(reason.DatabaseError).WithError(err).WithStack()
+		return
+	}
 	return
 }
 

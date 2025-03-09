@@ -18,7 +18,7 @@ func Paginate(pagination Pagination) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-func MakeConditionFromQuery(query Query, setter QuerySetter) (fn func(db *gorm.DB) *gorm.DB, err error) {
+func MakeConditionFromQuery(query Query, setter Setter) (fn func(db *gorm.DB) *gorm.DB, err error) {
 	condition := &DbConditionImpl{}
 	if err = ResolveQuery(query, setter, condition); err != nil {
 		return

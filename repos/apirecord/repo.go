@@ -8,10 +8,10 @@ import (
 
 func ProvideStore() srv.Repo {
 	return &repo{
-		repos.NewDefaultCrudRepo[models.ApiRecord](),
+		repos.NewDefaultCrudRepo[*models.ApiRecord](),
 	}
 }
 
 type repo struct {
-	repos.DefaultCrudRepo[models.ApiRecord]
+	repos.DefaultCrudRepo[*models.ApiRecord]
 }

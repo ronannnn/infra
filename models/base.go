@@ -30,11 +30,12 @@ type Base struct {
 // 用于Services.Crud[T]接口
 type Crudable interface {
 	Identifiable
-	query.QuerySetter
+	query.Setter
 }
 
 // 主要用于Crud的Update方法中判断Id是否为0
 type Identifiable interface {
+	SetId(uint)
 	GetId() uint
 }
 
@@ -50,7 +51,7 @@ func (b *BaseModel) SetId(id uint) {
 	b.Id = id
 }
 
-func (b BaseModel) GetId() uint {
+func (b *BaseModel) GetId() uint {
 	return b.Id
 }
 
@@ -82,7 +83,7 @@ func (o *OprBy) GetUpdaterFromReq(r *http.Request) {
 
 type DefaultQuerySetter struct{}
 
-func (d DefaultQuerySetter) FieldColMapper() map[string]string {
+func (d *DefaultQuerySetter) FieldColMapper() map[string]string {
 	return CamelToSnakeFromStruct(d)
 }
 

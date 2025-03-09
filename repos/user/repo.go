@@ -1,6 +1,8 @@
 package user
 
 import (
+	"context"
+
 	"github.com/ronannnn/infra/models"
 	"github.com/ronannnn/infra/msg"
 	"github.com/ronannnn/infra/reason"
@@ -16,19 +18,19 @@ func New(
 	roleRepo role.Repo,
 ) srv.Repo {
 	return &repo{
-		DefaultCrudRepo: repos.NewDefaultCrudRepo[models.User](),
+		DefaultCrudRepo: repos.NewDefaultCrudRepo[*models.User](),
 		menuRepo:        menuRepo,
 		roleRepo:        roleRepo,
 	}
 }
 
 type repo struct {
-	repos.DefaultCrudRepo[models.User]
+	repos.DefaultCrudRepo[*models.User]
 	menuRepo menu.Repo
 	roleRepo role.Repo
 }
 
-func (r repo) Update(tx *gorm.DB, partialUpdatedModel *models.User) (updatedModel *models.User, err error) {
+func (r repo) Update(ctx context.Context, tx *gorm.DB, partialUpdatedModel *models.User) (updatedModel *models.User, err error) {
 	if partialUpdatedModel.Id == 0 {
 		return nil, msg.NewError(reason.DbModelUpdatedIdCannotBeZero).WithStack()
 	}
@@ -38,7 +40,7 @@ func (r repo) Update(tx *gorm.DB, partialUpdatedModel *models.User) (updatedMode
 				return msg.NewError(reason.DatabaseError).WithError(err).WithStack()
 			}
 			for _, item := range partialUpdatedModel.Roles {
-				if _, err = r.roleRepo.Update(tx2, item); err != nil {
+				if _, err = r.roleRepo.Update(ctx, tx2, item); err != nil {
 					return msg.NewError(reason.DatabaseError).WithError(err).WithStack()
 				}
 			}
@@ -49,7 +51,7 @@ func (r repo) Update(tx *gorm.DB, partialUpdatedModel *models.User) (updatedMode
 				return msg.NewError(reason.DatabaseError).WithError(err).WithStack()
 			}
 			for _, item := range partialUpdatedModel.Menus {
-				if _, err = r.menuRepo.Update(tx2, item); err != nil {
+				if _, err = r.menuRepo.Update(ctx, tx2, item); err != nil {
 					return msg.NewError(reason.DatabaseError).WithError(err).WithStack()
 				}
 			}
@@ -62,7 +64,7 @@ func (r repo) Update(tx *gorm.DB, partialUpdatedModel *models.User) (updatedMode
 		if result.RowsAffected == 0 {
 			return msg.NewError(reason.DbModelAlreadyUpdatedByOthers).WithStack()
 		}
-		updatedModel, err = r.GetById(tx2, partialUpdatedModel.Id)
+		updatedModel, err = r.GetById(ctx, tx2, partialUpdatedModel.Id)
 		return
 	})
 	return
@@ -78,16 +80,16 @@ func (r repo) Preload() func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-func (r repo) GetByUsername(tx *gorm.DB, username string) (user *models.User, err error) {
-	err = tx.Scopes(r.Preload()).First(&user, &models.User{Username: &username}).Error
+func (r repo) GetByUsername(ctx context.Context, tx *gorm.DB, username string) (user *models.User, err error) {
+	err = tx.WithContext(ctx).Scopes(r.Preload()).First(&user, &models.User{Username: &username}).Error
 	return
 }
 
-func (r repo) GetByNickname(tx *gorm.DB, nickname string) (user *models.User, err error) {
-	err = tx.Scopes(r.Preload()).First(&user, &models.User{Nickname: &nickname}).Error
+func (r repo) GetByNickname(ctx context.Context, tx *gorm.DB, nickname string) (user *models.User, err error) {
+	err = tx.WithContext(ctx).Scopes(r.Preload()).First(&user, &models.User{Nickname: &nickname}).Error
 	return
 }
 
-func (r repo) ChangePwd(tx *gorm.DB, userId uint, newPwd string) error {
-	return tx.Model(&models.User{}).Where("id = ?", userId).Update("password", newPwd).Error
+func (r repo) ChangePwd(ctx context.Context, tx *gorm.DB, userId uint, newPwd string) error {
+	return tx.WithContext(ctx).Model(&models.User{}).Where("id = ?", userId).Update("password", newPwd).Error
 }

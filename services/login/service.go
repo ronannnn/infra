@@ -37,7 +37,7 @@ type ServiceImpl struct {
 
 func (srv *ServiceImpl) LoginByUsername(ctx context.Context, cmd UsernameCmd) (resp *Result, err error) {
 	var user *models.User
-	if user, err = srv.repo.GetByUsername(srv.db, cmd.Username); err == gorm.ErrRecordNotFound {
+	if user, err = srv.repo.GetByUsername(ctx, srv.db, cmd.Username); err == gorm.ErrRecordNotFound {
 		return nil, models.ErrWrongUsernameOrPassword
 	} else if err != nil {
 		return
@@ -66,7 +66,7 @@ func (srv *ServiceImpl) Logout(ctx context.Context, userId uint, userAgent strin
 
 func (srv *ServiceImpl) ChangePwd(ctx context.Context, cmd ChangeUserPwdCmd) (err error) {
 	var user *models.User
-	if user, err = srv.repo.GetById(srv.db, cmd.UserId); err != nil {
+	if user, err = srv.repo.GetById(ctx, srv.db, cmd.UserId); err != nil {
 		return
 	}
 	if !CheckPassword(*user.Password, cmd.OldPwd) {
@@ -76,5 +76,5 @@ func (srv *ServiceImpl) ChangePwd(ctx context.Context, cmd ChangeUserPwdCmd) (er
 	if hashedNewPwd, err = HashPassword(cmd.NewPwd); err != nil {
 		return
 	}
-	return srv.repo.ChangePwd(srv.db, cmd.UserId, hashedNewPwd)
+	return srv.repo.ChangePwd(ctx, srv.db, cmd.UserId, hashedNewPwd)
 }

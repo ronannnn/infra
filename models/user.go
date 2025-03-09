@@ -51,7 +51,11 @@ func (u User) FieldColMapper() map[string]string {
 	return CamelToSnakeFromStruct(u)
 }
 
-func (u User) GetId() uint {
+func (u *User) SetId(id uint) {
+	u.Id = id
+}
+
+func (u *User) GetId() uint {
 	return u.Id
 }
 

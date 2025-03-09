@@ -1,6 +1,8 @@
 package role
 
 import (
+	"context"
+
 	"github.com/ronannnn/infra/models"
 	"github.com/ronannnn/infra/msg"
 	"github.com/ronannnn/infra/reason"
@@ -14,17 +16,17 @@ func New(
 	menuRepo menu.Repo,
 ) srv.Repo {
 	return &repo{
-		DefaultCrudRepo: repos.NewDefaultCrudRepo[models.Role](),
+		DefaultCrudRepo: repos.NewDefaultCrudRepo[*models.Role](),
 		menuRepo:        menuRepo,
 	}
 }
 
 type repo struct {
-	repos.DefaultCrudRepo[models.Role]
+	repos.DefaultCrudRepo[*models.Role]
 	menuRepo menu.Repo
 }
 
-func (r repo) Update(tx *gorm.DB, partialUpdatedModel *models.Role) (updatedModel *models.Role, err error) {
+func (r repo) Update(ctx context.Context, tx *gorm.DB, partialUpdatedModel *models.Role) (updatedModel *models.Role, err error) {
 	if partialUpdatedModel.Id == 0 {
 		return updatedModel, models.ErrUpdatedId
 	}
@@ -34,7 +36,7 @@ func (r repo) Update(tx *gorm.DB, partialUpdatedModel *models.Role) (updatedMode
 				return msg.NewError(reason.DatabaseError).WithError(err).WithStack()
 			}
 			for _, item := range partialUpdatedModel.Menus {
-				if _, err = r.menuRepo.Update(tx, item); err != nil {
+				if _, err = r.menuRepo.Update(ctx, tx, item); err != nil {
 					return msg.NewError(reason.DatabaseError).WithError(err).WithStack()
 				}
 			}
@@ -51,7 +53,7 @@ func (r repo) Update(tx *gorm.DB, partialUpdatedModel *models.Role) (updatedMode
 	}); err != nil {
 		return updatedModel, err
 	}
-	return r.GetById(tx, partialUpdatedModel.Id)
+	return r.GetById(ctx, tx, partialUpdatedModel.Id)
 }
 
 func (r repo) Preload() func(db *gorm.DB) *gorm.DB {

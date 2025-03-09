@@ -8,10 +8,10 @@ import (
 
 func New() srv.Repo {
 	return &repo{
-		repos.NewDefaultCrudRepo[models.Company](),
+		repos.NewDefaultCrudRepo[*models.Company](),
 	}
 }
 
 type repo struct {
-	repos.DefaultCrudRepo[models.Company]
+	repos.DefaultCrudRepo[*models.Company]
 }
