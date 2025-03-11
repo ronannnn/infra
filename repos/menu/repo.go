@@ -16,7 +16,8 @@ func New(
 	apiRepo api.Repo,
 ) srv.Repo {
 	return &repo{
-		apiRepo: apiRepo,
+		DefaultCrudRepo: repos.NewDefaultCrudRepo[*models.Menu]("Apis"),
+		apiRepo:         apiRepo,
 	}
 }
 
@@ -53,11 +54,4 @@ func (r repo) Update(ctx context.Context, tx *gorm.DB, partialUpdatedModel *mode
 		return updatedModel, err
 	}
 	return r.GetById(ctx, tx, partialUpdatedModel.Id)
-}
-
-func (r repo) Preload() func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		db = db.Preload("Apis")
-		return db
-	}
 }

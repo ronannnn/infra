@@ -16,7 +16,8 @@ func New(
 	menuRepo menu.Repo,
 ) srv.Repo {
 	return &repo{
-		menuRepo: menuRepo,
+		DefaultCrudRepo: repos.NewDefaultCrudRepo[*models.Role]("Menus"),
+		menuRepo:        menuRepo,
 	}
 }
 
@@ -53,11 +54,4 @@ func (r repo) Update(ctx context.Context, tx *gorm.DB, partialUpdatedModel *mode
 		return updatedModel, err
 	}
 	return r.GetById(ctx, tx, partialUpdatedModel.Id)
-}
-
-func (r repo) Preload() func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		db = db.Preload("Menus")
-		return db
-	}
 }

@@ -18,6 +18,11 @@ func New(
 	roleRepo role.Repo,
 ) srv.Repo {
 	return &repo{
+		DefaultCrudRepo: repos.NewDefaultCrudRepo[*models.User](
+			"Roles",
+			"Roles.Menus",
+			"Menus",
+		),
 		menuRepo: menuRepo,
 		roleRepo: roleRepo,
 	}
@@ -67,16 +72,6 @@ func (r repo) Update(ctx context.Context, tx *gorm.DB, partialUpdatedModel *mode
 		return
 	})
 	return
-}
-
-func (r repo) Preload() func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		db = db.
-			Preload("Roles").
-			Preload("Roles.Menus").
-			Preload("Menus")
-		return db
-	}
 }
 
 func (r repo) GetByUsername(ctx context.Context, tx *gorm.DB, username string) (user *models.User, err error) {

@@ -12,7 +12,17 @@ import (
 )
 
 // DefaultCrudRepo is a default implementation of the Services.Crud interface
-type DefaultCrudRepo[T models.Crudable] struct{}
+type DefaultCrudRepo[T models.Crudable] struct {
+	preloads []string // 用于gorm的Preload
+}
+
+func NewDefaultCrudRepo[T models.Crudable](
+	preloads ...string,
+) DefaultCrudRepo[T] {
+	return DefaultCrudRepo[T]{
+		preloads: preloads,
+	}
+}
 
 func (crud DefaultCrudRepo[T]) Create(ctx context.Context, tx *gorm.DB, model T) error {
 	return tx.WithContext(ctx).Create(model).Error
@@ -110,6 +120,9 @@ func (crud DefaultCrudRepo[T]) GetById(ctx context.Context, tx *gorm.DB, id uint
 
 func (crud DefaultCrudRepo[T]) Preload() func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
+		for _, preload := range crud.preloads {
+			db = db.Preload(preload)
+		}
 		return db
 	}
 }

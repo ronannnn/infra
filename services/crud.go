@@ -18,7 +18,6 @@ type CrudRepo[T models.Crudable] interface {
 	DeleteByIds(context.Context, *gorm.DB, []uint) error
 	List(context.Context, *gorm.DB, query.Query) (*response.PageResult, error)
 	GetById(context.Context, *gorm.DB, uint) (T, error)
-	Preload() func(db *gorm.DB) *gorm.DB
 }
 
 type CrudSrv[T models.Crudable] interface {
