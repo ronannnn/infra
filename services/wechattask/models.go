@@ -14,10 +14,6 @@ func (WechatTask) TableName() string {
 	return "wechat_tasks"
 }
 
-func (wt WechatTask) FieldColMapper() map[string]string {
-	return models.CamelToSnakeFromStruct(wt)
-}
-
 type WechatTaskUserIds []WechatTaskUserId
 
 func (w *WechatTaskUserIds) UserIds() []string {
