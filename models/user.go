@@ -47,10 +47,6 @@ func (u User) TableName() string {
 	return "users"
 }
 
-func (u User) FieldColMapper() map[string]string {
-	return CamelToSnakeFromStruct(u)
-}
-
 func (u *User) SetId(id uint) {
 	u.Id = id
 }

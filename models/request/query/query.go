@@ -72,14 +72,9 @@ const (
 	TypeStringLenDesc = "str_len_desc"
 )
 
-type Setter interface {
-	schema.Tabler
-	FieldColMapper() map[string]string
-}
-
-func ResolveQuery(query Query, setter Setter, condition DbCondition) (err error) {
-	tblName := setter.TableName()
-	fieldColMapper := setter.FieldColMapper()
+func ResolveQuery(query Query, model schema.Tabler, condition DbCondition) (err error) {
+	tblName := model.TableName()
+	fieldColMapper := CamelToSnakeFromStruct(model)
 	if err = ResolveSelectQuery(query.SelectQuery, tblName, fieldColMapper, condition); err != nil {
 		return
 	}

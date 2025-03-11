@@ -4,13 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"reflect"
 	"time"
 
 	"github.com/ronannnn/infra/constant"
-	"github.com/ronannnn/infra/models/request/query"
-	"github.com/ronannnn/infra/utils"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 	"gorm.io/plugin/optimisticlock"
 )
 
@@ -22,15 +20,14 @@ var (
 )
 
 type Base struct {
-	BaseModel          // 包含Id等基础字段
-	OprBy              // 包含创建和更新等有User Scopes的数据
-	DefaultQuerySetter // 包含默认的FieldColMapper，用于query
+	BaseModel // 包含Id等基础字段
+	OprBy     // 包含创建和更新等有User Scopes的数据
 }
 
 // 用于Services.Crud[T]接口
 type Crudable interface {
 	Identifiable
-	query.Setter
+	schema.Tabler
 }
 
 // 主要用于Crud的Update方法中判断Id是否为0
@@ -81,12 +78,6 @@ func (o *OprBy) GetUpdaterFromReq(r *http.Request) {
 	}
 }
 
-type DefaultQuerySetter struct{}
-
-func (d *DefaultQuerySetter) FieldColMapper() map[string]string {
-	return CamelToSnakeFromStruct(d)
-}
-
 func GetOprFromReq(r *http.Request) OprBy {
 	oprId := r.Context().Value(constant.CtxKeyUserId)
 	if oprId != nil {
@@ -110,40 +101,4 @@ func GetUpdaterFromReq(r *http.Request) OprBy {
 		}
 	}
 	return OprBy{}
-}
-
-// utils
-
-func CamelToSnakeWithBaseFromStrings(fields []string) map[string]string {
-	mapper := make(map[string]string)
-	for _, field := range fields {
-		mapper[field] = utils.CamelToSnake(field)
-	}
-	return mapper
-}
-
-func CamelToSnakeFromStruct(obj any) map[string]string {
-	fields := []string{}
-	getJsonTagsFromStruct(obj, &fields)
-	return CamelToSnakeWithBaseFromStrings(fields)
-}
-
-func getJsonTagsFromStruct(obj any, fields *[]string) {
-	structType := reflect.TypeOf(obj)
-	structValue := reflect.ValueOf(obj)
-	for i := range structType.NumField() {
-		jsonTag, jsonTagOk := structType.Field(i).Tag.Lookup("json")
-		if !jsonTagOk {
-			getJsonTagsFromStruct(structValue.Field(i).Interface(), fields)
-			continue
-		}
-		if jsonTag == "-" {
-			continue
-		}
-		gormTag, gormTagOk := structType.Field(i).Tag.Lookup("gorm")
-		if gormTagOk && gormTag == "-" {
-			continue
-		}
-		*fields = append(*fields, jsonTag)
-	}
 }

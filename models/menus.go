@@ -24,7 +24,3 @@ const (
 func (Menu) TableName() string {
 	return "menus"
 }
-
-func (m Menu) FieldColMapper() map[string]string {
-	return CamelToSnakeFromStruct(m)
-}

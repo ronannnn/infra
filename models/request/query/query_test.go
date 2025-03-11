@@ -24,13 +24,9 @@ func (u TestUser) TableName() string {
 	return "test_users"
 }
 
-func (u TestUser) FieldColMapper() map[string]string {
-	return models.CamelToSnakeFromStruct(u)
-}
-
 func TestFieldColMapper(t *testing.T) {
 	user := TestUser{}
-	mapper := user.FieldColMapper()
+	mapper := query.CamelToSnakeFromStruct(user)
 	require.EqualValues(t, "id", mapper["id"])
 	require.EqualValues(t, "created_at", mapper["createdAt"])
 	require.EqualValues(t, "updated_at", mapper["updatedAt"])

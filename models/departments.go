@@ -14,7 +14,3 @@ type Department struct {
 func (Department) TableName() string {
 	return "departments"
 }
-
-func (d Department) FieldColMapper() map[string]string {
-	return CamelToSnakeFromStruct(d)
-}
