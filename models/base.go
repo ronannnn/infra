@@ -32,7 +32,6 @@ type Crudable interface {
 
 // 主要用于Crud的Update方法中判断Id是否为0
 type Identifiable interface {
-	SetId(uint)
 	GetId() uint
 }
 
@@ -44,11 +43,7 @@ type BaseModel struct {
 	Version   optimisticlock.Version `json:"version"`
 }
 
-func (b *BaseModel) SetId(id uint) {
-	b.Id = id
-}
-
-func (b *BaseModel) GetId() uint {
+func (b BaseModel) GetId() uint {
 	return b.Id
 }
 

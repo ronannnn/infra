@@ -47,11 +47,7 @@ func (u User) TableName() string {
 	return "users"
 }
 
-func (u *User) SetId(id uint) {
-	u.Id = id
-}
-
-func (u *User) GetId() uint {
+func (u User) GetId() uint {
 	return u.Id
 }
 

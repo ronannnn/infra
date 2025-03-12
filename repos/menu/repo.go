@@ -16,13 +16,13 @@ func New(
 	apiRepo api.Repo,
 ) srv.Repo {
 	return &repo{
-		DefaultCrudRepo: repos.NewDefaultCrudRepo[*models.Menu]("Apis"),
+		DefaultCrudRepo: repos.NewDefaultCrudRepo[models.Menu]("Apis"),
 		apiRepo:         apiRepo,
 	}
 }
 
 type repo struct {
-	repos.DefaultCrudRepo[*models.Menu]
+	repos.DefaultCrudRepo[models.Menu]
 	apiRepo api.Repo
 }
 

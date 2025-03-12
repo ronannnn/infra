@@ -7,6 +7,6 @@ import (
 )
 
 type Repo interface {
-	services.CrudRepo[*models.RowRecord]
+	services.CrudRepo[models.RowRecord]
 	GetByTableNameAndRowId(tx *gorm.DB, tableName string, rowId uint) (list []models.RowRecord, err error)
 }

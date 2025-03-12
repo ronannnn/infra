@@ -10,7 +10,7 @@ import (
 )
 
 type Repo interface {
-	services.CrudRepo[*models.User]
+	services.CrudRepo[models.User]
 	GetByUsername(context.Context, *gorm.DB, string) (*models.User, error)
 	GetByNickname(context.Context, *gorm.DB, string) (*models.User, error)
 	ChangePwd(ctx context.Context, tx *gorm.DB, Id uint, newPwd string) error
@@ -22,7 +22,7 @@ func ProvideService(
 	repo Repo,
 ) *Service {
 	return &Service{
-		DefaultCrudSrv: services.DefaultCrudSrv[*models.User]{
+		DefaultCrudSrv: services.DefaultCrudSrv[models.User]{
 			Db:   db,
 			Repo: repo,
 		},
@@ -32,7 +32,7 @@ func ProvideService(
 }
 
 type Service struct {
-	services.DefaultCrudSrv[*models.User]
+	services.DefaultCrudSrv[models.User]
 	cfg  *cfg.User
 	repo Repo
 }
