@@ -16,13 +16,13 @@ func New(
 	menuRepo menu.Repo,
 ) srv.Repo {
 	return &repo{
-		DefaultCrudRepo: repos.NewDefaultCrudRepo[models.Role]("Menus"),
+		DefaultCrudRepo: repos.NewDefaultCrudRepo[*models.Role]("Menus"),
 		menuRepo:        menuRepo,
 	}
 }
 
 type repo struct {
-	repos.DefaultCrudRepo[models.Role]
+	repos.DefaultCrudRepo[*models.Role]
 	menuRepo menu.Repo
 }
 

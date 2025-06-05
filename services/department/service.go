@@ -7,7 +7,7 @@ import (
 )
 
 type Repo interface {
-	services.CrudRepo[models.Department]
+	services.CrudRepo[*models.Department]
 }
 
 func ProvideService(
@@ -15,7 +15,7 @@ func ProvideService(
 	db *gorm.DB,
 ) *Service {
 	return &Service{
-		services.DefaultCrudSrv[models.Department]{
+		services.DefaultCrudSrv[*models.Department]{
 			Repo: repo,
 			Db:   db,
 		},
@@ -23,5 +23,5 @@ func ProvideService(
 }
 
 type Service struct {
-	services.DefaultCrudSrv[models.Department]
+	services.DefaultCrudSrv[*models.Department]
 }

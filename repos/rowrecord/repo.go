@@ -12,7 +12,7 @@ func New() srv.Repo {
 }
 
 type repo struct {
-	repos.DefaultCrudRepo[models.RowRecord]
+	repos.DefaultCrudRepo[*models.RowRecord]
 }
 
 func (s *repo) GetByTableNameAndRowId(tx *gorm.DB, tableName string, rowId uint) (list []models.RowRecord, err error) {

@@ -11,5 +11,5 @@ func New() srv.Repo {
 }
 
 type repo struct {
-	repos.DefaultCrudRepo[models.Company]
+	repos.DefaultCrudRepo[*models.Company]
 }

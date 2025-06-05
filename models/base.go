@@ -27,12 +27,18 @@ type Base struct {
 // 用于Services.Crud[T]接口
 type Crudable interface {
 	Identifiable
+	Operable
 	schema.Tabler
 }
 
 // 主要用于Crud的Update方法中判断Id是否为0
 type Identifiable interface {
 	GetId() uint
+}
+
+type Operable interface {
+	GetOprFromReq(r *http.Request)
+	GetUpdaterFromReq(r *http.Request)
 }
 
 type BaseModel struct {
@@ -43,7 +49,7 @@ type BaseModel struct {
 	Version   optimisticlock.Version `json:"version"`
 }
 
-func (b BaseModel) GetId() uint {
+func (b *BaseModel) GetId() uint {
 	return b.Id
 }
 
