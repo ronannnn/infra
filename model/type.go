@@ -1,18 +1,18 @@
-package models
+package model
 
 import (
 	"github.com/shopspring/decimal"
 )
 
 type DecimalSafe struct {
-	decimal.Decimal
+	*decimal.Decimal
 }
 
 func (d *DecimalSafe) UnmarshalJSON(decimalBytes []byte) error {
 	if string(decimalBytes) == `""` {
-		d = nil
-		return nil
+		return nil // Handle empty string case
 	}
 
+	d.Decimal = &decimal.Decimal{}
 	return d.Decimal.UnmarshalJSON(decimalBytes)
 }

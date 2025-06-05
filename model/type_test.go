@@ -1,16 +1,16 @@
-package models_test
+package model_test
 
 import (
 	"encoding/json"
 	"fmt"
 	"testing"
 
-	"github.com/ronannnn/infra/models"
+	"github.com/ronannnn/infra/model"
 	"github.com/stretchr/testify/require"
 )
 
 type DecimalSafeModel struct {
-	Age *models.DecimalSafe `json:"age"`
+	Age *model.DecimalSafe `json:"age"`
 }
 
 func TestNormalDecimalSafe(t *testing.T) {
@@ -23,6 +23,15 @@ func TestNormalDecimalSafe(t *testing.T) {
 
 func TestEmptyDecimalSafe(t *testing.T) {
 	req := `{ "age": "" }`
+	var model DecimalSafeModel
+	err := json.Unmarshal([]byte(req), &model)
+	require.NoError(t, err)
+	fmt.Printf("model.Age: %v\n", model.Age)
+	require.Nil(t, model.Age.Decimal)
+}
+
+func TestNullDecimalSafe(t *testing.T) {
+	req := `{ "age": null }`
 	var model DecimalSafeModel
 	err := json.Unmarshal([]byte(req), &model)
 	require.NoError(t, err)
