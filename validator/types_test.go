@@ -6,13 +6,13 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/ronannnn/infra/models"
+	"github.com/ronannnn/infra/model"
 	"github.com/ronannnn/infra/validator"
 	"github.com/stretchr/testify/require"
 )
 
 type TestUser struct {
-	models.Base
+	model.Base
 	Name   *string      `json:"name" validate:"required"`
 	Age    *int         `json:"age" validate:"required"`
 	Houses []*TestHouse `json:"houses" validate:"required"`

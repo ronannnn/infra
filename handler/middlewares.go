@@ -11,8 +11,8 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/ronannnn/infra/constant"
 	"github.com/ronannnn/infra/i18n"
-	"github.com/ronannnn/infra/models"
-	"github.com/ronannnn/infra/services/apirecord"
+	"github.com/ronannnn/infra/model"
+	"github.com/ronannnn/infra/service"
 	"go.uber.org/zap"
 )
 
@@ -26,7 +26,7 @@ type Middleware interface {
 
 func ProvideMiddleware(
 	log *zap.SugaredLogger,
-	apiRecordService *apirecord.Service,
+	apiRecordService *service.ApiRecordService,
 ) Middleware {
 	return &MiddlewareImpl{
 		log:              log,
@@ -36,7 +36,7 @@ func ProvideMiddleware(
 
 type MiddlewareImpl struct {
 	log              *zap.SugaredLogger
-	apiRecordService *apirecord.Service
+	apiRecordService *service.ApiRecordService
 }
 
 func (m *MiddlewareImpl) Lang(next http.Handler) http.Handler {
@@ -96,9 +96,9 @@ func (m *MiddlewareImpl) ReqRecorder(next http.Handler) http.Handler {
 				userId = ctxUserId.(uint)
 			}
 			latency := time.Since(start)
-			apiRecord := &models.ApiRecord{
-				Base: models.Base{
-					OprBy: models.OprBy{
+			apiRecord := &model.ApiRecord{
+				Base: model.Base{
+					OprBy: model.OprBy{
 						CreatedBy: userId,
 						UpdatedBy: userId,
 					},

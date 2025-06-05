@@ -3,15 +3,15 @@ package handler
 import (
 	"net/http"
 
-	"github.com/ronannnn/infra/models"
-	"github.com/ronannnn/infra/models/request"
-	"github.com/ronannnn/infra/models/request/query"
+	"github.com/ronannnn/infra/model"
+	"github.com/ronannnn/infra/model/request"
+	"github.com/ronannnn/infra/model/request/query"
 	"github.com/ronannnn/infra/msg"
 	"github.com/ronannnn/infra/reason"
-	"github.com/ronannnn/infra/services"
+	"github.com/ronannnn/infra/service"
 )
 
-type CrudHandler[T models.Crudable] interface {
+type CrudHandler[T model.Crudable] interface {
 	Create(w http.ResponseWriter, r *http.Request)
 	Update(w http.ResponseWriter, r *http.Request)
 	DeleteById(w http.ResponseWriter, r *http.Request)
@@ -20,9 +20,9 @@ type CrudHandler[T models.Crudable] interface {
 	GetById(w http.ResponseWriter, r *http.Request)
 }
 
-type DefaultCrudHandler[T models.Crudable] struct {
+type DefaultCrudHandler[T model.Crudable] struct {
 	H   HttpHandler
-	Srv services.CrudSrv[T]
+	Srv service.CrudSrv[T]
 }
 
 func (c *DefaultCrudHandler[T]) Create(w http.ResponseWriter, r *http.Request) {

@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/ronannnn/infra/models"
+	"github.com/ronannnn/infra/model"
 	"github.com/ronannnn/infra/utils"
 	"gorm.io/gorm"
 	"gorm.io/plugin/optimisticlock"
@@ -58,11 +58,11 @@ func getNonZeroFieldsRecursively(data interface{}, prefix string, nonZeroFields 
 				if rawField.Kind() == reflect.Ptr || !field.Interface().(time.Time).IsZero() {
 					nonZeroFields[subPrefix] = nil
 				}
-			case reflect.TypeOf(models.DecimalSafe{}):
-				if rawField.Kind() == reflect.Ptr || !field.Interface().(models.DecimalSafe).Decimal.IsZero() {
+			case reflect.TypeOf(model.DecimalSafe{}):
+				if rawField.Kind() == reflect.Ptr || !field.Interface().(model.DecimalSafe).Decimal.IsZero() {
 					nonZeroFields[subPrefix] = nil
 				}
-			case reflect.TypeOf(models.BaseModel{}), reflect.TypeOf(gorm.DeletedAt{}), reflect.TypeOf(optimisticlock.Version{}):
+			case reflect.TypeOf(model.BaseModel{}), reflect.TypeOf(gorm.DeletedAt{}), reflect.TypeOf(optimisticlock.Version{}):
 				// do nothing
 			default:
 				getNonZeroFieldsRecursively(field.Interface(), subPrefix, nonZeroFields)

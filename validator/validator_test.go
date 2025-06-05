@@ -7,24 +7,24 @@ import (
 	"testing"
 
 	"github.com/ronannnn/infra/i18n"
-	"github.com/ronannnn/infra/models"
+	"github.com/ronannnn/infra/model"
 	"github.com/ronannnn/infra/validator"
 	"github.com/stretchr/testify/require"
 )
 
 type User struct {
-	models.Base
-	FirstName     *string             `json:"firstName" validate:"required,not_blank"`
-	LastName      *string             `json:"lastName" validate:"required"`
-	Age           *uint8              `json:"age" validate:"gte=0,lte=130"`
-	Email         *string             `json:"email" validate:"required,email"`
-	Gender        *string             `json:"gender" validate:"oneof=male female prefer_not_to"`
-	FavoriteColor *string             `json:"favoriteColor" validate:"iscolor"` // alias for 'hexcolor|rgb|rgba|hsl|hsla'
-	GrossWt       *models.DecimalSafe `json:"grossWt" validate:"required,d_gt=1"`
-	NetWt         *models.DecimalSafe `json:"netWt" validate:"required,d_lt=1"`
-	TotalWt       *models.DecimalSafe `json:"totalWt" validate:"required,d_decimal_len_lte=2"`
-	CarNo         *string             `json:"carNo" validate:"required,cn_car"`
-	Cards         []*Card             `json:"cards" validate:"required,dive,required"`
+	model.Base
+	FirstName     *string            `json:"firstName" validate:"required,not_blank"`
+	LastName      *string            `json:"lastName" validate:"required"`
+	Age           *uint8             `json:"age" validate:"gte=0,lte=130"`
+	Email         *string            `json:"email" validate:"required,email"`
+	Gender        *string            `json:"gender" validate:"oneof=male female prefer_not_to"`
+	FavoriteColor *string            `json:"favoriteColor" validate:"iscolor"` // alias for 'hexcolor|rgb|rgba|hsl|hsla'
+	GrossWt       *model.DecimalSafe `json:"grossWt" validate:"required,d_gt=1"`
+	NetWt         *model.DecimalSafe `json:"netWt" validate:"required,d_lt=1"`
+	TotalWt       *model.DecimalSafe `json:"totalWt" validate:"required,d_decimal_len_lte=2"`
+	CarNo         *string            `json:"carNo" validate:"required,cn_car"`
+	Cards         []*Card            `json:"cards" validate:"required,dive,required"`
 }
 
 type Card struct {
@@ -34,9 +34,9 @@ type Card struct {
 }
 
 type Sign struct {
-	Username *string             `json:"username" validate:"required,min=1"`
-	Password *string             `json:"password" validate:"required"`
-	Wt       *models.DecimalSafe `json:"wt" validate:"required,d_gt=0"`
+	Username *string            `json:"username" validate:"required,min=1"`
+	Password *string            `json:"password" validate:"required"`
+	Wt       *model.DecimalSafe `json:"wt" validate:"required,d_gt=0"`
 }
 
 func TestValidatorCheck(t *testing.T) {

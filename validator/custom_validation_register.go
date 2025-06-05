@@ -11,7 +11,7 @@ import (
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/ronannnn/infra/constant"
 	"github.com/ronannnn/infra/i18n"
-	"github.com/ronannnn/infra/models"
+	"github.com/ronannnn/infra/model"
 	"github.com/shopspring/decimal"
 )
 
@@ -19,11 +19,11 @@ func createValidateWithCustomValidations(lang i18n.Language, trans ut.Translator
 	validate := validator.New()
 	// 注册自定义类型
 	validate.RegisterCustomTypeFunc(func(field reflect.Value) interface{} {
-		if valuer, ok := field.Interface().(models.DecimalSafe); ok {
+		if valuer, ok := field.Interface().(model.DecimalSafe); ok {
 			return valuer.String()
 		}
 		return nil
-	}, models.DecimalSafe{})
+	}, model.DecimalSafe{})
 	validate.RegisterCustomTypeFunc(func(field reflect.Value) interface{} {
 		if valuer, ok := field.Interface().(decimal.Decimal); ok {
 			return valuer.String()
