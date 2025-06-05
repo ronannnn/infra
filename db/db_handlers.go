@@ -135,7 +135,7 @@ func (h *postgresqlHandler) ensureDb() (err error) {
 	defer func(sqlDb *sql.DB) {
 		_ = sqlDb.Close()
 	}(sqlDb)
-	_, err = sqlDb.Exec(fmt.Sprintf("CREATE DATABASE %s;", h.cfg.Schema))
+	_, err = sqlDb.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s;", h.cfg.Schema))
 	return
 }
 
