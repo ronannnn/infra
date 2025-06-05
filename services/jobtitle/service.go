@@ -1,4 +1,4 @@
-package jobgrade
+package jobtitle
 
 import (
 	"github.com/ronannnn/infra/models"
