@@ -1,0 +1,24 @@
+package router
+
+import (
+	"github.com/ronannnn/infra/handler/biz"
+	"github.com/ronannnn/infra/model"
+)
+
+func NewRoleRouter(
+	handler *biz.RoleHandler,
+) *RoleRouter {
+	return &RoleRouter{
+		DefaultCrudRouter[*model.Role]{
+			Handler: handler,
+		},
+	}
+}
+
+type RoleRouter struct {
+	DefaultCrudRouter[*model.Role]
+}
+
+func (c *RoleRouter) GetBasePath() string {
+	return "/roles"
+}

@@ -17,24 +17,15 @@ var (
 	ErrInvalidTokenUserIdNotFound = fmt.Errorf("invalid token, user id not found")
 )
 
-type Service interface {
-	// generate access token and refresh token， used for login
-	GenerateTokens(ctx context.Context, claims refreshtoken.BaseClaims, userAgent string, deviceId string) (refreshToken string, accessToken string, dupLogin bool, err error)
-	// update access token and refresh token
-	UpdateTokens(ctx context.Context, refreshToken string, userAgent string, deviceId string) (newRefreshToken string, accessToken string, dupLogin bool, err error)
-	// disable refresh token
-	DeleteTokenByUserIdAndLoginDeviceType(ctx context.Context, userId uint, loginDeviceType useragent.DeviceType) error
-}
-
-func ProvideService(
+func NewService(
 	accessTokenCfg *accesstoken.Cfg,
 	refreshtokenCfg *refreshtoken.Cfg,
 	db *gorm.DB,
 	refreshtokenService refreshtoken.Service,
 	refreshtokenRepo refreshtoken.Repo,
 	accesstokenService accesstoken.Service,
-) Service {
-	return &ServiceImpl{
+) *Service {
+	return &Service{
 		accessTokenCfg:      accessTokenCfg,
 		refreshtokenCfg:     refreshtokenCfg,
 		db:                  db,
@@ -44,7 +35,7 @@ func ProvideService(
 	}
 }
 
-type ServiceImpl struct {
+type Service struct {
 	accessTokenCfg      *accesstoken.Cfg
 	refreshtokenCfg     *refreshtoken.Cfg
 	db                  *gorm.DB
@@ -53,7 +44,8 @@ type ServiceImpl struct {
 	accesstokenService  accesstoken.Service
 }
 
-func (srv *ServiceImpl) GenerateTokens(ctx context.Context, claims refreshtoken.BaseClaims, userAgent string, deviceId string) (refreshToken string, accessToken string, dupLogin bool, err error) {
+// generate access token and refresh token， used for login
+func (srv *Service) GenerateTokens(ctx context.Context, claims refreshtoken.BaseClaims, userAgent string, deviceId string) (refreshToken string, accessToken string, dupLogin bool, err error) {
 	err = srv.db.Transaction(func(tx *gorm.DB) (err error) {
 		// get refresh token
 		refreshTokenClaims := claims.ToMap()
@@ -79,7 +71,8 @@ func (srv *ServiceImpl) GenerateTokens(ctx context.Context, claims refreshtoken.
 	return
 }
 
-func (srv *ServiceImpl) UpdateTokens(ctx context.Context, refreshToken string, userAgent string, deviceId string) (newRefreshToken string, accessToken string, dupLogin bool, err error) {
+// update access token and refresh token
+func (srv *Service) UpdateTokens(ctx context.Context, refreshToken string, userAgent string, deviceId string) (newRefreshToken string, accessToken string, dupLogin bool, err error) {
 	var token jwt.Token
 	// validate refresh token
 	if token, err = jwtauth.VerifyToken(srv.refreshtokenService.GetJwtAuth(), refreshToken); err != nil {
@@ -106,6 +99,6 @@ func (srv *ServiceImpl) UpdateTokens(ctx context.Context, refreshToken string, u
 }
 
 // disable refresh token by user id
-func (srv *ServiceImpl) DeleteTokenByUserIdAndLoginDeviceType(ctx context.Context, userId uint, loginDeviceType useragent.DeviceType) error {
+func (srv *Service) DeleteTokenByUserIdAndLoginDeviceType(ctx context.Context, userId uint, loginDeviceType useragent.DeviceType) error {
 	return srv.refreshtokenRepo.Delete(ctx, srv.db, userId, loginDeviceType)
 }
