@@ -10,15 +10,12 @@ func NewRoleRouter(
 ) *RoleRouter {
 	return &RoleRouter{
 		DefaultCrudRouter[*model.Role]{
-			Handler: handler,
+			BasePath: "/roles",
+			Handler:  handler,
 		},
 	}
 }
 
 type RoleRouter struct {
 	DefaultCrudRouter[*model.Role]
-}
-
-func (c *RoleRouter) GetBasePath() string {
-	return "/roles"
 }

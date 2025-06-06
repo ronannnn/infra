@@ -10,15 +10,12 @@ func NewApiRouter(
 ) *ApiRouter {
 	return &ApiRouter{
 		DefaultCrudRouter[*model.Api]{
-			Handler: handler,
+			BasePath: "/apis",
+			Handler:  handler,
 		},
 	}
 }
 
 type ApiRouter struct {
 	DefaultCrudRouter[*model.Api]
-}
-
-func (c *ApiRouter) GetBasePath() string {
-	return "/apis"
 }

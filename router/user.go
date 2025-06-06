@@ -10,15 +10,12 @@ func NewUserRouter(
 ) *UserRouter {
 	return &UserRouter{
 		DefaultCrudRouter[*model.User]{
-			Handler: handler,
+			BasePath: "/users",
+			Handler:  handler,
 		},
 	}
 }
 
 type UserRouter struct {
 	DefaultCrudRouter[*model.User]
-}
-
-func (c *UserRouter) GetBasePath() string {
-	return "/users"
 }

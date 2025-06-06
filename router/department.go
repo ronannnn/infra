@@ -10,15 +10,12 @@ func NewDepartmentRouter(
 ) *DepartmentRouter {
 	return &DepartmentRouter{
 		DefaultCrudRouter[*model.Department]{
-			Handler: handler,
+			BasePath: "/departments",
+			Handler:  handler,
 		},
 	}
 }
 
 type DepartmentRouter struct {
 	DefaultCrudRouter[*model.Department]
-}
-
-func (c *DepartmentRouter) GetBasePath() string {
-	return "/departments"
 }

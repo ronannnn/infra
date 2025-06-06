@@ -10,15 +10,12 @@ func NewLoginRecordRouter(
 ) *LoginRecordRouter {
 	return &LoginRecordRouter{
 		DefaultCrudRouter[*model.LoginRecord]{
-			Handler: handler,
+			BasePath: "/login-records",
+			Handler:  handler,
 		},
 	}
 }
 
 type LoginRecordRouter struct {
 	DefaultCrudRouter[*model.LoginRecord]
-}
-
-func (c *LoginRecordRouter) GetBasePath() string {
-	return "/login-records"
 }

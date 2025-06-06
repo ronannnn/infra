@@ -10,17 +10,13 @@ type CrudRouter[T model.Crudable] interface {
 	Register(r chi.Router)
 }
 
-type BaseCrudRouter interface {
-	GetBasePath() string
-}
-
 type DefaultCrudRouter[T model.Crudable] struct {
-	BaseCrudRouter
-	Handler handler.CrudHandler[T]
+	Handler  handler.CrudHandler[T]
+	BasePath string
 }
 
 func (c *DefaultCrudRouter[T]) Register(r chi.Router) {
-	r.Route(c.GetBasePath(), func(r chi.Router) {
+	r.Route(c.BasePath, func(r chi.Router) {
 		// batch operations
 		r.Post("/batch-delete", c.Handler.BatchDelete)
 		r.Post("/list", c.Handler.List)

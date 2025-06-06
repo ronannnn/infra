@@ -10,15 +10,12 @@ func NewJobGradeRouter(
 ) *JobGradeRouter {
 	return &JobGradeRouter{
 		DefaultCrudRouter[*model.JobGrade]{
-			Handler: handler,
+			BasePath: "/job-grades",
+			Handler:  handler,
 		},
 	}
 }
 
 type JobGradeRouter struct {
 	DefaultCrudRouter[*model.JobGrade]
-}
-
-func (c *JobGradeRouter) GetBasePath() string {
-	return "/job-grades"
 }

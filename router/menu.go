@@ -10,15 +10,12 @@ func NewMenuRouter(
 ) *MenuRouter {
 	return &MenuRouter{
 		DefaultCrudRouter[*model.Menu]{
-			Handler: handler,
+			BasePath: "/menus",
+			Handler:  handler,
 		},
 	}
 }
 
 type MenuRouter struct {
 	DefaultCrudRouter[*model.Menu]
-}
-
-func (c *MenuRouter) GetBasePath() string {
-	return "/menus"
 }

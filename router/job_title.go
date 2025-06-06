@@ -10,15 +10,12 @@ func NewJobTitleRouter(
 ) *JobTitleRouter {
 	return &JobTitleRouter{
 		DefaultCrudRouter[*model.JobTitle]{
-			Handler: handler,
+			BasePath: "/job-titles",
+			Handler:  handler,
 		},
 	}
 }
 
 type JobTitleRouter struct {
 	DefaultCrudRouter[*model.JobTitle]
-}
-
-func (c *JobTitleRouter) GetBasePath() string {
-	return "/job-titles"
 }
