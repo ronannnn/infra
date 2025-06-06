@@ -22,7 +22,7 @@ type Middleware interface {
 func ProvideMiddleware(
 	// auth
 	authCfg *Cfg,
-	accessTokenService Service,
+	accessTokenService *Service,
 	// handler
 	httpHandler handler.HttpHandler,
 ) Middleware {
@@ -35,7 +35,7 @@ func ProvideMiddleware(
 
 type MiddlewareImpl struct {
 	authCfg            *Cfg
-	accessTokenService Service
+	accessTokenService *Service
 	httpHandler        handler.HttpHandler
 }
 
