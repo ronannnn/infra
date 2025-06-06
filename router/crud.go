@@ -7,11 +7,15 @@ import (
 )
 
 type CrudRouter[T model.Crudable] interface {
-	Register(chi.Router)
+	Register(r chi.Router)
+}
+
+type BaseCrudRouter interface {
 	GetBasePath() string
 }
 
 type DefaultCrudRouter[T model.Crudable] struct {
+	BaseCrudRouter
 	Handler handler.CrudHandler[T]
 }
 
@@ -31,8 +35,4 @@ func (c *DefaultCrudRouter[T]) Register(r chi.Router) {
 			r.Get("/", c.Handler.GetById)
 		})
 	})
-}
-
-func (c *DefaultCrudRouter[T]) GetBasePath() string {
-	return ""
 }
