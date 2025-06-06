@@ -1,15 +1,13 @@
 package router
 
 import (
-	"fmt"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/ronannnn/infra/handler"
 	"github.com/ronannnn/infra/model"
 )
 
 type CrudRouter[T model.Crudable] interface {
-	Register(r *chi.Mux)
+	Register() chi.Router
 	GetBasePath() string
 }
 
@@ -17,16 +15,24 @@ type DefaultCrudRouter[T model.Crudable] struct {
 	Handler handler.CrudHandler[T]
 }
 
-func (c *DefaultCrudRouter[T]) Register(r *chi.Mux) {
-	basePath := c.GetBasePath()
-	// batch operations
-	r.Post(fmt.Sprintf("%s/batch-delete", basePath), c.Handler.BatchDelete)
-	r.Post(fmt.Sprintf("%s/list", basePath), c.Handler.List)
-	// single item operations
-	r.Post(basePath, c.Handler.Create)
-	r.Put(basePath, c.Handler.Update)
-	r.Delete(fmt.Sprintf("%s/{id}", basePath), c.Handler.DeleteById)
-	r.Get(fmt.Sprintf("%s/{id}", basePath), c.Handler.GetById)
+func (c *DefaultCrudRouter[T]) Register() chi.Router {
+	r := chi.NewRouter()
+	r.Route(c.GetBasePath(), func(r chi.Router) {
+		// batch operations
+		r.Post("/batch-delete", c.Handler.BatchDelete)
+		r.Post("/list", c.Handler.List)
+
+		// single item operations
+		r.Post("/", c.Handler.Create)
+		r.Put("/", c.Handler.Update)
+
+		// single item operations by ID
+		r.Route("/{id}", func(r chi.Router) {
+			r.Delete("/", c.Handler.DeleteById)
+			r.Get("/", c.Handler.GetById)
+		})
+	})
+	return r
 }
 
 func (c *DefaultCrudRouter[T]) GetBasePath() string {
