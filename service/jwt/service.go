@@ -21,9 +21,9 @@ func NewService(
 	accessTokenCfg *accesstoken.Cfg,
 	refreshtokenCfg *refreshtoken.Cfg,
 	db *gorm.DB,
-	refreshtokenService refreshtoken.Service,
 	refreshtokenRepo refreshtoken.Repo,
-	accesstokenService accesstoken.Service,
+	refreshtokenService *refreshtoken.Service,
+	accesstokenService *accesstoken.Service,
 ) *Service {
 	return &Service{
 		accessTokenCfg:      accessTokenCfg,
@@ -39,9 +39,9 @@ type Service struct {
 	accessTokenCfg      *accesstoken.Cfg
 	refreshtokenCfg     *refreshtoken.Cfg
 	db                  *gorm.DB
-	refreshtokenService refreshtoken.Service
 	refreshtokenRepo    refreshtoken.Repo
-	accesstokenService  accesstoken.Service
+	refreshtokenService *refreshtoken.Service
+	accesstokenService  *accesstoken.Service
 }
 
 // generate access token and refresh token， used for login
