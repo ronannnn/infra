@@ -21,8 +21,14 @@ func camelToSnakeWithBaseFromStrings(fields []string) map[string]string {
 }
 
 func getJsonTagsFromStruct(obj any, fields *[]string) {
-	structType := reflect.TypeOf(obj)
 	structValue := reflect.ValueOf(obj)
+	if structValue.Kind() == reflect.Ptr {
+		if structValue.IsNil() {
+			return
+		}
+		structValue = structValue.Elem()
+	}
+	structType := structValue.Type()
 	for i := range structType.NumField() {
 		jsonTag, jsonTagOk := structType.Field(i).Tag.Lookup("json")
 		if !jsonTagOk {
