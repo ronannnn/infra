@@ -10,5 +10,5 @@ func NewApiRecordRepo() service.ApiRecordRepo {
 }
 
 type apiRecordRepo struct {
-	DefaultCrudRepo[*model.ApiRecord]
+	DefaultCrudRepo[model.ApiRecord]
 }

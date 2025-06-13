@@ -6,7 +6,7 @@ import (
 )
 
 type JobTitleRepo interface {
-	CrudRepo[*model.JobTitle]
+	CrudRepo[model.JobTitle]
 }
 
 func NewJobTitleService(
@@ -14,7 +14,7 @@ func NewJobTitleService(
 	db *gorm.DB,
 ) *JobTitleService {
 	return &JobTitleService{
-		DefaultCrudSrv[*model.JobTitle]{
+		DefaultCrudSrv[model.JobTitle]{
 			Repo: repo,
 			Db:   db,
 		},
@@ -22,5 +22,5 @@ func NewJobTitleService(
 }
 
 type JobTitleService struct {
-	DefaultCrudSrv[*model.JobTitle]
+	DefaultCrudSrv[model.JobTitle]
 }

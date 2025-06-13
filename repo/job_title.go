@@ -10,5 +10,5 @@ func NewJobTitleRepo() service.JobTitleRepo {
 }
 
 type jobTitleRepo struct {
-	DefaultCrudRepo[*model.JobTitle]
+	DefaultCrudRepo[model.JobTitle]
 }

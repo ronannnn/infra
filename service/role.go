@@ -6,7 +6,7 @@ import (
 )
 
 type RoleRepo interface {
-	CrudRepo[*model.Role]
+	CrudRepo[model.Role]
 }
 
 func NewRoleService(
@@ -14,7 +14,7 @@ func NewRoleService(
 	db *gorm.DB,
 ) *RoleService {
 	return &RoleService{
-		DefaultCrudSrv[*model.Role]{
+		DefaultCrudSrv[model.Role]{
 			Repo: repo,
 			Db:   db,
 		},
@@ -22,5 +22,5 @@ func NewRoleService(
 }
 
 type RoleService struct {
-	DefaultCrudSrv[*model.Role]
+	DefaultCrudSrv[model.Role]
 }

@@ -11,7 +11,7 @@ func NewRoleHandler(
 	srv *service.RoleService,
 ) *RoleHandler {
 	return &RoleHandler{
-		handler.DefaultCrudHandler[*model.Role]{
+		handler.DefaultCrudHandler[model.Role]{
 			H:   h,
 			Srv: srv,
 		},
@@ -19,5 +19,5 @@ func NewRoleHandler(
 }
 
 type RoleHandler struct {
-	handler.DefaultCrudHandler[*model.Role]
+	handler.DefaultCrudHandler[model.Role]
 }

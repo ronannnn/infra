@@ -11,7 +11,7 @@ func NewJobGradeHandler(
 	srv *service.JobGradeService,
 ) *JobGradeHandler {
 	return &JobGradeHandler{
-		handler.DefaultCrudHandler[*model.JobGrade]{
+		handler.DefaultCrudHandler[model.JobGrade]{
 			H:   h,
 			Srv: srv,
 		},
@@ -19,5 +19,5 @@ func NewJobGradeHandler(
 }
 
 type JobGradeHandler struct {
-	handler.DefaultCrudHandler[*model.JobGrade]
+	handler.DefaultCrudHandler[model.JobGrade]
 }

@@ -11,7 +11,7 @@ func NewJobTitleHandler(
 	srv *service.JobTitleService,
 ) *JobTitleHandler {
 	return &JobTitleHandler{
-		handler.DefaultCrudHandler[*model.JobTitle]{
+		handler.DefaultCrudHandler[model.JobTitle]{
 			H:   h,
 			Srv: srv,
 		},
@@ -19,5 +19,5 @@ func NewJobTitleHandler(
 }
 
 type JobTitleHandler struct {
-	handler.DefaultCrudHandler[*model.JobTitle]
+	handler.DefaultCrudHandler[model.JobTitle]
 }

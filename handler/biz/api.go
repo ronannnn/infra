@@ -11,7 +11,7 @@ func NewApiHandler(
 	srv *service.ApiService,
 ) *ApiHandler {
 	return &ApiHandler{
-		handler.DefaultCrudHandler[*model.Api]{
+		handler.DefaultCrudHandler[model.Api]{
 			H:   h,
 			Srv: srv,
 		},
@@ -19,5 +19,5 @@ func NewApiHandler(
 }
 
 type ApiHandler struct {
-	handler.DefaultCrudHandler[*model.Api]
+	handler.DefaultCrudHandler[model.Api]
 }

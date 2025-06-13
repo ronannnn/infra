@@ -14,13 +14,13 @@ func NewRoleRepo(
 	menuRepo service.MenuRepo,
 ) service.RoleRepo {
 	return &roleRepo{
-		DefaultCrudRepo: NewDefaultCrudRepo[*model.Role]("Menus"),
+		DefaultCrudRepo: NewDefaultCrudRepo[model.Role]("Menus"),
 		menuRepo:        menuRepo,
 	}
 }
 
 type roleRepo struct {
-	DefaultCrudRepo[*model.Role]
+	DefaultCrudRepo[model.Role]
 	menuRepo service.MenuRepo
 }
 

@@ -10,5 +10,5 @@ func NewCompanyRepo() service.CompanyRepo {
 }
 
 type companyRepo struct {
-	DefaultCrudRepo[*model.Company]
+	DefaultCrudRepo[model.Company]
 }

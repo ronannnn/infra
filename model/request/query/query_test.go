@@ -78,7 +78,7 @@ func TestParseQuery(t *testing.T) {
 		},
 	}
 	var condition query.DbConditionImpl
-	err := query.ResolveQuery(example, &TestUser{}, &condition)
+	err := query.ResolveQuery(example, TestUser{}, &condition)
 	require.NoError(t, err)
 	// distinct
 	require.EqualValues(t, 1, len(condition.Distinct))

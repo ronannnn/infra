@@ -11,7 +11,7 @@ func NewDepartmentHandler(
 	srv *service.DepartmentService,
 ) *DepartmentHandler {
 	return &DepartmentHandler{
-		handler.DefaultCrudHandler[*model.Department]{
+		handler.DefaultCrudHandler[model.Department]{
 			H:   h,
 			Srv: srv,
 		},
@@ -19,5 +19,5 @@ func NewDepartmentHandler(
 }
 
 type DepartmentHandler struct {
-	handler.DefaultCrudHandler[*model.Department]
+	handler.DefaultCrudHandler[model.Department]
 }

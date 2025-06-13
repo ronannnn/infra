@@ -10,5 +10,5 @@ func NewDepartmentRepo() service.DepartmentRepo {
 }
 
 type departmentRepo struct {
-	DefaultCrudRepo[*model.Department]
+	DefaultCrudRepo[model.Department]
 }

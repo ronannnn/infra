@@ -14,13 +14,13 @@ func NewMenuRepo(
 	apiRepo service.ApiRepo,
 ) service.MenuRepo {
 	return &menuRepo{
-		DefaultCrudRepo: NewDefaultCrudRepo[*model.Menu]("Apis"),
+		DefaultCrudRepo: NewDefaultCrudRepo[model.Menu]("Apis"),
 		apiRepo:         apiRepo,
 	}
 }
 
 type menuRepo struct {
-	DefaultCrudRepo[*model.Menu]
+	DefaultCrudRepo[model.Menu]
 	apiRepo service.ApiRepo
 }
 

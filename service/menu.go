@@ -6,7 +6,7 @@ import (
 )
 
 type MenuRepo interface {
-	CrudRepo[*model.Menu]
+	CrudRepo[model.Menu]
 }
 
 func NewMenuService(
@@ -14,7 +14,7 @@ func NewMenuService(
 	db *gorm.DB,
 ) *MenuService {
 	return &MenuService{
-		DefaultCrudSrv[*model.Menu]{
+		DefaultCrudSrv[model.Menu]{
 			Repo: repo,
 			Db:   db,
 		},
@@ -22,5 +22,5 @@ func NewMenuService(
 }
 
 type MenuService struct {
-	DefaultCrudSrv[*model.Menu]
+	DefaultCrudSrv[model.Menu]
 }

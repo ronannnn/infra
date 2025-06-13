@@ -11,7 +11,7 @@ func NewCompanyHandler(
 	srv *service.CompanyService,
 ) *CompanyHandler {
 	return &CompanyHandler{
-		handler.DefaultCrudHandler[*model.Company]{
+		handler.DefaultCrudHandler[model.Company]{
 			H:   h,
 			Srv: srv,
 		},
@@ -19,5 +19,5 @@ func NewCompanyHandler(
 }
 
 type CompanyHandler struct {
-	handler.DefaultCrudHandler[*model.Company]
+	handler.DefaultCrudHandler[model.Company]
 }

@@ -6,7 +6,7 @@ import (
 )
 
 type JobGradeRepo interface {
-	CrudRepo[*model.JobGrade]
+	CrudRepo[model.JobGrade]
 }
 
 func NewJobGradeService(
@@ -14,7 +14,7 @@ func NewJobGradeService(
 	db *gorm.DB,
 ) *JobGradeService {
 	return &JobGradeService{
-		DefaultCrudSrv[*model.JobGrade]{
+		DefaultCrudSrv[model.JobGrade]{
 			Repo: repo,
 			Db:   db,
 		},
@@ -22,5 +22,5 @@ func NewJobGradeService(
 }
 
 type JobGradeService struct {
-	DefaultCrudSrv[*model.JobGrade]
+	DefaultCrudSrv[model.JobGrade]
 }

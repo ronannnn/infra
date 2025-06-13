@@ -11,7 +11,7 @@ func NewRowRecordHandler(
 	srv *service.RowRecordService,
 ) *RowRecordHandler {
 	return &RowRecordHandler{
-		handler.DefaultCrudHandler[*model.RowRecord]{
+		handler.DefaultCrudHandler[model.RowRecord]{
 			H:   h,
 			Srv: srv,
 		},
@@ -19,5 +19,5 @@ func NewRowRecordHandler(
 }
 
 type RowRecordHandler struct {
-	handler.DefaultCrudHandler[*model.RowRecord]
+	handler.DefaultCrudHandler[model.RowRecord]
 }

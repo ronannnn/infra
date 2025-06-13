@@ -11,7 +11,7 @@ func NewMenuHandler(
 	srv *service.MenuService,
 ) *MenuHandler {
 	return &MenuHandler{
-		handler.DefaultCrudHandler[*model.Menu]{
+		handler.DefaultCrudHandler[model.Menu]{
 			H:   h,
 			Srv: srv,
 		},
@@ -19,5 +19,5 @@ func NewMenuHandler(
 }
 
 type MenuHandler struct {
-	handler.DefaultCrudHandler[*model.Menu]
+	handler.DefaultCrudHandler[model.Menu]
 }

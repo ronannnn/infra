@@ -37,8 +37,8 @@ type Identifiable interface {
 }
 
 type Operable interface {
-	GetOprFromReq(r *http.Request)
-	GetUpdaterFromReq(r *http.Request)
+	GetOprFromReq(r *http.Request) Operable
+	GetUpdaterFromReq(r *http.Request) Operable
 }
 
 type BaseModel struct {
@@ -49,7 +49,7 @@ type BaseModel struct {
 	Version   optimisticlock.Version `json:"version"`
 }
 
-func (b *BaseModel) GetId() uint {
+func (b BaseModel) GetId() uint {
 	return b.Id
 }
 
@@ -60,7 +60,7 @@ type OprBy struct {
 	Updater   *User `json:"updater" gorm:"foreignKey:UpdatedBy"`
 }
 
-func (o *OprBy) GetOprFromReq(r *http.Request) {
+func (o OprBy) GetOprFromReq(r *http.Request) Operable {
 	oprId := r.Context().Value(constant.CtxKeyUserId)
 	if oprId != nil {
 		if convertedOprId, ok := oprId.(uint); ok {
@@ -68,15 +68,17 @@ func (o *OprBy) GetOprFromReq(r *http.Request) {
 			o.UpdatedBy = convertedOprId
 		}
 	}
+	return o
 }
 
-func (o *OprBy) GetUpdaterFromReq(r *http.Request) {
+func (o OprBy) GetUpdaterFromReq(r *http.Request) Operable {
 	oprId := r.Context().Value(constant.CtxKeyUserId)
 	if oprId != nil {
 		if convertedOprId, ok := oprId.(uint); ok {
 			o.UpdatedBy = convertedOprId
 		}
 	}
+	return o
 }
 
 func GetOprFromReq(r *http.Request) OprBy {

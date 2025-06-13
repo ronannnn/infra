@@ -6,7 +6,7 @@ import (
 )
 
 type LoginRecordRepo interface {
-	CrudRepo[*model.LoginRecord]
+	CrudRepo[model.LoginRecord]
 }
 
 func NewLoginRecordService(
@@ -14,7 +14,7 @@ func NewLoginRecordService(
 	db *gorm.DB,
 ) *LoginRecordService {
 	return &LoginRecordService{
-		DefaultCrudSrv[*model.LoginRecord]{
+		DefaultCrudSrv[model.LoginRecord]{
 			Repo: repo,
 			Db:   db,
 		},
@@ -22,5 +22,5 @@ func NewLoginRecordService(
 }
 
 type LoginRecordService struct {
-	DefaultCrudSrv[*model.LoginRecord]
+	DefaultCrudSrv[model.LoginRecord]
 }

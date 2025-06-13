@@ -10,5 +10,5 @@ func NewJobGradeRepo() service.JobGradeRepo {
 }
 
 type jobGradeRepo struct {
-	DefaultCrudRepo[*model.JobGrade]
+	DefaultCrudRepo[model.JobGrade]
 }

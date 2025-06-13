@@ -84,7 +84,7 @@ func (u *User) GetUpdaterFromReq(r *http.Request) {
 	}
 }
 
-func (u *User) HasLoginType(loginType string) error {
+func (u User) HasLoginType(loginType string) error {
 	if u.LoginType == nil {
 		return fmt.Errorf("user login type is not defined")
 	}

@@ -11,7 +11,7 @@ func NewApiRecordHandler(
 	srv *service.ApiRecordService,
 ) *ApiRecordHandler {
 	return &ApiRecordHandler{
-		handler.DefaultCrudHandler[*model.ApiRecord]{
+		handler.DefaultCrudHandler[model.ApiRecord]{
 			H:   h,
 			Srv: srv,
 		},
@@ -19,5 +19,5 @@ func NewApiRecordHandler(
 }
 
 type ApiRecordHandler struct {
-	handler.DefaultCrudHandler[*model.ApiRecord]
+	handler.DefaultCrudHandler[model.ApiRecord]
 }

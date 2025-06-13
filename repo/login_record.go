@@ -10,5 +10,5 @@ func NewLoginRecordRepo() service.LoginRecordRepo {
 }
 
 type loginRecordRepo struct {
-	DefaultCrudRepo[*model.LoginRecord]
+	DefaultCrudRepo[model.LoginRecord]
 }

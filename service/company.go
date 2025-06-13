@@ -6,7 +6,7 @@ import (
 )
 
 type CompanyRepo interface {
-	CrudRepo[*model.Company]
+	CrudRepo[model.Company]
 }
 
 func NewCompanyService(
@@ -14,7 +14,7 @@ func NewCompanyService(
 	db *gorm.DB,
 ) *CompanyService {
 	return &CompanyService{
-		DefaultCrudSrv[*model.Company]{
+		DefaultCrudSrv[model.Company]{
 			Repo: repo,
 			Db:   db,
 		},
@@ -22,5 +22,5 @@ func NewCompanyService(
 }
 
 type CompanyService struct {
-	DefaultCrudSrv[*model.Company]
+	DefaultCrudSrv[model.Company]
 }

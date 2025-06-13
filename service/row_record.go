@@ -6,7 +6,7 @@ import (
 )
 
 type RowRecordRepo interface {
-	CrudRepo[*model.RowRecord]
+	CrudRepo[model.RowRecord]
 	GetByTableNameAndRowId(tx *gorm.DB, tableName string, rowId uint) (list []model.RowRecord, err error)
 }
 
@@ -15,7 +15,7 @@ func NewRowRecordService(
 	db *gorm.DB,
 ) *RowRecordService {
 	return &RowRecordService{
-		DefaultCrudSrv[*model.RowRecord]{
+		DefaultCrudSrv[model.RowRecord]{
 			Repo: repo,
 			Db:   db,
 		},
@@ -23,5 +23,5 @@ func NewRowRecordService(
 }
 
 type RowRecordService struct {
-	DefaultCrudSrv[*model.RowRecord]
+	DefaultCrudSrv[model.RowRecord]
 }

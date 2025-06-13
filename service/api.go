@@ -6,7 +6,7 @@ import (
 )
 
 type ApiRepo interface {
-	CrudRepo[*model.Api]
+	CrudRepo[model.Api]
 }
 
 func NewApiService(
@@ -14,7 +14,7 @@ func NewApiService(
 	db *gorm.DB,
 ) *ApiService {
 	return &ApiService{
-		DefaultCrudSrv[*model.Api]{
+		DefaultCrudSrv[model.Api]{
 			Repo: repo,
 			Db:   db,
 		},
@@ -22,5 +22,5 @@ func NewApiService(
 }
 
 type ApiService struct {
-	DefaultCrudSrv[*model.Api]
+	DefaultCrudSrv[model.Api]
 }

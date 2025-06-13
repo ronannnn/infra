@@ -11,7 +11,7 @@ func NewLoginRecordHandler(
 	srv *service.LoginRecordService,
 ) *LoginRecordHandler {
 	return &LoginRecordHandler{
-		handler.DefaultCrudHandler[*model.LoginRecord]{
+		handler.DefaultCrudHandler[model.LoginRecord]{
 			H:   h,
 			Srv: srv,
 		},
@@ -19,5 +19,5 @@ func NewLoginRecordHandler(
 }
 
 type LoginRecordHandler struct {
-	handler.DefaultCrudHandler[*model.LoginRecord]
+	handler.DefaultCrudHandler[model.LoginRecord]
 }
