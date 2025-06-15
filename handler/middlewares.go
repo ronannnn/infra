@@ -99,8 +99,8 @@ func (m *MiddlewareImpl) ReqRecorder(next http.Handler) http.Handler {
 			apiRecord := &model.ApiRecord{
 				Base: model.Base{
 					OprBy: model.OprBy{
-						CreatedBy: userId,
-						UpdatedBy: userId,
+						CreatedBy: &userId,
+						UpdatedBy: &userId,
 					},
 				},
 				Path:       path,

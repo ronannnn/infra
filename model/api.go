@@ -1,5 +1,7 @@
 package model
 
+import "net/http"
+
 type Api struct {
 	Base
 	Name        *string `json:"name"`
@@ -10,4 +12,14 @@ type Api struct {
 
 func (Api) TableName() string {
 	return "apis"
+}
+
+func (model Api) WithOprFromReq(r *http.Request) Crudable {
+	model.OprBy = GetOprFromReq(r)
+	return model
+}
+
+func (model Api) WithUpdaterFromReq(r *http.Request) Crudable {
+	model.OprBy = GetUpdaterFromReq(r)
+	return model
 }

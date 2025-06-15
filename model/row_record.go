@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"net/http"
 	"reflect"
 )
 
@@ -18,6 +19,16 @@ func (RowRecord) TableName() string {
 	return "row_records"
 }
 
+func (model RowRecord) WithOprFromReq(r *http.Request) Crudable {
+	model.OprBy = GetOprFromReq(r)
+	return model
+}
+
+func (model RowRecord) WithUpdaterFromReq(r *http.Request) Crudable {
+	model.OprBy = GetUpdaterFromReq(r)
+	return model
+}
+
 type rowRecordHelper struct {
 	TableName string
 	RowId     uint
@@ -26,7 +37,7 @@ type rowRecordHelper struct {
 
 func (trh *rowRecordHelper) record(key string, oldValue any, newValue any, oprId uint) {
 	trh.Records = append(trh.Records, RowRecord{
-		Base:     Base{OprBy: OprBy{CreatedBy: oprId, UpdatedBy: oprId}},
+		Base:     Base{OprBy: OprBy{CreatedBy: &oprId, UpdatedBy: &oprId}},
 		Table:    trh.TableName,
 		RowId:    trh.RowId,
 		Key:      key,

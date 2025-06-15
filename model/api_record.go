@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 )
 
@@ -17,6 +18,16 @@ type ApiRecord struct {
 
 func (ApiRecord) TableName() string {
 	return "api_records"
+}
+
+func (model ApiRecord) WithOprFromReq(r *http.Request) Crudable {
+	model.OprBy = GetOprFromReq(r)
+	return model
+}
+
+func (model ApiRecord) WithUpdaterFromReq(r *http.Request) Crudable {
+	model.OprBy = GetUpdaterFromReq(r)
+	return model
 }
 
 func (model *ApiRecord) String() string {

@@ -1,5 +1,7 @@
 package model
 
+import "net/http"
+
 type JobGrade struct {
 	Base
 	Name        *string `json:"name"`        // 职级名称
@@ -10,4 +12,14 @@ type JobGrade struct {
 
 func (JobGrade) TableName() string {
 	return "job_grades"
+}
+
+func (model JobGrade) WithOprFromReq(r *http.Request) Crudable {
+	model.OprBy = GetOprFromReq(r)
+	return model
+}
+
+func (model JobGrade) WithUpdaterFromReq(r *http.Request) Crudable {
+	model.OprBy = GetUpdaterFromReq(r)
+	return model
 }

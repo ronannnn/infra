@@ -32,34 +32,14 @@ func (b Base) TableName() string {
 	return ""
 }
 
-func (b Base) WithOprFromReq(r *http.Request) any {
-	oprId := r.Context().Value(constant.CtxKeyUserId)
-	if oprId != nil {
-		if convertedOprId, ok := oprId.(uint); ok {
-			b.CreatedBy = convertedOprId
-			b.UpdatedBy = convertedOprId
-		}
-	}
-	return b
-}
-func (b Base) WithUpdaterFromReq(r *http.Request) any {
-	oprId := r.Context().Value(constant.CtxKeyUserId)
-	if oprId != nil {
-		if convertedOprId, ok := oprId.(uint); ok {
-			b.UpdatedBy = convertedOprId
-		}
-	}
-	return b
-}
-
 // 用于Services.Crud[T]接口
 type Crudable interface {
 	// 主要用于Crud的Update方法中判断Id是否为0
 	GetId() uint
 	// 获取操作人信息
-	WithOprFromReq(r *http.Request) any
+	WithOprFromReq(r *http.Request) Crudable
 	// 获取更新人信息
-	WithUpdaterFromReq(r *http.Request) any
+	WithUpdaterFromReq(r *http.Request) Crudable
 	schema.Tabler
 }
 
@@ -72,9 +52,9 @@ type BaseModel struct {
 }
 
 type OprBy struct {
-	CreatedBy uint  `json:"createdBy"`
+	CreatedBy *uint `json:"createdBy"`
 	Creator   *User `json:"creator" gorm:"foreignKey:CreatedBy"`
-	UpdatedBy uint  `json:"updatedBy"`
+	UpdatedBy *uint `json:"updatedBy"`
 	Updater   *User `json:"updater" gorm:"foreignKey:UpdatedBy"`
 }
 
@@ -83,8 +63,8 @@ func GetOprFromReq(r *http.Request) OprBy {
 	if oprId != nil {
 		if convertedOprId, ok := oprId.(uint); ok {
 			return OprBy{
-				CreatedBy: convertedOprId,
-				UpdatedBy: convertedOprId,
+				CreatedBy: &convertedOprId,
+				UpdatedBy: &convertedOprId,
 			}
 		}
 	}
@@ -96,7 +76,7 @@ func GetUpdaterFromReq(r *http.Request) OprBy {
 	if oprId != nil {
 		if convertedOprId, ok := oprId.(uint); ok {
 			return OprBy{
-				UpdatedBy: convertedOprId,
+				UpdatedBy: &convertedOprId,
 			}
 		}
 	}

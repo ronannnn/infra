@@ -1,5 +1,7 @@
 package model
 
+import "net/http"
+
 type Menu struct {
 	Base
 	Type           *MenuType `json:"type"`
@@ -23,4 +25,14 @@ const (
 
 func (Menu) TableName() string {
 	return "menus"
+}
+
+func (model Menu) WithOprFromReq(r *http.Request) Crudable {
+	model.OprBy = GetOprFromReq(r)
+	return model
+}
+
+func (model Menu) WithUpdaterFromReq(r *http.Request) Crudable {
+	model.OprBy = GetUpdaterFromReq(r)
+	return model
 }

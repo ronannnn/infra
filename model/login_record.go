@@ -1,6 +1,7 @@
 package model
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/ronannnn/infra/utils/useragent"
@@ -30,4 +31,14 @@ type LoginRecord struct {
 
 func (LoginRecord) TableName() string {
 	return "login_records"
+}
+
+func (model LoginRecord) WithOprFromReq(r *http.Request) Crudable {
+	model.OprBy = GetOprFromReq(r)
+	return model
+}
+
+func (model LoginRecord) WithUpdaterFromReq(r *http.Request) Crudable {
+	model.OprBy = GetUpdaterFromReq(r)
+	return model
 }
