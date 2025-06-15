@@ -4,7 +4,7 @@ import "net/http"
 
 type Company struct {
 	Base
-	Name string `json:"name"`
+	Name string `json:"name" gorm:"uniqueIndex"`
 }
 
 func (Company) TableName() string {
