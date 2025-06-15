@@ -32,7 +32,7 @@ func (b Base) TableName() string {
 	return ""
 }
 
-func (b Base) WithOprFromReq(r *http.Request) Crudable {
+func (b Base) WithOprFromReq(r *http.Request) any {
 	oprId := r.Context().Value(constant.CtxKeyUserId)
 	if oprId != nil {
 		if convertedOprId, ok := oprId.(uint); ok {
@@ -42,7 +42,7 @@ func (b Base) WithOprFromReq(r *http.Request) Crudable {
 	}
 	return b
 }
-func (b Base) WithUpdaterFromReq(r *http.Request) Crudable {
+func (b Base) WithUpdaterFromReq(r *http.Request) any {
 	oprId := r.Context().Value(constant.CtxKeyUserId)
 	if oprId != nil {
 		if convertedOprId, ok := oprId.(uint); ok {
@@ -57,9 +57,9 @@ type Crudable interface {
 	// 主要用于Crud的Update方法中判断Id是否为0
 	GetId() uint
 	// 获取操作人信息
-	WithOprFromReq(r *http.Request) Crudable
+	WithOprFromReq(r *http.Request) any
 	// 获取更新人信息
-	WithUpdaterFromReq(r *http.Request) Crudable
+	WithUpdaterFromReq(r *http.Request) any
 	schema.Tabler
 }
 

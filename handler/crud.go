@@ -30,8 +30,7 @@ func (c *DefaultCrudHandler[T]) Create(w http.ResponseWriter, r *http.Request) {
 	if c.H.BindAndCheck(w, r, &newModel) {
 		return
 	}
-	baseValue := any(&newModel).(interface{ WithOprFromReq(r *http.Request) T })
-	newModel = baseValue.WithOprFromReq(r)
+	newModel = newModel.WithOprFromReq(r).(T)
 	if err := c.Srv.Create(r.Context(), &newModel); err != nil {
 		c.H.Fail(w, r, err, nil)
 	} else {
@@ -44,8 +43,7 @@ func (c *DefaultCrudHandler[T]) Update(w http.ResponseWriter, r *http.Request) {
 	if c.H.BindAndCheckPartial(w, r, &partialUpdatedModel) {
 		return
 	}
-	baseValue := any(&partialUpdatedModel).(interface{ WithUpdaterFromReq(r *http.Request) T })
-	partialUpdatedModel = baseValue.WithUpdaterFromReq(r)
+	partialUpdatedModel = partialUpdatedModel.WithUpdaterFromReq(r).(T)
 	if updatedModel, err := c.Srv.Update(r.Context(), &partialUpdatedModel); err != nil {
 		c.H.Fail(w, r, err, nil)
 	} else {
