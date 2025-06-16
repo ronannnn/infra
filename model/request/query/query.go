@@ -94,12 +94,12 @@ func ResolveSelectQuery(items []SelectQueryItem, tblName string, fieldColMapper 
 	for _, item := range items {
 		if col, ok := fieldColMapper[item.Field]; ok {
 			if item.Distinct {
-				// condition.SetDistinct(fmt.Sprintf("`%s`.`%s`", tblName, col)) 似乎带上table的写法会失效
+				// condition.SetDistinct(fmt.Sprintf("\"%s\".\"%s\"", tblName, col)) 似乎带上table的写法会失效
 				// 好吧，没有tblName也不行
 				// gorm这块没做好
 				condition.SetDistinct(col)
 			} else {
-				condition.SetSelect(fmt.Sprintf("`%s`.`%s`", tblName, col))
+				condition.SetSelect(fmt.Sprintf("\"%s\".\"%s\"", tblName, col))
 			}
 		} else {
 			return fmt.Errorf("field %s not found", item.Field)
@@ -114,7 +114,7 @@ func ResolveWhereQuery(items []WhereQueryItem, tblName string, fieldColMapper ma
 			continue
 		}
 		if col, ok := fieldColMapper[item.Field]; ok {
-			fullColName := fmt.Sprintf("`%s`.`%s`", tblName, col)
+			fullColName := fmt.Sprintf("\"%s\".\"%s\"", tblName, col)
 			switch item.Opr {
 			case TypeEq:
 				condition.SetWhere(fmt.Sprintf("%s = ?", fullColName), []any{item.Value})
@@ -186,7 +186,7 @@ func ResolveOrQuery(items []WhereQueryItem, tblName string, fieldColMapper map[s
 			continue
 		}
 		if col, ok := fieldColMapper[item.Field]; ok {
-			fullColName := fmt.Sprintf("`%s`.`%s`", tblName, col)
+			fullColName := fmt.Sprintf("\"%s\".\"%s\"", tblName, col)
 			switch item.Opr {
 			case TypeEq:
 				condition.SetOr(fmt.Sprintf("%s = ?", fullColName), []any{item.Value})
@@ -250,13 +250,13 @@ func ResolveOrderQuery(items []OrderQueryItem, tblName string, fieldColMapper ma
 		if col, ok := fieldColMapper[item.Field]; ok {
 			switch strings.ToLower(item.Order) {
 			case TypeAsc:
-				condition.SetOrder(fmt.Sprintf("`%s`.`%s` asc", tblName, col))
+				condition.SetOrder(fmt.Sprintf("\"%s\".\"%s\" asc", tblName, col))
 			case TypeDesc:
-				condition.SetOrder(fmt.Sprintf("`%s`.`%s` desc", tblName, col))
+				condition.SetOrder(fmt.Sprintf("\"%s\".\"%s\" desc", tblName, col))
 			case TypeStringLenAsc:
-				condition.SetOrder(fmt.Sprintf("length(`%s`.`%s`) asc", tblName, col))
+				condition.SetOrder(fmt.Sprintf("length(\"%s\".\"%s\") asc", tblName, col))
 			case TypeStringLenDesc:
-				condition.SetOrder(fmt.Sprintf("length(`%s`.`%s`) desc", tblName, col))
+				condition.SetOrder(fmt.Sprintf("length(\"%s\".\"%s\") desc", tblName, col))
 			default:
 				return fmt.Errorf("opr %s not found", item.Order)
 			}
