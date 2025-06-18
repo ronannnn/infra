@@ -1,57 +1,36 @@
 package query
 
+type DbConditionWhereItem struct {
+	AndOr string // and/or
+	Key   string
+	Value any
+}
+
+type DbConditionWhereGroup struct {
+	AndOr  string // and/or
+	Items  []DbConditionWhereItem
+	Groups []DbConditionWhereGroup
+}
+
 type DbCondition interface {
-	SetWhere(k string, v []any)
-	SetOr(k string, v []any)
-	SetNot(k string, v []any)
+	SetWhere(group DbConditionWhereGroup)
 	SetOrder(k string)
 	SetSelect(k string)
 	SetDistinct(k string)
 }
 
 type DbConditionImpl struct {
-	Where    map[string][][]any
-	Or       map[string][][]any
-	Not      map[string][][]any
+	Where    []DbConditionWhereGroup
 	Order    []string
 	Select   []string
 	Distinct []string
 }
 
-func (e *DbConditionImpl) SetWhere(k string, v []any) {
+func (e *DbConditionImpl) SetWhere(group DbConditionWhereGroup) {
 	if e.Where == nil {
-		e.Where = make(map[string][][]any)
+		e.Where = make([]DbConditionWhereGroup, 0)
 	}
-	old, ok := e.Where[k]
-	if ok {
-		e.Where[k] = append(old, v)
-	} else {
-		e.Where[k] = [][]any{v}
-	}
-}
-
-func (e *DbConditionImpl) SetOr(k string, v []any) {
-	if e.Or == nil {
-		e.Or = make(map[string][][]any)
-	}
-	old, ok := e.Or[k]
-	if ok {
-		e.Or[k] = append(old, v)
-	} else {
-		e.Or[k] = [][]any{v}
-	}
-}
-
-func (e *DbConditionImpl) SetNot(k string, v []any) {
-	if e.Not == nil {
-		e.Not = make(map[string][][]any)
-	}
-	old, ok := e.Not[k]
-	if ok {
-		e.Not[k] = append(old, v)
-	} else {
-		e.Not[k] = [][]any{v}
-	}
+	e.Where = append(e.Where, group)
 }
 
 func (e *DbConditionImpl) SetOrder(k string) {

@@ -2,6 +2,7 @@ package query
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/ronannnn/infra/utils"
 	"gorm.io/gorm"
@@ -32,39 +33,9 @@ func MakeConditionFromQuery(query Query, model schema.Tabler) (fn func(db *gorm.
 
 func MakeCondition(condition *DbConditionImpl) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
-		// where
-		if len(condition.Where) > 0 {
-			whereSubDb := db.Session(&gorm.Session{NewDB: true})
-			for k, vs := range condition.Where {
-				for _, v := range vs {
-					whereSubDb = whereSubDb.Where(k, v...)
-				}
-			}
-			db = db.Where(whereSubDb)
+		for _, group := range condition.Where {
+			db = MakeDbConditionWhereQueryGroup(db, group)
 		}
-
-		// or
-		if len(condition.Or) > 0 {
-			orSubDb := db.Session(&gorm.Session{NewDB: true})
-			for k, vs := range condition.Or {
-				for _, v := range vs {
-					orSubDb = orSubDb.Or(k, v...)
-				}
-			}
-			db = db.Where(orSubDb)
-		}
-
-		// not
-		if len(condition.Not) > 0 {
-			notSubDb := db.Session(&gorm.Session{NewDB: true})
-			for k, vs := range condition.Not {
-				for _, v := range vs {
-					notSubDb = notSubDb.Not(k, v...)
-				}
-			}
-			db = db.Where(notSubDb)
-		}
-
 		for _, o := range condition.Order {
 			db = db.Order(o)
 		}
@@ -76,6 +47,49 @@ func MakeCondition(condition *DbConditionImpl) func(*gorm.DB) *gorm.DB {
 		}
 		return db
 	}
+}
+
+func MakeDbConditionWhereQueryGroup(db *gorm.DB, group DbConditionWhereGroup) *gorm.DB {
+	if len(group.Items) == 0 && len(group.Groups) == 0 {
+		return db
+	}
+
+	whereSubDb := db.Session(&gorm.Session{NewDB: true})
+
+	for _, subGroup := range group.Groups {
+		whereSubDb = MakeDbConditionWhereQueryGroup(whereSubDb, subGroup)
+	}
+
+	if len(group.Items) > 0 {
+		whereSubDb = MakeDbConditionWhereQueryItems(whereSubDb, group.Items)
+		switch strings.ToLower(group.AndOr) {
+		case "and", "":
+			db = db.Where(whereSubDb)
+		case "or":
+			db = db.Or(whereSubDb)
+		default:
+			fmt.Printf("error: invalid and/or condition in where query group: %s", group.AndOr)
+		}
+	}
+
+	return db
+}
+
+func MakeDbConditionWhereQueryItems(db *gorm.DB, items []DbConditionWhereItem) *gorm.DB {
+	if len(items) == 0 {
+		return db
+	}
+	for _, item := range items {
+		switch strings.ToLower(item.AndOr) {
+		case "and", "":
+			db = db.Where(item.Key, item.Value)
+		case "or":
+			db = db.Or(item.Key, item.Value)
+		default:
+			fmt.Printf("error: invalid and/or condition in where query item: %s", item.AndOr)
+		}
+	}
+	return db
 }
 
 func ResolveQueryRange(queryRange Range, fieldName string) func(db *gorm.DB) *gorm.DB {

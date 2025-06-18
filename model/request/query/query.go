@@ -8,28 +8,40 @@ import (
 	"gorm.io/gorm/schema"
 )
 
+// selectQuery
+// SelectQueryItem 用于指定查询的字段和是否去重
 type SelectQueryItem struct {
 	Field    string `json:"field"`    // 字段名
 	Distinct bool   `json:"distinct"` // 是否去重
 }
 
+// whereQuery
+// WhereQueryItemGroup 用于表示一组条件，可以是and/or连接的多个条件项或子条件组
+type WhereQueryItemGroup struct {
+	AndOr  string                `json:"andOr"`  // 连接条件 and/or
+	Items  []WhereQueryItem      `json:"items"`  // 条件项
+	Groups []WhereQueryItemGroup `json:"groups"` // 子条件组
+}
 type WhereQueryItem struct {
+	AndOr string `json:"andOr"` // 连接条件 and/or
 	Field string `json:"field"` // 字段名
 	Opr   string `json:"opr"`   // 操作类型
 	Value any    `json:"value"` // 值
 }
 
+// orderQuery
+// OrderQueryItem 用于指定排序的字段和排序方式
 type OrderQueryItem struct {
 	Field string `json:"field"` // 字段名
-	Order string `json:"order"` // 排序方式 asc desc
+	Order string `json:"order"` // 排序方式 asc desc 等
 }
 
 type Query struct {
 	Pagination  Pagination        `json:"pagination"`
 	SelectQuery []SelectQueryItem `json:"selectQuery"`
 
-	WhereQuery []WhereQueryItem `json:"whereQuery"`
-	OrQuery    []WhereQueryItem `json:"orQuery"`
+	WhereQuery []WhereQueryItemGroup `json:"whereQuery"`
+	OrQuery    []WhereQueryItem      `json:"orQuery"`
 
 	OrderQuery []OrderQueryItem `json:"orderQuery"`
 
@@ -55,7 +67,6 @@ const (
 	TypeEndLike      = "end_like"
 	TypeIn           = "in"
 	TypeNotIn        = "not_in"
-	TypeRange        = "range"
 	TypeIs           = "is"
 	TypeIsNot        = "is_not"
 	TypeStringLenEq  = "str_len_eq"
@@ -84,9 +95,6 @@ func ResolveQuery(query Query, model schema.Tabler, condition DbCondition) (err 
 	if err = ResolveOrderQuery(query.OrderQuery, tblName, fieldColMapper, condition); err != nil {
 		return
 	}
-	if err = ResolveOrQuery(query.OrQuery, tblName, fieldColMapper, condition); err != nil {
-		return
-	}
 	return
 }
 
@@ -108,138 +116,90 @@ func ResolveSelectQuery(items []SelectQueryItem, tblName string, fieldColMapper 
 	return
 }
 
-func ResolveWhereQuery(items []WhereQueryItem, tblName string, fieldColMapper map[string]string, condition DbCondition) (err error) {
-	for _, item := range items {
-		if utils.IsZeroValue(item.Value) || item.Opr == TypeCustom {
-			continue
+func ResolveWhereQuery(groups []WhereQueryItemGroup, tblName string, fieldColMapper map[string]string, condition DbCondition) (err error) {
+	for _, group := range groups {
+		var dbGroup DbConditionWhereGroup
+		if dbGroup, err = ResolveWhereQueryGroup(group, tblName, fieldColMapper); err != nil {
+			return
 		}
-		if col, ok := fieldColMapper[item.Field]; ok {
-			fullColName := fmt.Sprintf("\"%s\".\"%s\"", tblName, col)
-			switch item.Opr {
-			case TypeEq:
-				condition.SetWhere(fmt.Sprintf("%s = ?", fullColName), []any{item.Value})
-			case TypeNe:
-				condition.SetWhere(fmt.Sprintf("%s != ?", fullColName), []any{item.Value})
-			case TypeGt:
-				condition.SetWhere(fmt.Sprintf("%s > ?", fullColName), []any{item.Value})
-			case TypeGte:
-				condition.SetWhere(fmt.Sprintf("%s >= ?", fullColName), []any{item.Value})
-			case TypeLt:
-				condition.SetWhere(fmt.Sprintf("%s < ?", fullColName), []any{item.Value})
-			case TypeLte:
-				condition.SetWhere(fmt.Sprintf("%s <= ?", fullColName), []any{item.Value})
-			case TypeLike:
-				condition.SetWhere(fmt.Sprintf("%s like ?", fullColName), []any{"%" + item.Value.(string) + "%"})
-			case TypeStartLike:
-				condition.SetWhere(fmt.Sprintf("%s like ?", fullColName), []any{item.Value.(string) + "%"})
-			case TypeEndLike:
-				condition.SetWhere(fmt.Sprintf("%s like ?", fullColName), []any{"%" + item.Value.(string)})
-			case TypeIn:
-				// 如果item.Value是否是空数组就跳过
-				var convertedValue []any
-				if convertedValue, ok = item.Value.([]any); ok {
-					if len(convertedValue) == 0 {
-						continue
-					}
-				}
-				condition.SetWhere(fmt.Sprintf("%s in (?)", fullColName), []any{item.Value})
-			case TypeNotIn:
-				condition.SetWhere(fmt.Sprintf("%s not in (?)", fullColName), []any{item.Value})
-			case TypeRange:
-				start := item.Value.(map[string]any)["start"]
-				end := item.Value.(map[string]any)["end"]
-				if !utils.IsZeroValue(start) {
-					condition.SetWhere(fmt.Sprintf("%s >= ?", fullColName), []any{start})
-				}
-				if !utils.IsZeroValue(end) {
-					condition.SetWhere(fmt.Sprintf("%s <= ?", fullColName), []any{end})
-				}
-			case TypeIs:
-				condition.SetWhere(fmt.Sprintf("%s is ?", fullColName), []any{item.Value})
-			case TypeIsNot:
-				condition.SetWhere(fmt.Sprintf("%s is not ?", fullColName), []any{item.Value})
-			case TypeStringLenEq:
-				condition.SetWhere(fmt.Sprintf("length(%s) = ?", fullColName), []any{item.Value})
-			case TypeStringLenNe:
-				condition.SetWhere(fmt.Sprintf("length(%s) != ?", fullColName), []any{item.Value})
-			case TypeStringLenGt:
-				condition.SetWhere(fmt.Sprintf("length(%s) > ?", fullColName), []any{item.Value})
-			case TypeStringLenGte:
-				condition.SetWhere(fmt.Sprintf("length(%s) >= ?", fullColName), []any{item.Value})
-			case TypeStringLenLt:
-				condition.SetWhere(fmt.Sprintf("length(%s) < ?", fullColName), []any{item.Value})
-			case TypeStringLenLte:
-				condition.SetWhere(fmt.Sprintf("length(%s) <= ?", fullColName), []any{item.Value})
-			default:
-				return fmt.Errorf("opr %s not found", item.Opr)
-			}
-		} else {
-			return fmt.Errorf("field %s not found", item.Field)
-		}
+		condition.SetWhere(dbGroup)
 	}
 	return
 }
 
-func ResolveOrQuery(items []WhereQueryItem, tblName string, fieldColMapper map[string]string, condition DbCondition) (err error) {
+func ResolveWhereQueryGroup(group WhereQueryItemGroup, tblName string, fieldColMapper map[string]string) (dbGroup DbConditionWhereGroup, err error) {
+	dbGroup.AndOr = group.AndOr
+	if dbGroup.Items, err = ResolveWhereQueryItems(group.Items, tblName, fieldColMapper); err != nil {
+		return
+	}
+	for _, subGroup := range group.Groups {
+		var dbSubGroup DbConditionWhereGroup
+		if dbSubGroup, err = ResolveWhereQueryGroup(subGroup, tblName, fieldColMapper); err != nil {
+			return
+		}
+		dbGroup.Groups = append(dbGroup.Groups, dbSubGroup)
+	}
+	return
+}
+
+func ResolveWhereQueryItems(items []WhereQueryItem, tblName string, fieldColMapper map[string]string) (dbItems []DbConditionWhereItem, err error) {
 	for _, item := range items {
 		if utils.IsZeroValue(item.Value) || item.Opr == TypeCustom {
 			continue
 		}
 		if col, ok := fieldColMapper[item.Field]; ok {
 			fullColName := fmt.Sprintf("\"%s\".\"%s\"", tblName, col)
+			dbItem := DbConditionWhereItem{AndOr: item.AndOr, Value: item.Value}
 			switch item.Opr {
 			case TypeEq:
-				condition.SetOr(fmt.Sprintf("%s = ?", fullColName), []any{item.Value})
+				dbItem.Key = fmt.Sprintf("%s = ?", fullColName)
 			case TypeNe:
-				condition.SetOr(fmt.Sprintf("%s != ?", fullColName), []any{item.Value})
+				dbItem.Key = fmt.Sprintf("%s != ?", fullColName)
 			case TypeGt:
-				condition.SetOr(fmt.Sprintf("%s > ?", fullColName), []any{item.Value})
+				dbItem.Key = fmt.Sprintf("%s > ?", fullColName)
 			case TypeGte:
-				condition.SetOr(fmt.Sprintf("%s >= ?", fullColName), []any{item.Value})
+				dbItem.Key = fmt.Sprintf("%s >= ?", fullColName)
 			case TypeLt:
-				condition.SetOr(fmt.Sprintf("%s < ?", fullColName), []any{item.Value})
+				dbItem.Key = fmt.Sprintf("%s < ?", fullColName)
 			case TypeLte:
-				condition.SetOr(fmt.Sprintf("%s <= ?", fullColName), []any{item.Value})
+				dbItem.Key = fmt.Sprintf("%s <= ?", fullColName)
 			case TypeLike:
-				condition.SetOr(fmt.Sprintf("%s like ?", fullColName), []any{"%" + item.Value.(string) + "%"})
+				dbItem.Key = fmt.Sprintf("%s like ?", fullColName)
+				dbItem.Value = "%" + item.Value.(string) + "%"
 			case TypeStartLike:
-				condition.SetOr(fmt.Sprintf("%s like ?", fullColName), []any{item.Value.(string) + "%"})
+				dbItem.Key = fmt.Sprintf("%s like ?", fullColName)
+				dbItem.Value = item.Value.(string) + "%"
 			case TypeEndLike:
-				condition.SetOr(fmt.Sprintf("%s like ?", fullColName), []any{"%" + item.Value.(string)})
+				dbItem.Key = fmt.Sprintf("%s like ?", fullColName)
+				dbItem.Value = "%" + item.Value.(string)
 			case TypeIn:
-				condition.SetOr(fmt.Sprintf("%s in (?)", fullColName), []any{item.Value})
+				dbItem.Key = fmt.Sprintf("%s in (?)", fullColName)
 			case TypeNotIn:
-				condition.SetOr(fmt.Sprintf("%s not in (?)", fullColName), []any{item.Value})
-			case TypeRange:
-				start := item.Value.(map[string]any)["start"]
-				end := item.Value.(map[string]any)["end"]
-				if !utils.IsZeroValue(start) {
-					condition.SetOr(fmt.Sprintf("%s >= ?", fullColName), []any{start})
-				}
-				if !utils.IsZeroValue(end) {
-					condition.SetOr(fmt.Sprintf("%s <= ?", fullColName), []any{end})
-				}
+				dbItem.Key = fmt.Sprintf("%s not in (?)", fullColName)
 			case TypeIs:
-				condition.SetOr(fmt.Sprintf("%s is ?", fullColName), []any{item.Value})
+				dbItem.Key = fmt.Sprintf("%s is ?", fullColName)
 			case TypeIsNot:
-				condition.SetOr(fmt.Sprintf("%s is not ?", fullColName), []any{item.Value})
+				dbItem.Key = fmt.Sprintf("%s is not ?", fullColName)
 			case TypeStringLenEq:
-				condition.SetOr(fmt.Sprintf("length(%s) = ?", fullColName), []any{item.Value})
+				dbItem.Key = fmt.Sprintf("length(%s) = ?", fullColName)
 			case TypeStringLenNe:
-				condition.SetOr(fmt.Sprintf("length(%s) != ?", fullColName), []any{item.Value})
+				dbItem.Key = fmt.Sprintf("length(%s) != ?", fullColName)
 			case TypeStringLenGt:
-				condition.SetOr(fmt.Sprintf("length(%s) > ?", fullColName), []any{item.Value})
+				dbItem.Key = fmt.Sprintf("length(%s) > ?", fullColName)
 			case TypeStringLenGte:
-				condition.SetOr(fmt.Sprintf("length(%s) >= ?", fullColName), []any{item.Value})
+				dbItem.Key = fmt.Sprintf("length(%s) >= ?", fullColName)
 			case TypeStringLenLt:
-				condition.SetOr(fmt.Sprintf("length(%s) < ?", fullColName), []any{item.Value})
+				dbItem.Key = fmt.Sprintf("length(%s) < ?", fullColName)
 			case TypeStringLenLte:
-				condition.SetOr(fmt.Sprintf("length(%s) <= ?", fullColName), []any{item.Value})
+				dbItem.Key = fmt.Sprintf("length(%s) <= ?", fullColName)
 			default:
-				return fmt.Errorf("opr %s not found", item.Opr)
+				err = fmt.Errorf("opr %s not found", item.Opr)
+				return
 			}
+			dbItems = append(dbItems, dbItem)
 		} else {
-			return fmt.Errorf("field %s not found", item.Field)
+			err = fmt.Errorf("field %s not found", item.Field)
+			return
 		}
 	}
 	return

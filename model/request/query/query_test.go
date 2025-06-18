@@ -55,22 +55,43 @@ func TestParseQuery(t *testing.T) {
 			{Field: "carNumber"},
 			{Field: "status", Distinct: true},
 		},
-		WhereQuery: []query.WhereQueryItem{
-			{Field: "username", Opr: query.TypeEq, Value: "ronan"},
-			{Field: "username", Opr: query.TypeEq, Value: nil},
-			{Field: "nickname", Opr: query.TypeNe, Value: "awe"},
-			{Field: "age", Opr: query.TypeGt, Value: 18},
-			{Field: "age", Opr: query.TypeLt, Value: 25},
-			{Field: "height", Opr: query.TypeGte, Value: 170.5},
-			{Field: "height", Opr: query.TypeLte, Value: 185},
-			{Field: "carNumber", Opr: query.TypeLike, Value: "浙"},
-			{Field: "carNumber", Opr: query.TypeStartLike, Value: "浙"},
-			{Field: "carNumber", Opr: query.TypeEndLike, Value: "浙"},
-			{Field: "status", Opr: query.TypeIn, Value: []uint{1, 2, 3}},
-			{Field: "status", Opr: query.TypeNotIn, Value: []uint{4, 5}},
-			{Field: "birth", Opr: query.TypeRange, Value: map[string]any{"start": "2000-01-01", "end": "2000-12-31"}},
-			{Field: "human", Opr: query.TypeIs, Value: true},
-			{Field: "human", Opr: query.TypeIsNot, Value: false},
+		WhereQuery: []query.WhereQueryItemGroup{
+			{
+				AndOr: "and",
+				Items: []query.WhereQueryItem{
+					{AndOr: "or", Field: "username", Opr: query.TypeEq, Value: "ronan"},
+					{AndOr: "and", Field: "username", Opr: query.TypeEq, Value: nil},
+					{AndOr: "or", Field: "nickname", Opr: query.TypeNe, Value: "awe"},
+				},
+				Groups: []query.WhereQueryItemGroup{
+					{
+						AndOr: "and",
+						Items: []query.WhereQueryItem{
+							{Field: "carNumber", Opr: query.TypeLike, Value: "浙"},
+							{Field: "carNumber", Opr: query.TypeStartLike, Value: "浙"},
+							{Field: "carNumber", Opr: query.TypeEndLike, Value: "浙"},
+						},
+					},
+					{
+						AndOr: "or",
+						Items: []query.WhereQueryItem{
+							{Field: "status", Opr: query.TypeIn, Value: []uint{1, 2, 3}},
+							{Field: "status", Opr: query.TypeNotIn, Value: []uint{4, 5}},
+							{Field: "human", Opr: query.TypeIs, Value: true},
+							{Field: "human", Opr: query.TypeIsNot, Value: false},
+						},
+					},
+				},
+			},
+			{
+				AndOr: "or",
+				Items: []query.WhereQueryItem{
+					{Field: "age", Opr: query.TypeGt, Value: 18},
+					{Field: "age", Opr: query.TypeLt, Value: 25},
+					{Field: "height", Opr: query.TypeGte, Value: 170.5},
+					{Field: "height", Opr: query.TypeLte, Value: 185},
+				},
+			},
 		},
 		OrderQuery: []query.OrderQueryItem{
 			{Field: "createdAt", Order: "desc"},
@@ -85,28 +106,52 @@ func TestParseQuery(t *testing.T) {
 	require.EqualValues(t, "status", condition.Distinct[0])
 	// select
 	require.EqualValues(t, 2, len(condition.Select))
-	require.EqualValues(t, "`test_users`.`username`", condition.Select[0])
-	require.EqualValues(t, "`test_users`.`car_number`", condition.Select[1])
+	require.EqualValues(t, "\"test_users\".\"username\"", condition.Select[0])
+	require.EqualValues(t, "\"test_users\".\"car_number\"", condition.Select[1])
 	// where
-	require.EqualValues(t, 1, len(condition.Where["`test_users`.`username` = ?"]))
-	require.EqualValues(t, "ronan", condition.Where["`test_users`.`username` = ?"][0][0])
-	require.EqualValues(t, "awe", condition.Where["`test_users`.`nickname` != ?"][0][0])
-	require.EqualValues(t, 18, condition.Where["`test_users`.`age` > ?"][0][0])
-	require.EqualValues(t, 25, condition.Where["`test_users`.`age` < ?"][0][0])
-	require.EqualValues(t, 170.5, condition.Where["`test_users`.`height` >= ?"][0][0])
-	require.EqualValues(t, 185, condition.Where["`test_users`.`height` <= ?"][0][0])
-	require.EqualValues(t, 3, len(condition.Where["`test_users`.`car_number` like ?"]))
-	require.EqualValues(t, "%浙%", condition.Where["`test_users`.`car_number` like ?"][0][0])
-	require.EqualValues(t, "浙%", condition.Where["`test_users`.`car_number` like ?"][1][0])
-	require.EqualValues(t, "%浙", condition.Where["`test_users`.`car_number` like ?"][2][0])
-	require.EqualValues(t, 3, len(condition.Where["`test_users`.`status` in (?)"][0][0].([]uint)))
-	require.EqualValues(t, 2, len(condition.Where["`test_users`.`status` not in (?)"][0][0].([]uint)))
-	require.EqualValues(t, "2000-01-01", condition.Where["`test_users`.`birth` >= ?"][0][0])
-	require.EqualValues(t, "2000-12-31", condition.Where["`test_users`.`birth` <= ?"][0][0])
-	require.EqualValues(t, true, condition.Where["`test_users`.`human` is ?"][0][0])
-	require.EqualValues(t, false, condition.Where["`test_users`.`human` is not ?"][0][0])
+	require.EqualValues(t, 2, len(condition.Where))
+	// where[0]
+	require.EqualValues(t, "and", condition.Where[0].AndOr)
+	require.EqualValues(t, 2, len(condition.Where[0].Items))
+	require.EqualValues(t, "\"test_users\".\"username\" = ?", condition.Where[0].Items[0].Key)
+	require.EqualValues(t, "ronan", condition.Where[0].Items[0].Value)
+	require.EqualValues(t, "\"test_users\".\"nickname\" != ?", condition.Where[0].Items[1].Key)
+	require.EqualValues(t, "awe", condition.Where[0].Items[1].Value)
+	// where[0].Groups
+	require.EqualValues(t, 2, len(condition.Where[0].Groups))
+	// where[0].Groups[0]
+	require.EqualValues(t, "and", condition.Where[0].Groups[0].AndOr)
+	require.EqualValues(t, 3, len(condition.Where[0].Groups[0].Items))
+	require.EqualValues(t, "\"test_users\".\"car_number\" like ?", condition.Where[0].Groups[0].Items[0].Key)
+	require.EqualValues(t, "%浙%", condition.Where[0].Groups[0].Items[0].Value)
+	require.EqualValues(t, "\"test_users\".\"car_number\" like ?", condition.Where[0].Groups[0].Items[1].Key)
+	require.EqualValues(t, "浙%", condition.Where[0].Groups[0].Items[1].Value)
+	require.EqualValues(t, "\"test_users\".\"car_number\" like ?", condition.Where[0].Groups[0].Items[2].Key)
+	require.EqualValues(t, "%浙", condition.Where[0].Groups[0].Items[2].Value)
+	// where[0].Groups[1]
+	require.EqualValues(t, "or", condition.Where[0].Groups[1].AndOr)
+	require.EqualValues(t, 4, len(condition.Where[0].Groups[1].Items))
+	require.EqualValues(t, "\"test_users\".\"status\" in (?)", condition.Where[0].Groups[1].Items[0].Key)
+	require.EqualValues(t, []uint{1, 2, 3}, condition.Where[0].Groups[1].Items[0].Value)
+	require.EqualValues(t, "\"test_users\".\"status\" not in (?)", condition.Where[0].Groups[1].Items[1].Key)
+	require.EqualValues(t, []uint{4, 5}, condition.Where[0].Groups[1].Items[1].Value)
+	require.EqualValues(t, "\"test_users\".\"human\" is ?", condition.Where[0].Groups[1].Items[2].Key)
+	require.EqualValues(t, true, condition.Where[0].Groups[1].Items[2].Value)
+	require.EqualValues(t, "\"test_users\".\"human\" is not ?", condition.Where[0].Groups[1].Items[3].Key)
+	require.EqualValues(t, false, condition.Where[0].Groups[1].Items[3].Value)
+	// where[1]
+	require.EqualValues(t, "or", condition.Where[1].AndOr)
+	require.EqualValues(t, 4, len(condition.Where[1].Items))
+	require.EqualValues(t, "\"test_users\".\"age\" > ?", condition.Where[1].Items[0].Key)
+	require.EqualValues(t, 18, condition.Where[1].Items[0].Value)
+	require.EqualValues(t, "\"test_users\".\"age\" < ?", condition.Where[1].Items[1].Key)
+	require.EqualValues(t, 25, condition.Where[1].Items[1].Value)
+	require.EqualValues(t, "\"test_users\".\"height\" >= ?", condition.Where[1].Items[2].Key)
+	require.EqualValues(t, 170.5, condition.Where[1].Items[2].Value)
+	require.EqualValues(t, "\"test_users\".\"height\" <= ?", condition.Where[1].Items[3].Key)
+	require.EqualValues(t, 185, condition.Where[1].Items[3].Value)
 	// order
 	require.EqualValues(t, 2, len(condition.Order))
-	require.EqualValues(t, "`test_users`.`created_at` desc", condition.Order[0])
-	require.EqualValues(t, "`test_users`.`nickname` asc", condition.Order[1])
+	require.EqualValues(t, "\"test_users\".\"created_at\" desc", condition.Order[0])
+	require.EqualValues(t, "\"test_users\".\"nickname\" asc", condition.Order[1])
 }
