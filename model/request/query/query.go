@@ -70,6 +70,8 @@ const (
 	TypeNotIn        = "not_in"
 	TypeIs           = "is"
 	TypeIsNot        = "is_not"
+	TypeIsEmpty      = "is_empty"     // is null / is '' / is ' '
+	TypeIsNotEmpty   = "is_not_empty" // is not null / is not '' / is not ' '
 	TypeStringLenEq  = "str_len_eq"
 	TypeStringLenNe  = "str_len_ne"
 	TypeStringLenGt  = "str_len_gt"
@@ -184,6 +186,10 @@ func ResolveWhereQueryItems(items []WhereQueryItem, tblName string, fieldColMapp
 				dbItem.Key = fmt.Sprintf("%s is ?", fullColName)
 			case TypeIsNot:
 				dbItem.Key = fmt.Sprintf("%s is not ?", fullColName)
+			case TypeIsEmpty:
+				dbItem.Key = fmt.Sprintf("TRIM(COALESCE(%s, '')) = ''", fullColName)
+			case TypeIsNotEmpty:
+				dbItem.Key = fmt.Sprintf("TRIM(COALESCE(%s, '')) != ''", fullColName)
 			case TypeStringLenEq:
 				dbItem.Key = fmt.Sprintf("length(%s) = ?", fullColName)
 			case TypeStringLenNe:
