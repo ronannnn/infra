@@ -16,6 +16,11 @@ type SelectQueryItem struct {
 }
 
 // whereQuery
+type WhereQuery struct {
+	Items  []WhereQueryItem      `json:"items"`  // 简单查询条件
+	Groups []WhereQueryItemGroup `json:"groups"` // 高级查询条件组
+}
+
 // WhereQueryItemGroup 用于表示一组条件，可以是and/or连接的多个条件项或子条件组
 type WhereQueryItemGroup struct {
 	AndOr  string                `json:"andOr"`  // 连接条件 and/or
@@ -40,8 +45,8 @@ type Query struct {
 	Pagination  Pagination        `json:"pagination"`
 	SelectQuery []SelectQueryItem `json:"selectQuery"`
 
-	WhereQuery []WhereQueryItemGroup `json:"whereQuery"`
-	OrQuery    []WhereQueryItem      `json:"orQuery"`
+	WhereQuery WhereQuery       `json:"whereQuery"`
+	OrQuery    []WhereQueryItem `json:"orQuery"`
 
 	OrderQuery []OrderQueryItem `json:"orderQuery"`
 
@@ -92,7 +97,15 @@ func ResolveQuery(query Query, model schema.Tabler, condition DbCondition) (err 
 	if err = ResolveSelectQuery(query.SelectQuery, tblName, fieldColMapper, condition); err != nil {
 		return
 	}
-	if err = ResolveWhereQuery(query.WhereQuery, tblName, fieldColMapper, condition); err != nil {
+	// 把简单查询也放到groups中
+	whereQueryGroups := query.WhereQuery.Groups
+	if len(query.WhereQuery.Items) > 0 {
+		whereQueryGroups = append(whereQueryGroups, WhereQueryItemGroup{
+			AndOr: "and",
+			Items: query.WhereQuery.Items,
+		})
+	}
+	if err = ResolveWhereQuery(whereQueryGroups, tblName, fieldColMapper, condition); err != nil {
 		return
 	}
 	if err = ResolveOrderQuery(query.OrderQuery, tblName, fieldColMapper, condition); err != nil {
@@ -132,6 +145,9 @@ func ResolveWhereQuery(groups []WhereQueryItemGroup, tblName string, fieldColMap
 
 func ResolveWhereQueryGroup(group WhereQueryItemGroup, tblName string, fieldColMapper map[string]string) (dbGroup DbConditionWhereGroup, err error) {
 	dbGroup.AndOr = group.AndOr
+	if dbGroup.AndOr == "" {
+		dbGroup.AndOr = "and" // 默认使用and连接
+	}
 	if dbGroup.Items, err = ResolveWhereQueryItems(group.Items, tblName, fieldColMapper); err != nil {
 		return
 	}
