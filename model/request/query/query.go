@@ -63,6 +63,7 @@ const (
 	TypeLt           = "lt"
 	TypeLte          = "lte"
 	TypeLike         = "like"
+	TypeNotLike      = "not_like"
 	TypeStartLike    = "start_like"
 	TypeEndLike      = "end_like"
 	TypeIn           = "in"
@@ -165,6 +166,9 @@ func ResolveWhereQueryItems(items []WhereQueryItem, tblName string, fieldColMapp
 				dbItem.Key = fmt.Sprintf("%s <= ?", fullColName)
 			case TypeLike:
 				dbItem.Key = fmt.Sprintf("%s like ?", fullColName)
+				dbItem.Value = "%" + item.Value.(string) + "%"
+			case TypeNotLike:
+				dbItem.Key = fmt.Sprintf("%s not like ?", fullColName)
 				dbItem.Value = "%" + item.Value.(string) + "%"
 			case TypeStartLike:
 				dbItem.Key = fmt.Sprintf("%s like ?", fullColName)
