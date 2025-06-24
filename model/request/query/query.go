@@ -163,7 +163,9 @@ func ResolveWhereQueryGroup(group WhereQueryItemGroup, tblName string, fieldColM
 
 func ResolveWhereQueryItems(items []WhereQueryItem, tblName string, fieldColMapper map[string]string) (dbItems []DbConditionWhereItem, err error) {
 	for _, item := range items {
-		if utils.IsZeroValue(item.Value) || item.Opr == TypeCustom {
+		// isEmpty和isNotEmpty不需要有value
+		if (utils.IsZeroValue(item.Value) && item.Opr != TypeIsEmpty && item.Opr != TypeIsNotEmpty) ||
+			item.Opr == TypeCustom {
 			continue
 		}
 		if col, ok := fieldColMapper[item.Field]; ok {
