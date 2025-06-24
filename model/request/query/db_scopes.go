@@ -82,9 +82,17 @@ func MakeDbConditionWhereQueryItems(db *gorm.DB, items []DbConditionWhereItem) *
 	for _, item := range items {
 		switch strings.ToLower(item.AndOr) {
 		case "and", "":
-			db = db.Where(item.Key, item.Value)
+			if item.Value == nil {
+				db = db.Where(item.Key)
+			} else {
+				db = db.Where(item.Key, item.Value)
+			}
 		case "or":
-			db = db.Or(item.Key, item.Value)
+			if item.Value == nil {
+				db = db.Or(item.Key)
+			} else {
+				db = db.Or(item.Key, item.Value)
+			}
 		default:
 			fmt.Printf("error: invalid and/or condition in where query item: %s", item.AndOr)
 		}
