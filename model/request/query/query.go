@@ -155,6 +155,9 @@ func ResolveWhereQueryGroup(group WhereQueryItemGroup, tblName string, fieldColM
 	// item是range类型的额外处理，把range加入到groups中
 	for _, item := range group.Items {
 		if item.Opr == TypeRangeGtLt || item.Opr == TypeRangeGtLte || item.Opr == TypeRangeGteLt || item.Opr == TypeRangeGteLte {
+			if _, ok := item.Value.(Range); !ok {
+				continue // 如果不是Range类型，跳过
+			}
 			var startOpr, endOpr string
 			switch item.Opr {
 			case TypeRangeGtLt:
