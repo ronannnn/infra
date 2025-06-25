@@ -205,11 +205,19 @@ func ResolveWhereQueryGroup(group WhereQueryItemGroup, tblName string, fieldColM
 	return
 }
 
+func isOprValidWithNullValue(opr string) bool {
+	switch opr {
+	case TypeIsNull, TypeIsNotNull, TypeIsEmpty, TypeIsNotEmpty:
+		return true // 这些操作符可以没有值
+	default:
+		return false // 其他操作符需要有值
+	}
+}
+
 func ResolveWhereQueryItems(items []WhereQueryItem, tblName string, fieldColMapper map[string]string) (dbItems []DbConditionWhereItem, err error) {
 	for _, item := range items {
 		// isEmpty和isNotEmpty不需要有value
-		if (utils.IsZeroValue(item.Value) && item.Opr != TypeIsEmpty && item.Opr != TypeIsNotEmpty) ||
-			item.Opr == TypeCustom {
+		if (utils.IsZeroValue(item.Value) && !isOprValidWithNullValue(item.Opr)) || item.Opr == TypeCustom {
 			continue
 		}
 		if col, ok := fieldColMapper[item.Field]; ok {
