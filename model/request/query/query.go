@@ -83,6 +83,10 @@ const (
 	TypeStringLenGte = "str_len_gte"
 	TypeStringLenLt  = "str_len_lt"
 	TypeStringLenLte = "str_len_lte"
+	TypeRangeGtLt    = "range_gt_lt"   // 范围查询，左开右开
+	TypeRangeGtLte   = "range_gt_lte"  // 范围查询，左开右闭
+	TypeRangeGteLt   = "range_gte_lt"  // 范围查询，左闭右开
+	TypeRangeGteLte  = "range_gte_lte" // 范围查询，左闭右闭
 
 	// order
 	TypeAsc           = "asc"
@@ -147,6 +151,41 @@ func ResolveWhereQueryGroup(group WhereQueryItemGroup, tblName string, fieldColM
 	dbGroup.AndOr = group.AndOr
 	if dbGroup.AndOr == "" {
 		dbGroup.AndOr = "and" // 默认使用and连接
+	}
+	// item是range类型的额外处理，把range加入到groups中
+	for _, item := range group.Items {
+		if item.Opr == TypeRangeGtLt || item.Opr == TypeRangeGtLte || item.Opr == TypeRangeGteLt || item.Opr == TypeRangeGteLte {
+			var startOpr, endOpr string
+			switch item.Opr {
+			case TypeRangeGtLt:
+				startOpr = TypeGt
+				endOpr = TypeLt
+			case TypeRangeGtLte:
+				startOpr = TypeGt
+				endOpr = TypeLte
+			case TypeRangeGteLt:
+				startOpr = TypeGte
+				endOpr = TypeLt
+			case TypeRangeGteLte:
+				startOpr = TypeGte
+				endOpr = TypeLte
+			}
+			group.Groups = append(group.Groups, WhereQueryItemGroup{
+				AndOr: item.AndOr,
+				Items: []WhereQueryItem{
+					{
+						Field: item.Field,
+						Opr:   startOpr,
+						Value: item.Value.(Range).Start,
+					},
+					{
+						Field: item.Field,
+						Opr:   endOpr,
+						Value: item.Value.(Range).End,
+					},
+				},
+			})
+		}
 	}
 	if dbGroup.Items, err = ResolveWhereQueryItems(group.Items, tblName, fieldColMapper); err != nil {
 		return
@@ -220,6 +259,8 @@ func ResolveWhereQueryItems(items []WhereQueryItem, tblName string, fieldColMapp
 				dbItem.Key = fmt.Sprintf("length(%s) < ?", fullColName)
 			case TypeStringLenLte:
 				dbItem.Key = fmt.Sprintf("length(%s) <= ?", fullColName)
+			case TypeCustom, TypeRangeGtLt, TypeRangeGtLte, TypeRangeGteLt, TypeRangeGteLte:
+				continue // custom类型不需要处理，range类型已经在ResolveWhereQueryGroup中处理了
 			default:
 				err = fmt.Errorf("opr %s not found", item.Opr)
 				return
