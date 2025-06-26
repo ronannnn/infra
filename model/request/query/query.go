@@ -58,6 +58,26 @@ type Range struct {
 	End   any `json:"end"`
 }
 
+func ParseRange(data any) (r Range, ok bool) {
+	// 尝试将data转换为Range类型
+	if r, ok = data.(Range); ok {
+		return
+	}
+
+	// 如果data是map类型，尝试解析为Range
+	m, ok := data.(map[string]any)
+	if !ok {
+		return
+	}
+	if start, ok := m["start"]; ok {
+		r.Start = start
+	}
+	if end, ok := m["end"]; ok {
+		r.End = end
+	}
+	return
+}
+
 const (
 	// query
 	TypeCustom       = "custom" // 用户自定义gorm scope，不做任何处理
@@ -157,7 +177,8 @@ func ResolveWhereQueryGroup(group WhereQueryItemGroup, tblName string, fieldColM
 	// item是range类型的额外处理，把range加入到groups中
 	for _, item := range group.Items {
 		if item.Opr == TypeRangeGtLt || item.Opr == TypeRangeGtLte || item.Opr == TypeRangeGteLt || item.Opr == TypeRangeGteLte {
-			if _, ok := item.Value.(Range); !ok {
+			rangeValue, ok := ParseRange(item.Value)
+			if !ok {
 				continue // 如果不是Range类型，跳过
 			}
 			var startOpr, endOpr string
@@ -181,12 +202,12 @@ func ResolveWhereQueryGroup(group WhereQueryItemGroup, tblName string, fieldColM
 					{
 						Field: item.Field,
 						Opr:   startOpr,
-						Value: item.Value.(Range).Start,
+						Value: rangeValue.Start,
 					},
 					{
 						Field: item.Field,
 						Opr:   endOpr,
-						Value: item.Value.(Range).End,
+						Value: rangeValue.End,
 					},
 				},
 			})
