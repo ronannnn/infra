@@ -54,14 +54,19 @@ func MakeDbConditionWhereQueryGroup(db *gorm.DB, group DbConditionWhereGroup) *g
 		return db
 	}
 
-	whereSubDb := db.Session(&gorm.Session{NewDB: true})
-
-	for _, subGroup := range group.Groups {
-		whereSubDb = MakeDbConditionWhereQueryGroup(whereSubDb, subGroup)
-	}
-
-	if len(group.Items) > 0 {
+	// gorm有bug，如果db.Where(db.Where(), ...)，没有与第二个db.Where()有同级别的条件，会导致第二个db.Where()被忽略
+	// 因此，如果没有Items的话，即没有同级别的条件，直接用传入db，不需要新建db.Session()
+	if len(group.Items) == 0 {
+		for _, subGroup := range group.Groups {
+			db = MakeDbConditionWhereQueryGroup(db, subGroup)
+		}
+	} else {
+		whereSubDb := db.Session(&gorm.Session{NewDB: true})
 		whereSubDb = MakeDbConditionWhereQueryItems(whereSubDb, group.Items)
+		for _, subGroup := range group.Groups {
+			whereSubDb = MakeDbConditionWhereQueryGroup(whereSubDb, subGroup)
+		}
+
 		switch strings.ToLower(group.AndOr) {
 		case "and", "":
 			db = db.Where(whereSubDb)
