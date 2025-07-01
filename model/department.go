@@ -8,9 +8,9 @@ type Department struct {
 	CompanyId *uint       `json:"companyId"`
 	Company   *Company    `json:"company"`
 	LeaderId  *uint       `json:"leaderId"`
-	Leader    *User       `json:"leader"`
+	Leader    *User       `json:"leader" gorm:"references:Id;foreignKey:LeaderId"`
 	ParentId  *uint       `json:"parentId"`
-	Parent    *Department `json:"parent"`
+	Parent    *Department `json:"parent" gorm:"references:Id;foreignKey:ParentId"`
 }
 
 func (Department) TableName() string {
