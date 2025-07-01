@@ -23,6 +23,9 @@ func NewUserRepo(
 			"Menus",
 			"Roles",
 			"Roles.Menus",
+			"JobTitle",
+			"JobGrade",
+			"Department",
 		},
 	}
 }

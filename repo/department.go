@@ -6,7 +6,9 @@ import (
 )
 
 func NewDepartmentRepo() service.DepartmentRepo {
-	return &departmentRepo{}
+	return &departmentRepo{
+		DefaultCrudRepo: NewDefaultCrudRepo[model.Department]("Company", "Leader", "Parent"),
+	}
 }
 
 type departmentRepo struct {
