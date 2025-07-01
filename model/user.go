@@ -19,21 +19,21 @@ type User struct {
 	Id            uint                   `json:"id" gorm:"primaryKey;autoIncrement:true"`
 	CreatedAt     time.Time              `json:"createdAt"`
 	UserCreatedBy uint                   `json:"userCreatedBy"`
-	UserCreator   *User                  `json:"userCreator" gorm:"foreignKey:Id;references:UserCreatedBy"`
+	UserCreator   *User                  `json:"userCreator" gorm:"foreignKey:UserCreatedBy"`
 	UpdatedAt     time.Time              `json:"updatedAt"`
 	UserUpdatedBy uint                   `json:"userUpdatedBy"`
-	UserUpdater   *User                  `json:"userUpdater" gorm:"foreignKey:Id;references:UserUpdatedBy"`
+	UserUpdater   *User                  `json:"userUpdater" gorm:"foreignKey:UserUpdatedBy"`
 	DeletedAt     gorm.DeletedAt         `gorm:"index" json:"-"`
 	Version       optimisticlock.Version `json:"version"`
 
 	// user info
 	Nickname     *string     `json:"nickname"`
 	JobTitleId   *uint       `json:"jobTitleId"` // 职务ID
-	JobTitle     *JobTitle   `json:"jobTitle" gorm:"foreignKey:Id;references:JobTitleId"`
+	JobTitle     *JobTitle   `json:"jobTitle"`
 	JobGradeId   *uint       `json:"jobGradeId"` // 职级ID
-	JobGrade     *JobGrade   `json:"jobGrade" gorm:"foreignKey:Id;references:JobGradeId"`
+	JobGrade     *JobGrade   `json:"jobGrade"`
 	DepartmentId *uint       `json:"departmentId"` // 部门ID
-	Department   *Department `json:"department" gorm:"foreignKey:Id;references:DepartmentId"`
+	Department   *Department `json:"department"`
 	EntryDate    *time.Time  `json:"entryDate"`  // 入职日期
 	ResignDate   *time.Time  `json:"resignDate"` // 离职日期
 	Gender       *int        `json:"gender"`     // 性别，1表示男，2表示女
