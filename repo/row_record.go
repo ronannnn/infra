@@ -15,6 +15,6 @@ type rowRecordRepo struct {
 }
 
 func (s *rowRecordRepo) GetByTableNameAndRowId(tx *gorm.DB, tableName string, rowId uint) (list []model.RowRecord, err error) {
-	err = tx.Where(&model.RowRecord{Table: tableName, RowId: rowId}).Find(&list).Error
+	err = tx.Where(&model.RowRecord{Table: &tableName, RowId: &rowId}).Find(&list).Error
 	return
 }

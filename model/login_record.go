@@ -19,14 +19,14 @@ const (
 
 type LoginRecord struct {
 	Base
-	UserId          uint                  `json:"userId"`
-	DeviceId        string                `json:"deviceId"` // 前端生成的UUID
+	UserId          *uint                 `json:"userId"`
+	DeviceId        *string               `json:"deviceId"` // 前端生成的UUID
 	LoginDeviceType *useragent.DeviceType `json:"loginDeviceType"`
-	LoginTime       time.Time             `json:"loginTime"`
-	Ip              string                `json:"ip"`
-	UserAgent       string                `json:"userAgent"`
-	Status          LoginStatus           `json:"status"`
-	LoginType       string                `json:"loginType"` // 对应User.LoginType
+	LoginTime       *time.Time            `json:"loginTime"`
+	Ip              *string               `json:"ip"`
+	UserAgent       *string               `json:"userAgent"`
+	Status          *LoginStatus          `json:"status"`
+	LoginType       *string               `json:"loginType"` // 对应User.LoginType
 }
 
 func (LoginRecord) TableName() string {

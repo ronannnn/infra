@@ -8,12 +8,12 @@ import (
 
 type ApiRecord struct {
 	Base
-	Path       string
-	Method     string
-	Ip         string
-	Latency    time.Duration
-	Body       string
-	StatusCode int
+	Path       *string
+	Method     *string
+	Ip         *string
+	Latency    *time.Duration
+	Body       *string
+	StatusCode *int
 }
 
 func (ApiRecord) TableName() string {
