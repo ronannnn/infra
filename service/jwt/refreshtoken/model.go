@@ -1,6 +1,8 @@
 package refreshtoken
 
 import (
+	"net/http"
+
 	"github.com/ronannnn/infra/model"
 	"github.com/ronannnn/infra/utils/useragent"
 )
@@ -12,6 +14,20 @@ type RefreshToken struct {
 	LoginDeviceType *useragent.DeviceType `json:"loginDeviceType" gorm:"uniqueIndex:user_id_device_refresh_token_idx"`
 	RefreshToken    *string               `json:"refreshToken"`
 	DeviceId        *string               `json:"deviceId"` // 前端生成的UUID
+}
+
+func (RefreshToken) TableName() string {
+	return "refresh_tokens"
+}
+
+func (refreshToken RefreshToken) WithOprFromReq(r *http.Request) model.Crudable {
+	refreshToken.OprBy = model.GetOprFromReq(r)
+	return refreshToken
+}
+
+func (refreshToken RefreshToken) WithUpdaterFromReq(r *http.Request) model.Crudable {
+	refreshToken.OprBy = model.GetUpdaterFromReq(r)
+	return refreshToken
 }
 
 type BaseClaims struct {
