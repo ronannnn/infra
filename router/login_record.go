@@ -9,7 +9,7 @@ func NewLoginRecordRouter(
 	handler *biz.LoginRecordHandler,
 ) *LoginRecordRouter {
 	return &LoginRecordRouter{
-		DefaultCrudRouter[*model.LoginRecord]{
+		DefaultCrudRouter[model.LoginRecord]{
 			BasePath: "/login-records",
 			Handler:  handler,
 		},
@@ -17,5 +17,5 @@ func NewLoginRecordRouter(
 }
 
 type LoginRecordRouter struct {
-	DefaultCrudRouter[*model.LoginRecord]
+	DefaultCrudRouter[model.LoginRecord]
 }

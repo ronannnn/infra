@@ -9,7 +9,7 @@ func NewDepartmentRouter(
 	handler *biz.DepartmentHandler,
 ) *DepartmentRouter {
 	return &DepartmentRouter{
-		DefaultCrudRouter[*model.Department]{
+		DefaultCrudRouter[model.Department]{
 			BasePath: "/departments",
 			Handler:  handler,
 		},
@@ -17,5 +17,5 @@ func NewDepartmentRouter(
 }
 
 type DepartmentRouter struct {
-	DefaultCrudRouter[*model.Department]
+	DefaultCrudRouter[model.Department]
 }

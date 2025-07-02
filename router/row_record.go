@@ -9,7 +9,7 @@ func NewRowRecordRouter(
 	handler *biz.RowRecordHandler,
 ) *RowRecordRouter {
 	return &RowRecordRouter{
-		DefaultCrudRouter[*model.RowRecord]{
+		DefaultCrudRouter[model.RowRecord]{
 			BasePath: "/row-records",
 			Handler:  handler,
 		},
@@ -17,5 +17,5 @@ func NewRowRecordRouter(
 }
 
 type RowRecordRouter struct {
-	DefaultCrudRouter[*model.RowRecord]
+	DefaultCrudRouter[model.RowRecord]
 }

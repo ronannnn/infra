@@ -9,7 +9,7 @@ func NewJobTitleRouter(
 	handler *biz.JobTitleHandler,
 ) *JobTitleRouter {
 	return &JobTitleRouter{
-		DefaultCrudRouter[*model.JobTitle]{
+		DefaultCrudRouter[model.JobTitle]{
 			BasePath: "/job-titles",
 			Handler:  handler,
 		},
@@ -17,5 +17,5 @@ func NewJobTitleRouter(
 }
 
 type JobTitleRouter struct {
-	DefaultCrudRouter[*model.JobTitle]
+	DefaultCrudRouter[model.JobTitle]
 }

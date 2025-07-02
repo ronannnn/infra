@@ -9,7 +9,7 @@ func NewCompanyRouter(
 	handler *biz.CompanyHandler,
 ) *CompanyRouter {
 	return &CompanyRouter{
-		DefaultCrudRouter[*model.Company]{
+		DefaultCrudRouter[model.Company]{
 			BasePath: "/companies",
 			Handler:  handler,
 		},
@@ -17,5 +17,5 @@ func NewCompanyRouter(
 }
 
 type CompanyRouter struct {
-	DefaultCrudRouter[*model.Company]
+	DefaultCrudRouter[model.Company]
 }

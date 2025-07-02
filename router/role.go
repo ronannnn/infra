@@ -9,7 +9,7 @@ func NewRoleRouter(
 	handler *biz.RoleHandler,
 ) *RoleRouter {
 	return &RoleRouter{
-		DefaultCrudRouter[*model.Role]{
+		DefaultCrudRouter[model.Role]{
 			BasePath: "/roles",
 			Handler:  handler,
 		},
@@ -17,5 +17,5 @@ func NewRoleRouter(
 }
 
 type RoleRouter struct {
-	DefaultCrudRouter[*model.Role]
+	DefaultCrudRouter[model.Role]
 }

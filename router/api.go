@@ -9,7 +9,7 @@ func NewApiRouter(
 	handler *biz.ApiHandler,
 ) *ApiRouter {
 	return &ApiRouter{
-		DefaultCrudRouter[*model.Api]{
+		DefaultCrudRouter[model.Api]{
 			BasePath: "/apis",
 			Handler:  handler,
 		},
@@ -17,5 +17,5 @@ func NewApiRouter(
 }
 
 type ApiRouter struct {
-	DefaultCrudRouter[*model.Api]
+	DefaultCrudRouter[model.Api]
 }

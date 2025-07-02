@@ -9,7 +9,7 @@ func NewMenuRouter(
 	handler *biz.MenuHandler,
 ) *MenuRouter {
 	return &MenuRouter{
-		DefaultCrudRouter[*model.Menu]{
+		DefaultCrudRouter[model.Menu]{
 			BasePath: "/menus",
 			Handler:  handler,
 		},
@@ -17,5 +17,5 @@ func NewMenuRouter(
 }
 
 type MenuRouter struct {
-	DefaultCrudRouter[*model.Menu]
+	DefaultCrudRouter[model.Menu]
 }
