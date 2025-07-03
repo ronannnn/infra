@@ -18,9 +18,9 @@ import (
 
 func NewService(
 	log *zap.SugaredLogger,
-	jwtService jwt.Service,
-	accessTokenService accesstoken.Service,
-	userService service.UserService,
+	jwtService *jwt.Service,
+	accessTokenService *accesstoken.Service,
+	userService *service.UserService,
 ) *Service {
 	return &Service{
 		log:                log,
@@ -32,9 +32,9 @@ func NewService(
 
 type Service struct {
 	log                *zap.SugaredLogger
-	jwtService         jwt.Service
-	accessTokenService accesstoken.Service
-	userService        service.UserService
+	jwtService         *jwt.Service
+	accessTokenService *accesstoken.Service
+	userService        *service.UserService
 }
 
 func (srv *Service) RefreshToken(ctx context.Context, oldRefreshToken string) (*login.Result, error) {
