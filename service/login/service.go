@@ -38,7 +38,7 @@ type Service struct {
 	userService        *service.UserService
 }
 
-func (srv *Service) LoginByUsername(r *http.Request, username, password string) (loginResp *Result, err error) {
+func (srv *Service) LoginByUsernameAndPassword(r *http.Request, username, password string) (loginResp *Result, err error) {
 	ctx := r.Context()
 
 	var user *model.User
