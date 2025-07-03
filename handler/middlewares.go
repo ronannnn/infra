@@ -95,8 +95,6 @@ func (m *MiddlewareImpl) ReqRecorder(next http.Handler) http.Handler {
 			if ctxUserId != nil {
 				userId = ctxUserId.(uint)
 			}
-			latency := time.Since(start)
-			statusCode := ww.Status()
 			apiRecord := &model.ApiRecord{
 				Base: model.Base{
 					OprBy: model.OprBy{
@@ -104,12 +102,12 @@ func (m *MiddlewareImpl) ReqRecorder(next http.Handler) http.Handler {
 						UpdatedBy: &userId,
 					},
 				},
-				Path:       &path,
-				Method:     &r.Method,
-				Ip:         &r.RemoteAddr,
-				Latency:    &latency,
-				StatusCode: &statusCode,
-				Body:       &body,
+				Path:       path,
+				Method:     r.Method,
+				Ip:         r.RemoteAddr,
+				Latency:    time.Since(start),
+				StatusCode: ww.Status(),
+				Body:       body,
 			}
 			m.log.Info(apiRecord)
 			// if err := m.apirecordService.Create(apiRecord); err != nil {
