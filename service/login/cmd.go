@@ -2,13 +2,13 @@ package login
 
 import "github.com/ronannnn/infra/model"
 
-// request commands and response results
-// login with username and password
-type UsernameCmd struct {
-	Username  string `json:"username"`
-	Password  string `json:"password"`
-	UserAgent string `json:"userAgent"`
-	DeviceId  string `json:"deviceId"`
+var (
+	LOGIN_TYPE_USERNAME_PASSWORD = "username_password"
+)
+
+type UsernamePasswordLoginPayload struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type Result struct {

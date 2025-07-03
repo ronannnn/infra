@@ -80,3 +80,7 @@ func (srv *UserService) GetByNickname(ctx context.Context, nickname string) (*mo
 func (srv *UserService) GetByUsername(ctx context.Context, username string) (*model.User, error) {
 	return srv.repo.GetByUsername(ctx, srv.db, username)
 }
+
+func (srv *UserService) ChangePwd(ctx context.Context, userId uint, newPwd string) error {
+	return srv.repo.ChangePwd(ctx, srv.db, userId, newPwd)
+}
