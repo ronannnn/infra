@@ -23,7 +23,7 @@ func (d *DecimalSafe) UnmarshalJSON(decimalBytes []byte) error {
 }
 
 // Scan 实现 Gorm Scanner 接口
-func (d *DecimalSafe) Scan(value interface{}) error {
+func (d *DecimalSafe) Scan(value any) error {
 	if value == nil {
 		*d = DecimalSafe{}
 		return nil
@@ -64,7 +64,7 @@ func (DecimalSafe) GormDataType() string {
 func (DecimalSafe) GormDBDataType(db *gorm.DB, field *schema.Field) string {
 	switch db.Dialector.Name() {
 	case "postgres":
-		return "VARCHAR(255)" // PostgreSQL 使用字符串类型
+		return "DECIMAL(19, 4)" // PostgreSQL 使用字符串类型
 	case "mysql":
 		return "VARCHAR(191)" // MySQL 使用较短的字符串
 	default:
