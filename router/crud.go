@@ -8,6 +8,7 @@ import (
 
 type CrudRouter[T model.Crudable] interface {
 	Register(r chi.Router)
+	ExtraRegister(r chi.Router)
 }
 
 type DefaultCrudRouter[T model.Crudable] struct {
