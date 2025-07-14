@@ -30,5 +30,10 @@ func (c *DefaultCrudRouter[T]) Register(r chi.Router) {
 			r.Delete("/", c.Handler.DeleteById)
 			r.Get("/", c.Handler.GetById)
 		})
+
+		// extra register
+		c.ExtraRegister(r)
 	})
 }
+
+func (c *DefaultCrudRouter[T]) ExtraRegister(r chi.Router) {}
