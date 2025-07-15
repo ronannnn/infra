@@ -32,6 +32,8 @@ func (c *DefaultCrudRouter[T]) Register(r chi.Router) {
 			r.Get("/", c.Handler.GetById)
 		})
 
-		c.ExtraRoutesUnderBasePath(r)
+		if c.ExtraRoutesUnderBasePath != nil {
+			c.ExtraRoutesUnderBasePath(r)
+		}
 	})
 }
