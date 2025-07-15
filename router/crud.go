@@ -11,8 +11,9 @@ type CrudRouter[T model.Crudable] interface {
 }
 
 type DefaultCrudRouter[T model.Crudable] struct {
-	Handler  handler.CrudHandler[T]
-	BasePath string
+	Handler       handler.CrudHandler[T]
+	BasePath      string
+	ExtraRegister func(r chi.Router) // 允许自定义路由
 }
 
 func (c *DefaultCrudRouter[T]) Register(r chi.Router) {
@@ -30,5 +31,7 @@ func (c *DefaultCrudRouter[T]) Register(r chi.Router) {
 			r.Delete("/", c.Handler.DeleteById)
 			r.Get("/", c.Handler.GetById)
 		})
+
+		c.ExtraRegister(r)
 	})
 }
