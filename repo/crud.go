@@ -31,15 +31,37 @@ func (crud DefaultCrudRepo[T]) Create(ctx context.Context, tx *gorm.DB, model *T
 	return tx.WithContext(ctx).Create(model).Error
 }
 
-func (crud DefaultCrudRepo[T]) CreateWithScopes(ctx context.Context, tx *gorm.DB, model *T) (updatedModel *T, err error) {
-	if model == nil {
-		err = msg.NewError(reason.DbModelCreatedError).WithStack()
+func (crud DefaultCrudRepo[T]) CreateWithScopes(ctx context.Context, tx *gorm.DB, newModel *T) (err error) {
+	if newModel == nil {
+		return msg.NewError(reason.DbModelCreatedError).WithStack()
+	}
+	if err = tx.WithContext(ctx).Create(newModel).Error; err != nil {
 		return
 	}
-	if err = tx.WithContext(ctx).Create(&model).Error; err != nil {
+	if err = tx.WithContext(ctx).Scopes(crud.Preload()).First(newModel, (*newModel).GetId()).Error; err != nil {
+		return err
+	}
+	return
+}
+
+func (crud DefaultCrudRepo[T]) BatchCreate(ctx context.Context, tx *gorm.DB, models []*T) error {
+	return tx.WithContext(ctx).Create(models).Error
+}
+
+func (crud DefaultCrudRepo[T]) BatchCreateWithScopes(ctx context.Context, tx *gorm.DB, models []*T) (err error) {
+	if err = tx.WithContext(ctx).Create(models).Error; err != nil {
 		return
 	}
-	return crud.GetById(ctx, tx, (*model).GetId())
+	ids := make([]uint, len(models))
+	for i, model := range models {
+		ids[i] = (*model).GetId()
+	}
+	if err = tx.
+		Scopes(crud.Preload()).
+		Find(&models, ids).Error; err != nil {
+		return
+	}
+	return
 }
 
 func (crud DefaultCrudRepo[T]) Update(ctx context.Context, tx *gorm.DB, partialUpdatedModel *T) (updatedModel *T, err error) {

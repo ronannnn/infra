@@ -11,7 +11,9 @@ import (
 
 type CrudRepo[T model.Crudable] interface {
 	Create(context.Context, *gorm.DB, *T) error
-	CreateWithScopes(context.Context, *gorm.DB, *T) (*T, error)
+	CreateWithScopes(context.Context, *gorm.DB, *T) error
+	BatchCreate(context.Context, *gorm.DB, []*T) error
+	BatchCreateWithScopes(context.Context, *gorm.DB, []*T) error
 	Update(context.Context, *gorm.DB, *T) (*T, error)
 	DeleteById(context.Context, *gorm.DB, uint) error
 	DeleteByIds(context.Context, *gorm.DB, []uint) error
@@ -21,7 +23,9 @@ type CrudRepo[T model.Crudable] interface {
 
 type CrudSrv[T model.Crudable] interface {
 	Create(context.Context, *T) error
-	CreateWithScopes(context.Context, *T) (*T, error)
+	CreateWithScopes(context.Context, *T) error
+	BatchCreate(context.Context, []*T) error
+	BatchCreateWithScopes(context.Context, []*T) error
 	Update(context.Context, *T) (*T, error)
 	DeleteById(context.Context, uint) error
 	DeleteByIds(context.Context, []uint) error
@@ -38,8 +42,16 @@ func (srv *DefaultCrudSrv[T]) Create(ctx context.Context, model *T) error {
 	return srv.Repo.Create(ctx, srv.Db, model)
 }
 
-func (srv *DefaultCrudSrv[T]) CreateWithScopes(ctx context.Context, model *T) (*T, error) {
+func (srv *DefaultCrudSrv[T]) CreateWithScopes(ctx context.Context, model *T) error {
 	return srv.Repo.CreateWithScopes(ctx, srv.Db, model)
+}
+
+func (srv *DefaultCrudSrv[T]) BatchCreate(ctx context.Context, models []*T) error {
+	return srv.Repo.BatchCreate(ctx, srv.Db, models)
+}
+
+func (srv *DefaultCrudSrv[T]) BatchCreateWithScopes(ctx context.Context, models []*T) error {
+	return srv.Repo.BatchCreateWithScopes(ctx, srv.Db, models)
 }
 
 func (srv *DefaultCrudSrv[T]) Update(ctx context.Context, partialUpdatedModel *T) (*T, error) {
