@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -59,7 +60,10 @@ type OprBy struct {
 }
 
 func GetOprFromReq(r *http.Request) OprBy {
-	oprId := r.Context().Value(constant.CtxKeyUserId)
+	return GetOprFromCtx(r.Context())
+}
+func GetOprFromCtx(ctx context.Context) OprBy {
+	oprId := ctx.Value(constant.CtxKeyUserId)
 	if oprId != nil {
 		if convertedOprId, ok := oprId.(uint); ok {
 			return OprBy{
@@ -72,7 +76,10 @@ func GetOprFromReq(r *http.Request) OprBy {
 }
 
 func GetUpdaterFromReq(r *http.Request) OprBy {
-	oprId := r.Context().Value(constant.CtxKeyUserId)
+	return GetUpdaterFromCtx(r.Context())
+}
+func GetUpdaterFromCtx(ctx context.Context) OprBy {
+	oprId := ctx.Value(constant.CtxKeyUserId)
 	if oprId != nil {
 		if convertedOprId, ok := oprId.(uint); ok {
 			return OprBy{
