@@ -112,7 +112,7 @@ func (r userRepo) DeleteByIds(ctx context.Context, tx *gorm.DB, ids []uint) (err
 	return
 }
 
-func (r userRepo) List(ctx context.Context, tx *gorm.DB, apiQuery query.Query) (result *response.PageResult, err error) {
+func (r userRepo) List(ctx context.Context, tx *gorm.DB, apiQuery query.Query) (result *response.PageResult[model.User], err error) {
 	txWithCtx := tx.WithContext(ctx)
 	var t model.User
 	var total int64
@@ -131,7 +131,7 @@ func (r userRepo) List(ctx context.Context, tx *gorm.DB, apiQuery query.Query) (
 		Find(&list).Error; err != nil {
 		return nil, msg.NewError(reason.DatabaseError).WithError(err).WithStack()
 	}
-	result = &response.PageResult{
+	result = &response.PageResult[model.User]{
 		List:     list,
 		Total:    total,
 		PageNum:  apiQuery.Pagination.PageNum,

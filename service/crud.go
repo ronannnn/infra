@@ -15,7 +15,7 @@ type CrudRepo[T model.Crudable] interface {
 	Update(context.Context, *gorm.DB, *T) (*T, error)
 	DeleteById(context.Context, *gorm.DB, uint) error
 	DeleteByIds(context.Context, *gorm.DB, []uint) error
-	List(context.Context, *gorm.DB, query.Query) (*response.PageResult, error)
+	List(context.Context, *gorm.DB, query.Query) (*response.PageResult[T], error)
 	GetById(context.Context, *gorm.DB, uint) (*T, error)
 }
 
@@ -25,7 +25,7 @@ type CrudSrv[T model.Crudable] interface {
 	Update(context.Context, *T) (*T, error)
 	DeleteById(context.Context, uint) error
 	DeleteByIds(context.Context, []uint) error
-	List(context.Context, query.Query) (*response.PageResult, error)
+	List(context.Context, query.Query) (*response.PageResult[T], error)
 	GetById(context.Context, uint) (*T, error)
 }
 
@@ -54,7 +54,7 @@ func (srv *DefaultCrudSrv[T]) DeleteByIds(ctx context.Context, ids []uint) error
 	return srv.Repo.DeleteByIds(ctx, srv.Db, ids)
 }
 
-func (srv *DefaultCrudSrv[T]) List(ctx context.Context, query query.Query) (*response.PageResult, error) {
+func (srv *DefaultCrudSrv[T]) List(ctx context.Context, query query.Query) (*response.PageResult[T], error) {
 	return srv.Repo.List(ctx, srv.Db, query)
 }
 

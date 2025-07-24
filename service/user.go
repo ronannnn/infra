@@ -16,7 +16,7 @@ type UserRepo interface {
 	Update(context.Context, *gorm.DB, *model.User) (*model.User, error)
 	DeleteById(context.Context, *gorm.DB, uint) error
 	DeleteByIds(context.Context, *gorm.DB, []uint) error
-	List(context.Context, *gorm.DB, query.Query) (*response.PageResult, error)
+	List(context.Context, *gorm.DB, query.Query) (*response.PageResult[model.User], error)
 	GetById(context.Context, *gorm.DB, uint) (*model.User, error)
 
 	GetByUsername(context.Context, *gorm.DB, string) (*model.User, error)
@@ -65,7 +65,7 @@ func (srv *UserService) DeleteByIds(ctx context.Context, ids []uint) error {
 	return srv.repo.DeleteByIds(ctx, srv.db, ids)
 }
 
-func (srv *UserService) List(ctx context.Context, q query.Query) (*response.PageResult, error) {
+func (srv *UserService) List(ctx context.Context, q query.Query) (*response.PageResult[model.User], error) {
 	return srv.repo.List(ctx, srv.db, q)
 }
 

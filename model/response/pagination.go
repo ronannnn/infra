@@ -6,8 +6,8 @@ type StatsItem struct {
 	Rmk    string `json:"rmk"`
 }
 
-type PageResult struct {
-	List     any           `json:"list"`
+type PageResult[T any] struct {
+	List     []*T          `json:"list"`
 	Total    int64         `json:"total"` // total rows
 	PageNum  int           `json:"pageNum"`
 	PageSize int           `json:"pageSize"`

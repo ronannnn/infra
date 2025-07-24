@@ -85,7 +85,7 @@ func (crud DefaultCrudRepo[T]) DeleteByIds(ctx context.Context, tx *gorm.DB, ids
 	return
 }
 
-func (crud DefaultCrudRepo[T]) List(ctx context.Context, tx *gorm.DB, apiQuery query.Query) (result *response.PageResult, err error) {
+func (crud DefaultCrudRepo[T]) List(ctx context.Context, tx *gorm.DB, apiQuery query.Query) (result *response.PageResult[T], err error) {
 	txWithCtx := tx.WithContext(ctx)
 	var t T
 	var total int64
@@ -104,7 +104,7 @@ func (crud DefaultCrudRepo[T]) List(ctx context.Context, tx *gorm.DB, apiQuery q
 		Find(&list).Error; err != nil {
 		return nil, msg.NewError(reason.DatabaseError).WithError(err).WithStack()
 	}
-	result = &response.PageResult{
+	result = &response.PageResult[T]{
 		List:     list,
 		Total:    total,
 		PageNum:  apiQuery.Pagination.PageNum,

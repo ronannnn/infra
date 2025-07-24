@@ -60,6 +60,7 @@ func TestParseQuery(t *testing.T) {
 				{AndOr: "or", Field: "username", Opr: query.TypeEq, Value: "ronan"},
 				{AndOr: "and", Field: "username", Opr: query.TypeEq, Value: nil},
 				{AndOr: "or", Field: "age", Opr: query.TypeRangeGtLte, Value: query.Range{Start: 18, End: 25}},
+				{AndOr: "or", Field: "human", Opr: query.TypeIsNot, Value: true},
 			},
 			Groups: []query.WhereQueryItemGroup{
 				{
@@ -153,9 +154,11 @@ func TestParseQuery(t *testing.T) {
 	require.EqualValues(t, 185, condition.Where[1].Items[3].Value)
 	// where[2]
 	require.EqualValues(t, "and", condition.Where[2].AndOr)
-	require.EqualValues(t, 1, len(condition.Where[2].Items))
+	require.EqualValues(t, 2, len(condition.Where[2].Items))
 	require.EqualValues(t, "\"test_users\".\"username\" = ?", condition.Where[2].Items[0].Key)
 	require.EqualValues(t, "ronan", condition.Where[2].Items[0].Value)
+	require.EqualValues(t, "\"test_users\".\"human\" is not ?", condition.Where[2].Items[1].Key)
+	require.EqualValues(t, true, condition.Where[2].Items[1].Value)
 	// where[2].Groups
 	require.EqualValues(t, 1, len(condition.Where[2].Groups))
 	// where[2].Groups[0]
