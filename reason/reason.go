@@ -26,6 +26,7 @@ const (
 const (
 	// api
 	SuccessToCreate   = "base.success.api.create"
+	SuccessToCopy     = "base.success.api.copy"
 	SuccessToRead     = "base.success.api.read"
 	SuccessToUpdate   = "base.success.api.update"
 	SuccessToDelete   = "base.success.api.delete"
