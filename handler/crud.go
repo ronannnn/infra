@@ -78,10 +78,11 @@ func (c *DefaultCrudHandler[T]) BatchUpdate(w http.ResponseWriter, r *http.Reque
 		itemWithOpr := (*cmd.Items[i]).WithUpdaterFromReq(r).(T)
 		cmd.Items[i] = &itemWithOpr
 	}
-	if err := c.Srv.BatchCreate(r.Context(), cmd.Items); err != nil {
+	var err error
+	if cmd.Items, err = c.Srv.BatchUpdate(r.Context(), cmd.Items); err != nil {
 		c.H.Fail(w, r, err, nil)
 	} else {
-		c.H.Success(w, r, msg.New(reason.SuccessToCreate), cmd.Items)
+		c.H.Success(w, r, msg.New(reason.SuccessToUpdate), cmd.Items)
 	}
 }
 
