@@ -15,6 +15,7 @@ type CrudRepo[T model.Crudable] interface {
 	BatchCreate(context.Context, *gorm.DB, []*T) error
 	BatchCreateWithScopes(context.Context, *gorm.DB, []*T) error
 	Update(context.Context, *gorm.DB, *T) (*T, error)
+	BatchUpdate(context.Context, *gorm.DB, []*T) ([]*T, error)
 	DeleteById(context.Context, *gorm.DB, uint) error
 	DeleteByIds(context.Context, *gorm.DB, []uint) error
 	List(context.Context, *gorm.DB, query.Query) (*response.PageResult[T], error)

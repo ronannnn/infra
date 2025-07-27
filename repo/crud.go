@@ -89,6 +89,19 @@ func (crud DefaultCrudRepo[T]) Update(ctx context.Context, tx *gorm.DB, partialU
 	return
 }
 
+func (crud DefaultCrudRepo[T]) BatchUpdate(ctx context.Context, tx *gorm.DB, partialUpdatedModels []*T) (updatedModel []*T, err error) {
+	err = tx.Transaction(func(tx2 *gorm.DB) (err error) {
+		updatedModel = make([]*T, len(partialUpdatedModels))
+		for i := range partialUpdatedModels {
+			if updatedModel[i], err = crud.Update(ctx, tx2, partialUpdatedModels[i]); err != nil {
+				return
+			}
+		}
+		return
+	})
+	return
+}
+
 func (crud DefaultCrudRepo[T]) DeleteById(ctx context.Context, tx *gorm.DB, id uint) error {
 	return tx.WithContext(ctx).Transaction(func(tx2 *gorm.DB) (err error) {
 		var t T
