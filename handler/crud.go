@@ -41,12 +41,15 @@ func (c *DefaultCrudHandler[T]) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *DefaultCrudHandler[T]) BatchCreate(w http.ResponseWriter, r *http.Request) {
-	var newModels []*T
-	if c.H.BindAndCheck(w, r, &newModels) {
+	var rawNewModels []T
+	if c.H.BindAndCheck(w, r, &rawNewModels) {
 		return
 	}
-	for i := range newModels {
-		model := (*newModels[i]).WithOprFromReq(r).(T)
+	for i := range rawNewModels {
+		rawNewModels[i] = rawNewModels[i].WithOprFromReq(r).(T)
+	}
+	newModels := make([]*T, len(rawNewModels))
+	for i, model := range rawNewModels {
 		newModels[i] = &model
 	}
 	if err := c.Srv.BatchCreate(r.Context(), newModels); err != nil {
@@ -70,12 +73,15 @@ func (c *DefaultCrudHandler[T]) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *DefaultCrudHandler[T]) BatchUpdate(w http.ResponseWriter, r *http.Request) {
-	var partialUpdatedModels []*T
-	if c.H.BindAndCheck(w, r, &partialUpdatedModels) {
+	var rawPartialUpdatedModels []T
+	if c.H.BindAndCheck(w, r, &rawPartialUpdatedModels) {
 		return
 	}
-	for i := range partialUpdatedModels {
-		model := (*partialUpdatedModels[i]).WithUpdaterFromReq(r).(T)
+	for i := range rawPartialUpdatedModels {
+		rawPartialUpdatedModels[i] = rawPartialUpdatedModels[i].WithUpdaterFromReq(r).(T)
+	}
+	partialUpdatedModels := make([]*T, len(rawPartialUpdatedModels))
+	for i, model := range rawPartialUpdatedModels {
 		partialUpdatedModels[i] = &model
 	}
 	if err := c.Srv.BatchCreate(r.Context(), partialUpdatedModels); err != nil {
