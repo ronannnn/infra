@@ -19,6 +19,8 @@ type DefaultCrudRouter[T model.Crudable] struct {
 func (c *DefaultCrudRouter[T]) Register(r chi.Router) {
 	r.Route(c.BasePath, func(r chi.Router) {
 		// batch operations
+		r.Post("/batch", c.Handler.BatchCreate)
+		r.Put("/batch", c.Handler.BatchUpdate)
 		r.Post("/batch-delete", c.Handler.BatchDelete)
 		r.Post("/list", c.Handler.List)
 

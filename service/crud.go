@@ -28,6 +28,7 @@ type CrudSrv[T model.Crudable] interface {
 	BatchCreate(context.Context, []*T) error
 	BatchCreateWithScopes(context.Context, []*T) error
 	Update(context.Context, *T) (*T, error)
+	BatchUpdate(context.Context, []*T) ([]*T, error)
 	DeleteById(context.Context, uint) error
 	DeleteByIds(context.Context, []uint) error
 	List(context.Context, query.Query) (*response.PageResult[T], error)
@@ -57,6 +58,10 @@ func (srv *DefaultCrudSrv[T]) BatchCreateWithScopes(ctx context.Context, models 
 
 func (srv *DefaultCrudSrv[T]) Update(ctx context.Context, partialUpdatedModel *T) (*T, error) {
 	return srv.Repo.Update(ctx, srv.Db, partialUpdatedModel)
+}
+
+func (srv *DefaultCrudSrv[T]) BatchUpdate(ctx context.Context, partialUpdatedModels []*T) ([]*T, error) {
+	return srv.Repo.BatchUpdate(ctx, srv.Db, partialUpdatedModels)
 }
 
 func (srv *DefaultCrudSrv[T]) DeleteById(ctx context.Context, id uint) error {

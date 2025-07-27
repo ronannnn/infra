@@ -13,7 +13,9 @@ import (
 
 type CrudHandler[T model.Crudable] interface {
 	Create(w http.ResponseWriter, r *http.Request)
+	BatchCreate(w http.ResponseWriter, r *http.Request)
 	Update(w http.ResponseWriter, r *http.Request)
+	BatchUpdate(w http.ResponseWriter, r *http.Request)
 	DeleteById(w http.ResponseWriter, r *http.Request)
 	BatchDelete(w http.ResponseWriter, r *http.Request)
 	List(w http.ResponseWriter, r *http.Request)
@@ -38,6 +40,22 @@ func (c *DefaultCrudHandler[T]) Create(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (c *DefaultCrudHandler[T]) BatchCreate(w http.ResponseWriter, r *http.Request) {
+	var newModels []*T
+	if c.H.BindAndCheck(w, r, &newModels) {
+		return
+	}
+	for i := range newModels {
+		model := (*newModels[i]).WithOprFromReq(r).(T)
+		newModels[i] = &model
+	}
+	if err := c.Srv.BatchCreate(r.Context(), newModels); err != nil {
+		c.H.Fail(w, r, err, nil)
+	} else {
+		c.H.Success(w, r, msg.New(reason.SuccessToCreate), newModels)
+	}
+}
+
 func (c *DefaultCrudHandler[T]) Update(w http.ResponseWriter, r *http.Request) {
 	var partialUpdatedModel T
 	if c.H.BindAndCheckPartial(w, r, &partialUpdatedModel) {
@@ -48,6 +66,22 @@ func (c *DefaultCrudHandler[T]) Update(w http.ResponseWriter, r *http.Request) {
 		c.H.Fail(w, r, err, nil)
 	} else {
 		c.H.Success(w, r, msg.New(reason.SuccessToUpdate), updatedModel)
+	}
+}
+
+func (c *DefaultCrudHandler[T]) BatchUpdate(w http.ResponseWriter, r *http.Request) {
+	var partialUpdatedModels []*T
+	if c.H.BindAndCheck(w, r, &partialUpdatedModels) {
+		return
+	}
+	for i := range partialUpdatedModels {
+		model := (*partialUpdatedModels[i]).WithUpdaterFromReq(r).(T)
+		partialUpdatedModels[i] = &model
+	}
+	if err := c.Srv.BatchCreate(r.Context(), partialUpdatedModels); err != nil {
+		c.H.Fail(w, r, err, nil)
+	} else {
+		c.H.Success(w, r, msg.New(reason.SuccessToCreate), partialUpdatedModels)
 	}
 }
 
