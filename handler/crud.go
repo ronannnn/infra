@@ -41,21 +41,18 @@ func (c *DefaultCrudHandler[T]) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *DefaultCrudHandler[T]) BatchCreate(w http.ResponseWriter, r *http.Request) {
-	var rawNewModels []T
-	if c.H.BindAndCheck(w, r, &rawNewModels) {
+	var cmd request.BatchSaveCommand[T]
+	if c.H.BindAndCheck(w, r, &cmd) {
 		return
 	}
-	for i := range rawNewModels {
-		rawNewModels[i] = rawNewModels[i].WithOprFromReq(r).(T)
+	for i := range cmd.Items {
+		itemWithOpr := (*cmd.Items[i]).WithOprFromReq(r).(T)
+		cmd.Items[i] = &itemWithOpr
 	}
-	newModels := make([]*T, len(rawNewModels))
-	for i, model := range rawNewModels {
-		newModels[i] = &model
-	}
-	if err := c.Srv.BatchCreate(r.Context(), newModels); err != nil {
+	if err := c.Srv.BatchCreate(r.Context(), cmd.Items); err != nil {
 		c.H.Fail(w, r, err, nil)
 	} else {
-		c.H.Success(w, r, msg.New(reason.SuccessToCreate), newModels)
+		c.H.Success(w, r, msg.New(reason.SuccessToCreate), cmd.Items)
 	}
 }
 
@@ -73,21 +70,18 @@ func (c *DefaultCrudHandler[T]) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *DefaultCrudHandler[T]) BatchUpdate(w http.ResponseWriter, r *http.Request) {
-	var rawPartialUpdatedModels []T
-	if c.H.BindAndCheck(w, r, &rawPartialUpdatedModels) {
+	var cmd request.BatchSaveCommand[T]
+	if c.H.BindAndCheck(w, r, &cmd) {
 		return
 	}
-	for i := range rawPartialUpdatedModels {
-		rawPartialUpdatedModels[i] = rawPartialUpdatedModels[i].WithUpdaterFromReq(r).(T)
+	for i := range cmd.Items {
+		itemWithOpr := (*cmd.Items[i]).WithUpdaterFromReq(r).(T)
+		cmd.Items[i] = &itemWithOpr
 	}
-	partialUpdatedModels := make([]*T, len(rawPartialUpdatedModels))
-	for i, model := range rawPartialUpdatedModels {
-		partialUpdatedModels[i] = &model
-	}
-	if err := c.Srv.BatchCreate(r.Context(), partialUpdatedModels); err != nil {
+	if err := c.Srv.BatchCreate(r.Context(), cmd.Items); err != nil {
 		c.H.Fail(w, r, err, nil)
 	} else {
-		c.H.Success(w, r, msg.New(reason.SuccessToCreate), partialUpdatedModels)
+		c.H.Success(w, r, msg.New(reason.SuccessToCreate), cmd.Items)
 	}
 }
 
