@@ -122,16 +122,19 @@ func (crud DefaultCrudRepo[T]) DeleteByIds(ctx context.Context, tx *gorm.DB, ids
 
 func (crud DefaultCrudRepo[T]) List(ctx context.Context, tx *gorm.DB, apiQuery query.Query) (result *response.PageResult[T], err error) {
 	txWithCtx := tx.WithContext(ctx)
+
 	var t T
-	var total int64
-	var list []*T
-	if err = txWithCtx.Model(&t).Count(&total).Error; err != nil {
-		return
-	}
 	queryScope, err := query.MakeConditionFromQuery(apiQuery, t)
 	if err != nil {
 		return nil, msg.NewError(reason.DatabaseError).WithError(err).WithStack()
 	}
+
+	var total int64
+	if err = txWithCtx.Model(&t).Scopes(queryScope).Count(&total).Error; err != nil {
+		return
+	}
+
+	var list []*T
 	if err = txWithCtx.
 		Scopes(crud.Preload()).
 		Scopes(queryScope).
