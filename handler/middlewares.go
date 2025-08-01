@@ -20,6 +20,7 @@ type Middleware interface {
 	// header info
 	Lang(http.Handler) http.Handler
 	Ua(http.Handler) http.Handler
+	ShowType(http.Handler) http.Handler
 	DeviceId(http.Handler) http.Handler
 	ReqRecorder(http.Handler) http.Handler
 }
@@ -54,6 +55,14 @@ func (m *MiddlewareImpl) Ua(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ua := r.Header.Get(string(constant.CtxKeyUa))
 		ctx := context.WithValue(r.Context(), constant.CtxKeyUa, ua)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func (m *MiddlewareImpl) ShowType(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		showType := r.Header.Get(string(constant.CtxKeyShowType))
+		ctx := context.WithValue(r.Context(), constant.CtxKeyShowType, showType)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

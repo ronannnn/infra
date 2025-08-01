@@ -13,17 +13,17 @@ const (
 type ShowType int
 
 const (
-	Silent ShowType = 0
+	ShowTypeSilent ShowType = 0
 
-	SuccessMessage ShowType = 1
-	InfoMessage    ShowType = 2
-	WarningMessage ShowType = 3
-	ErrorMessage   ShowType = 4
+	ShowTypeSuccessMessage ShowType = 1
+	ShowTypeInfoMessage    ShowType = 2
+	ShowTypeWarningMessage ShowType = 3
+	ShowTypeErrorMessage   ShowType = 4
 
-	SuccessNotification ShowType = 11
-	InfoNotification    ShowType = 12
-	WarningNotification ShowType = 13
-	ErrorNotification   ShowType = 14
+	ShowTypeSuccessNotification ShowType = 11
+	ShowTypeInfoNotification    ShowType = 12
+	ShowTypeWarningNotification ShowType = 13
+	ShowTypeErrorNotification   ShowType = 14
 )
 
 // Response According to https://pro.ant.design/zh-CN/docs/request

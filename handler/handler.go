@@ -136,7 +136,7 @@ func (h *HttpHandlerImpl) Success(
 	message *msg.Message,
 	data any,
 ) {
-	h.SuccessWithShowType(w, r, message, data, SuccessMessage)
+	h.SuccessWithShowType(w, r, message, data, ShowTypeSuccessMessage)
 }
 
 func (h *HttpHandlerImpl) SuccessSilently(
@@ -145,7 +145,7 @@ func (h *HttpHandlerImpl) SuccessSilently(
 	message *msg.Message,
 	data any,
 ) {
-	h.SuccessWithShowType(w, r, message, data, Silent)
+	h.SuccessWithShowType(w, r, message, data, ShowTypeSilent)
 }
 
 func (h *HttpHandlerImpl) SuccessWithShowType(
@@ -157,7 +157,7 @@ func (h *HttpHandlerImpl) SuccessWithShowType(
 ) {
 	respMsg := getRespMsg(r, h.i18n, message)
 	render.Status(r, http.StatusOK)
-	render.JSON(w, r, Response{Success: true, Data: data, Message: respMsg, ShowType: showType})
+	render.JSON(w, r, Response{Success: true, Data: data, Message: respMsg, ShowType: GetShowType(r, showType)})
 }
 
 // Fail handle response
@@ -167,7 +167,7 @@ func (h *HttpHandlerImpl) Fail(
 	err error,
 	data any,
 ) {
-	h.FailWithCodeAndShowType(w, r, err, data, NormalErrorCode, ErrorMessage)
+	h.FailWithCodeAndShowType(w, r, err, data, NormalErrorCode, ShowTypeErrorMessage)
 }
 
 // Fail handle response
@@ -178,7 +178,7 @@ func (h *HttpHandlerImpl) FailWithCode(
 	data any,
 	code RespCode,
 ) {
-	h.FailWithCodeAndShowType(w, r, err, data, code, ErrorNotification)
+	h.FailWithCodeAndShowType(w, r, err, data, code, ShowTypeErrorNotification)
 }
 
 // Fail handle response
@@ -201,7 +201,6 @@ func (h *HttpHandlerImpl) FailWithCodeAndShowType(
 	code RespCode,
 	showType ShowType,
 ) {
-
 	// 有错误，返回错误信息
 	var msgErr *msg.Error
 	// unknown error
@@ -224,7 +223,7 @@ func (h *HttpHandlerImpl) FailWithCodeAndShowType(
 	}
 	respMsg := getRespMsg(r, h.i18n, &msgErr.Message)
 	render.Status(r, http.StatusOK)
-	render.JSON(w, r, Response{Message: respMsg, Code: code, ShowType: showType})
+	render.JSON(w, r, Response{Message: respMsg, Code: code, ShowType: GetShowType(r, showType)})
 }
 
 func getRespMsg(r *http.Request, i18n i18n.I18n, message *msg.Message) string {
