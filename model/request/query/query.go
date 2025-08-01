@@ -117,11 +117,28 @@ const (
 	TypeStringLenDesc = "str_len_desc"
 )
 
-func ResolveQuery(query Query, model schema.Tabler, condition DbCondition) (err error) {
+type ConditionFilter struct {
+	EnableSelect bool
+	EnableWhere  bool
+	EnableOrder  bool
+}
+
+func GetAllConditionFilter() ConditionFilter {
+	return ConditionFilter{EnableSelect: true, EnableWhere: true, EnableOrder: true}
+}
+
+func ResolveQuery(
+	query Query,
+	model schema.Tabler,
+	condition DbCondition,
+	filter ConditionFilter,
+) (err error) {
 	tblName := model.TableName()
 	fieldColMapper := CamelToSnakeFromStruct(model)
-	if err = ResolveSelectQuery(query.SelectQuery, tblName, fieldColMapper, condition); err != nil {
-		return
+	if filter.EnableSelect {
+		if err = ResolveSelectQuery(query.SelectQuery, tblName, fieldColMapper, condition); err != nil {
+			return
+		}
 	}
 	// 把简单查询也放到groups中
 	whereQueryGroups := query.WhereQuery.Groups
@@ -131,11 +148,15 @@ func ResolveQuery(query Query, model schema.Tabler, condition DbCondition) (err 
 			Items: query.WhereQuery.Items,
 		})
 	}
-	if err = ResolveWhereQuery(whereQueryGroups, tblName, fieldColMapper, condition); err != nil {
-		return
+	if filter.EnableWhere {
+		if err = ResolveWhereQuery(whereQueryGroups, tblName, fieldColMapper, condition); err != nil {
+			return
+		}
 	}
-	if err = ResolveOrderQuery(query.OrderQuery, tblName, fieldColMapper, condition); err != nil {
-		return
+	if filter.EnableOrder {
+		if err = ResolveOrderQuery(query.OrderQuery, tblName, fieldColMapper, condition); err != nil {
+			return
+		}
 	}
 	return
 }

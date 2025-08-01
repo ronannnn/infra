@@ -115,18 +115,26 @@ func (r userRepo) DeleteByIds(ctx context.Context, tx *gorm.DB, ids []uint) (err
 func (r userRepo) List(ctx context.Context, tx *gorm.DB, apiQuery query.Query) (result *response.PageResult[model.User], err error) {
 	txWithCtx := tx.WithContext(ctx)
 	var t model.User
-	var total int64
-	var list []*model.User
-	if err = txWithCtx.Model(&t).Count(&total).Error; err != nil {
-		return
-	}
-	queryScope, err := query.MakeConditionFromQuery(apiQuery, t)
+
+	// count
+	whereQueryScope, err := query.MakeConditionFromQuery(apiQuery, t, query.ConditionFilter{EnableWhere: true})
 	if err != nil {
 		return nil, msg.NewError(reason.DatabaseError).WithError(err).WithStack()
 	}
+	var total int64
+	if err = txWithCtx.Model(&t).Scopes(whereQueryScope).Count(&total).Error; err != nil {
+		return
+	}
+
+	// list
+	fullQueryScope, err := query.MakeConditionFromQuery(apiQuery, t, query.GetAllConditionFilter())
+	if err != nil {
+		return nil, msg.NewError(reason.DatabaseError).WithError(err).WithStack()
+	}
+	var list []*model.User
 	if err = txWithCtx.
 		Scopes(r.Preload()).
-		Scopes(queryScope).
+		Scopes(fullQueryScope).
 		Scopes(query.Paginate(apiQuery.Pagination)).
 		Find(&list).Error; err != nil {
 		return nil, msg.NewError(reason.DatabaseError).WithError(err).WithStack()

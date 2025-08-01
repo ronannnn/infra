@@ -123,21 +123,26 @@ func (crud DefaultCrudRepo[T]) DeleteByIds(ctx context.Context, tx *gorm.DB, ids
 func (crud DefaultCrudRepo[T]) List(ctx context.Context, tx *gorm.DB, apiQuery query.Query) (result *response.PageResult[T], err error) {
 	txWithCtx := tx.WithContext(ctx)
 
+	// count
 	var t T
-	queryScope, err := query.MakeConditionFromQuery(apiQuery, t)
+	whereQueryScope, err := query.MakeConditionFromQuery(apiQuery, t, query.ConditionFilter{EnableWhere: true})
 	if err != nil {
 		return nil, msg.NewError(reason.DatabaseError).WithError(err).WithStack()
 	}
-
 	var total int64
-	if err = txWithCtx.Model(&t).Scopes(queryScope).Count(&total).Error; err != nil {
+	if err = txWithCtx.Model(&t).Scopes(whereQueryScope).Count(&total).Error; err != nil {
 		return
 	}
 
+	// list
+	fullQueryScope, err := query.MakeConditionFromQuery(apiQuery, t, query.GetAllConditionFilter())
+	if err != nil {
+		return nil, msg.NewError(reason.DatabaseError).WithError(err).WithStack()
+	}
 	var list []*T
 	if err = txWithCtx.
 		Scopes(crud.Preload()).
-		Scopes(queryScope).
+		Scopes(fullQueryScope).
 		Scopes(query.Paginate(apiQuery.Pagination)).
 		Find(&list).Error; err != nil {
 		return nil, msg.NewError(reason.DatabaseError).WithError(err).WithStack()
