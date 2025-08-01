@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"net/http"
+	"strconv"
 
 	"github.com/ronannnn/infra/constant"
 	"github.com/ronannnn/infra/i18n"
@@ -29,9 +30,23 @@ func GetShowType(r *http.Request, defaultShowType ShowType) ShowType {
 
 // GetShowTypeByCtx get show type from header
 func GetShowTypeByCtx(ctx context.Context, defaultShowType ShowType) ShowType {
-	showType, ok := ctx.Value(constant.CtxKeyShowType).(ShowType)
-	if ok {
-		return showType
+	intShowType, err := strconv.Atoi(ctx.Value(constant.CtxKeyShowType).(string))
+	if err != nil {
+		return defaultShowType
 	}
-	return defaultShowType
+
+	switch ShowType(intShowType) {
+	case ShowTypeSilent,
+		ShowTypeSuccessMessage,
+		ShowTypeInfoMessage,
+		ShowTypeWarningMessage,
+		ShowTypeErrorMessage,
+		ShowTypeSuccessNotification,
+		ShowTypeInfoNotification,
+		ShowTypeWarningNotification,
+		ShowTypeErrorNotification:
+		return ShowType(intShowType)
+	default:
+		return defaultShowType
+	}
 }
