@@ -223,7 +223,7 @@ func (h *HttpHandlerImpl) FailWithCodeAndShowType(
 	}
 	respMsg := getRespMsg(r, h.i18n, &msgErr.Message)
 	render.Status(r, http.StatusOK)
-	render.JSON(w, r, Response{Message: respMsg, Code: code, ShowType: GetShowType(r, showType)})
+	render.JSON(w, r, Response{Message: respMsg, Code: code, ShowType: showType})
 }
 
 func getRespMsg(r *http.Request, i18n i18n.I18n, message *msg.Message) string {
